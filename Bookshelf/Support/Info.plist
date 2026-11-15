@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>$(APP_DISPLAY_NAME)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh-Hans</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>$(APP_COPYRIGHT)</string>
+	<key>BookshelfSupportURL</key>
+	<string>$(APP_SUPPORT_URL)</string>
+	<key>BookshelfPrivacyURL</key>
+	<string>$(APP_PRIVACY_URL)</string>
+	<key>BookshelfMetadataContact</key>
+	<string>$(APP_METADATA_CONTACT)</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key><string>org.bookshelf.ris</string>
+			<key>UTTypeDescription</key><string>RIS bibliography</string>
+			<key>UTTypeConformsTo</key><array><string>public.plain-text</string></array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key><array><string>ris</string></array>
+				<key>public.mime-type</key><string>application/x-research-info-systems</string>
+			</dict>
+		</dict>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key><string>org.bookshelf.note-drag</string>
+			<key>UTTypeDescription</key><string>Bookshelf note references</string>
+			<key>UTTypeConformsTo</key><array><string>public.data</string></array>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key><string>org.bookshelf.collection-drag</string>
+			<key>UTTypeDescription</key><string>Bookshelf collection references</string>
+			<key>UTTypeConformsTo</key><array><string>public.data</string></array>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key><string>org.bookshelf.book-drag</string>
+			<key>UTTypeDescription</key><string>Bookshelf book references</string>
+			<key>UTTypeConformsTo</key><array><string>public.data</string></array>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,15 @@
+// Local release defaults. These deliberately do not claim a registered identity.
+APP_DISPLAY_NAME = 书架
+APP_COPYRIGHT = Copyright © 2026. All rights reserved.
+APP_SUPPORT_URL =
+APP_PRIVACY_URL =
+APP_METADATA_CONTACT =
+PRODUCT_BUNDLE_IDENTIFIER = com.example.Bookshelf
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+DEVELOPMENT_TEAM =
+CODE_SIGN_STYLE = Automatic
+ONLY_ACTIVE_ARCH = NO
+SKIP_INSTALL = NO
+// Fill the ignored local override after product/account decisions are complete.
+#include? "Release.local.xcconfig"

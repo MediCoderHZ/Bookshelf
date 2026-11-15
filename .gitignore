@@ -1,0 +1,9 @@
+.DS_Store
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+work/
+Config/Release.local.xcconfig
+*.xcarchive/
+*.pkg

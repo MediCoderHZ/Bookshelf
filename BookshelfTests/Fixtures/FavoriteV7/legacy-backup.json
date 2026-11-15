@@ -1,0 +1,174 @@
+{
+  "books" : [
+    {
+      "addedAt" : "2026-11-14T03:02:28Z",
+      "collections" : [
+
+      ],
+      "contributors" : [
+
+      ],
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "deletedAt" : "1970-01-01T02:44:36Z",
+      "id" : "D38379F8-092E-4BA0-8766-C6F4C06A9A80",
+      "isFavorite" : false,
+      "seriesMemberships" : [
+
+      ],
+      "tags" : [
+
+      ],
+      "title" : "回收站保留书",
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    },
+    {
+      "addedAt" : "2026-11-14T03:02:28Z",
+      "collections" : [
+        "普通书单"
+      ],
+      "contributors" : [
+        {
+          "displayOrder" : 0,
+          "name" : "迁移作者",
+          "roleRaw" : "author"
+        }
+      ],
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "3434B133-3D6A-46AA-8F8D-FF62411D93A1",
+      "isFavorite" : true,
+      "publisher" : "迁移出版社",
+      "seriesMemberships" : [
+
+      ],
+      "tags" : [
+        "迁移标签"
+      ],
+      "title" : "迁移保留书",
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    }
+  ],
+  "collections" : [
+    {
+      "bookIDs" : [
+        "3434B133-3D6A-46AA-8F8D-FF62411D93A1"
+      ],
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "6E8AC2B5-9F59-4010-8F7B-2622990625C8",
+      "name" : "普通书单",
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    }
+  ],
+  "exportedAt" : "2026-11-14T03:02:28Z",
+  "libraryNotes" : [
+    {
+      "body" : "保留正文",
+      "collectionIDs" : [
+
+      ],
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "330D34C3-1B35-4C52-84B9-D1056A2D151A",
+      "parentBookID" : "3434B133-3D6A-46AA-8F8D-FF62411D93A1",
+      "tags" : [
+
+      ],
+      "title" : "迁移笔记",
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    }
+  ],
+  "schemaVersion" : 7,
+  "smartCollections" : [
+    {
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "223D5FA5-FBBA-4273-A13C-F93627B0A76F",
+      "name" : "仅收藏",
+      "query" : {
+        "mode" : "all",
+        "rules" : [
+          {
+            "comparison" : "equals",
+            "field" : "favorite",
+            "id" : "7AEBD1CE-686A-4A7D-BE21-E5E929CB5827",
+            "value" : "true"
+          }
+        ],
+        "version" : 1
+      },
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    },
+    {
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "2A97FC3F-891F-436E-9B15-CB9B65F1D6B0",
+      "name" : "保留搜索词",
+      "query" : {
+        "mode" : "all",
+        "rules" : [
+          {
+            "comparison" : "equals",
+            "field" : "favorite",
+            "id" : "7AEBD1CE-686A-4A7D-BE21-E5E929CB5827",
+            "value" : "true"
+          }
+        ],
+        "savedSearch" : {
+          "scope" : "title",
+          "text" : "迁移"
+        },
+        "version" : 2
+      },
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    },
+    {
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "3F6A1CB2-2FF5-4460-ADA7-E5368B7F7A0C",
+      "name" : "混合任一",
+      "query" : {
+        "mode" : "any",
+        "rules" : [
+          {
+            "comparison" : "equals",
+            "field" : "favorite",
+            "id" : "7AEBD1CE-686A-4A7D-BE21-E5E929CB5827",
+            "value" : "true"
+          },
+          {
+            "comparison" : "atLeast",
+            "field" : "pageCount",
+            "id" : "766269C3-1424-4B87-A80C-E79B768382C2",
+            "value" : "100"
+          }
+        ],
+        "version" : 1
+      },
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    },
+    {
+      "createdAt" : "2026-11-14T03:02:28Z",
+      "id" : "B6BD6BB6-5232-4FD9-8238-EB0CD0C70720",
+      "name" : "混合全部",
+      "query" : {
+        "mode" : "all",
+        "rules" : [
+          {
+            "comparison" : "equals",
+            "field" : "favorite",
+            "id" : "7AEBD1CE-686A-4A7D-BE21-E5E929CB5827",
+            "value" : "true"
+          },
+          {
+            "comparison" : "contains",
+            "field" : "publisher",
+            "id" : "8B4576A4-FB77-45C2-8AE4-BEAFB2F8A078",
+            "value" : "迁移"
+          }
+        ],
+        "version" : 1
+      },
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:02:28Z"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "books" : [
+    {
+      "addedAt" : "2026-11-14T03:48:48Z",
+      "collections" : [
+        "保留书单"
+      ],
+      "contributors" : [
+        {
+          "displayOrder" : 0,
+          "name" : "测试作者",
+          "roleRaw" : "author"
+        }
+      ],
+      "createdAt" : "2026-11-14T03:48:48Z",
+      "id" : "50F5E781-D489-4370-A502-3F1E69816B9D",
+      "metadataFieldSourcesJSON" : "{\"cover\":{\"name\":\"旧图片来源\"},\"publisher\":{\"name\":\"旧出版来源\"}}",
+      "notes" : "保留书籍备注",
+      "publisher" : "测试出版社",
+      "seriesMemberships" : [
+
+      ],
+      "subtitle" : "保留元信息",
+      "tags" : [
+        "测试标签"
+      ],
+      "title" : "封面迁移测试",
+      "updatedAt" : "2026-11-14T03:48:48Z"
+    }
+  ],
+  "collections" : [
+    {
+      "bookIDs" : [
+        "50F5E781-D489-4370-A502-3F1E69816B9D"
+      ],
+      "createdAt" : "2026-11-14T03:48:48Z",
+      "id" : "15B63ABB-D175-494F-A83C-32582F6A6B9B",
+      "name" : "保留书单",
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:48:48Z"
+    }
+  ],
+  "exportedAt" : "2026-11-14T03:48:48Z",
+  "libraryNotes" : [
+    {
+      "body" : "测试正文",
+      "collectionIDs" : [
+
+      ],
+      "createdAt" : "2026-11-14T03:48:48Z",
+      "id" : "9AA8BF92-76E6-4064-85AD-4FB90931ACB1",
+      "parentBookID" : "50F5E781-D489-4370-A502-3F1E69816B9D",
+      "tags" : [
+
+      ],
+      "title" : "保留笔记",
+      "updatedAt" : "2026-11-14T03:48:48Z"
+    }
+  ],
+  "schemaVersion" : 8,
+  "smartCollections" : [
+    {
+      "createdAt" : "2026-11-14T03:48:48Z",
+      "id" : "F24C94C7-4F7C-4ECA-9740-9046DF1A52A6",
+      "name" : "旧封面筛选",
+      "query" : {
+        "mode" : "all",
+        "rules" : [
+          {
+            "comparison" : "equals",
+            "field" : "cover",
+            "id" : "ACE637DB-2EAF-4274-AF8C-8F6EBE4C6831",
+            "value" : "true"
+          }
+        ],
+        "version" : 1
+      },
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:48:48Z"
+    },
+    {
+      "createdAt" : "2026-11-14T03:48:48Z",
+      "id" : "17EF18A5-D116-4AE2-A853-37ADD3AFDF40",
+      "name" : "混合筛选",
+      "query" : {
+        "mode" : "all",
+        "rules" : [
+          {
+            "comparison" : "equals",
+            "field" : "cover",
+            "id" : "E71DED42-1BAE-40E1-8A50-2576312F576E",
+            "value" : "true"
+          },
+          {
+            "comparison" : "contains",
+            "field" : "publisher",
+            "id" : "703F4332-F9E9-4A55-A916-AF9C9FEC03A7",
+            "value" : "测试"
+          }
+        ],
+        "version" : 1
+      },
+      "sortOrder" : 0,
+      "updatedAt" : "2026-11-14T03:48:48Z"
+    }
+  ]
+}

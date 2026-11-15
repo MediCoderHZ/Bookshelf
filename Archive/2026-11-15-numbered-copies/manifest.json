@@ -1,0 +1,342 @@
+{
+  "date": "2026-11-15",
+  "reason": "Numbered copies found alongside active files; preserved without merging or deleting.",
+  "files": [
+    {
+      "original_path": "README 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/README 2.md",
+      "canonical_path_at_archive": "README.md",
+      "sha256": "9b6ef858d04506a504c7f6a4787b3442bc372802dd836ba703b598b4fa79a51a",
+      "size_bytes": 13841,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "ARCHITECTURE 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/ARCHITECTURE 2.md",
+      "canonical_path_at_archive": "ARCHITECTURE.md",
+      "sha256": "011c44377a1e3cc278d6c2ca34c3ba55b6894e94736ef8dcf6283022aa9de1f4",
+      "size_bytes": 8247,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "ORGANIZATION 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/ORGANIZATION 2.md",
+      "canonical_path_at_archive": "ORGANIZATION.md",
+      "sha256": "d32c456c896c6752030e34be8d8ef1ee329f2c6309e459aa851f823bd55bfc1d",
+      "size_bytes": 8339,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "README 3.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/README 3.md",
+      "canonical_path_at_archive": "README.md",
+      "sha256": "da629f144a3ba696f06986580eea4fb3a86a358c1b46abafdbcae9606258d93d",
+      "size_bytes": 21832,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "README 4.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/README 4.md",
+      "canonical_path_at_archive": "README.md",
+      "sha256": "0b4f315a480aa1559a134e5c04a7ba89e763500e818d980bfddd5be761f0f401",
+      "size_bytes": 37908,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "INTERCHANGE 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/INTERCHANGE 2.md",
+      "canonical_path_at_archive": "INTERCHANGE.md",
+      "sha256": "995a437156cef480e6bdd61737419242b42d4fdf0f8947af5567122201ae786a",
+      "size_bytes": 5478,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/VALIDATION 3.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/VALIDATION 3.md",
+      "canonical_path_at_archive": "AppStore/VALIDATION.md",
+      "sha256": "5b5816fbd44245c5bddb56d2c18ccf51a356f336e572d1eee67c86eec03a0cd8",
+      "size_bytes": 24850,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/REVIEW-NOTES 3.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/REVIEW-NOTES 3.md",
+      "canonical_path_at_archive": "AppStore/REVIEW-NOTES.md",
+      "sha256": "b26abeca667aa2fa6b0ac71f3a2abcb88e6b0d27daefb9d53702d2b22dbd5e86",
+      "size_bytes": 9644,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/metadata.zh-Hans 2.json",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/metadata.zh-Hans 2.json",
+      "canonical_path_at_archive": "AppStore/metadata.zh-Hans.json",
+      "sha256": "7c6631d6ff78e05352d1c2e42291bf573180c62058320b537c0f4d7dd5ff6e8c",
+      "size_bytes": 1946,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/VALIDATION 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/VALIDATION 2.md",
+      "canonical_path_at_archive": "AppStore/VALIDATION.md",
+      "sha256": "6dd609723864fa8c86932ef64529b3ea9e979c55cfebefc841f31b23e9595d32",
+      "size_bytes": 22581,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/REVIEW-NOTES 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/REVIEW-NOTES 2.md",
+      "canonical_path_at_archive": "AppStore/REVIEW-NOTES.md",
+      "sha256": "ccca454c51531a83454b1247ff243a85cedf74685dcbc0dd9e4aee9e57eb1519",
+      "size_bytes": 9139,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/RELEASE-READINESS 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/RELEASE-READINESS 2.md",
+      "canonical_path_at_archive": "AppStore/RELEASE-READINESS.md",
+      "sha256": "aa98fbf07891295416dc817425229c2eba51ba60a292ac7110a72f5dba99e72b",
+      "size_bytes": 11651,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "AppStore/SUPPORT-DRAFT 2.md",
+      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/SUPPORT-DRAFT 2.md",
+      "canonical_path_at_archive": "AppStore/SUPPORT-DRAFT.md",
+      "sha256": "e80a5f36d3727a3ac074a8e1cc72c546358126118fcc8e76268c735e5fbdf62e",
+      "size_bytes": 8944,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Translation/BibliographicExchange 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Translation/BibliographicExchange 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Translation/BibliographicExchange.swift",
+      "sha256": "226238ee4f69136a8860bc3e12a2730faaed3311bc8716df55d9badacbd5df57",
+      "size_bytes": 14965,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Translation/StandardTranslators 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Translation/StandardTranslators 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Translation/StandardTranslators.swift",
+      "sha256": "f3bee24e174ffb079af3090a21f2fbe1981b341283eafc356ba8ea91cede3e2f",
+      "size_bytes": 5289,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Models/LibraryModels 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Models/LibraryModels 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Models/LibraryModels.swift",
+      "sha256": "2b4ca112fe698e9cd60ff7d20d2efa016aadfca74da3af5a42d0669df87cc75c",
+      "size_bytes": 7013,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Persistence/LibraryBackupService 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Persistence/LibraryBackupService 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Persistence/LibraryBackupService.swift",
+      "sha256": "6df255b7037dc65d372c3ed59ea833a23d7b0ce973085b3e1aeb99804a8a4162",
+      "size_bytes": 6579,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Persistence/LibraryRepository 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Persistence/LibraryRepository 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Persistence/LibraryRepository.swift",
+      "sha256": "e661dbc8c52f57ac24f81f42ad4a31301f6ff36c1c1383b1a54d25551fbb101e",
+      "size_bytes": 10294,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Application/BookBatchEditing 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Application/BookBatchEditing 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Application/BookBatchEditing.swift",
+      "sha256": "a0ddcec91913e9e458e9322bdfbdf8ca345d4c325475d573dd63e579b5fb2706",
+      "size_bytes": 7171,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Application/LibraryQuery 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Application/LibraryQuery 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Application/LibraryQuery.swift",
+      "sha256": "7b093363b4b4864b5aa5b09cf86c9974595a3ef4e49523a69f53dfb30a96b391",
+      "size_bytes": 4680,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Views/BookEditorView 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Views/BookEditorView 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Views/BookEditorView.swift",
+      "sha256": "ff1287b6bc88bd83eb8d8d30336faacb4bf6b6da817a5c1ce5dff0fb0184629d",
+      "size_bytes": 15215,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Views/LibraryView 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Views/LibraryView 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Views/LibraryView.swift",
+      "sha256": "752db90a9c1efd09109f8fcebdc19dbaedf89aa3fb9778bc33a74ba0af45d2a4",
+      "size_bytes": 15248,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Views/BookBatchEditView 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Views/BookBatchEditView 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Views/BookBatchEditView.swift",
+      "sha256": "57ac502708746215d14aa47bfa1e9aa0c1f83901d601d28ad527484b33cef5cd",
+      "size_bytes": 8339,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Views/LibraryColumnAutoFit 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Views/LibraryColumnAutoFit 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Views/LibraryColumnAutoFit.swift",
+      "sha256": "be0035fa108635ce8346c609004de9cdb48b08f7732b91974f09f2f250a5150c",
+      "size_bytes": 5314,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Views/BookInspectorView 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Views/BookInspectorView 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Views/BookInspectorView.swift",
+      "sha256": "7e14117fb690ac49f168609db05ed0da33f61c81c7b2571958ad1ba0875fdd7f",
+      "size_bytes": 21003,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Views/ContentView 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Views/ContentView 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Views/ContentView.swift",
+      "sha256": "d7e570f88d6d84f11ed5eae98d9dabbaaefc41c95e62f5e81d372b4f5f6e88c6",
+      "size_bytes": 57460,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Domain/RetiredReadingData 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Domain/RetiredReadingData 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Domain/RetiredReadingData.swift",
+      "sha256": "21bb300a1add9eafacd953c8fc676b6bfdaf0c7072b2e4086c37ca88f5f4abfe",
+      "size_bytes": 3936,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Domain/BookRecordMerge 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Domain/BookRecordMerge 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Domain/BookRecordMerge.swift",
+      "sha256": "29f3c8f7e807bb805f536c375928735bd6b5e4ec9461b7bec9f409c460130ff0",
+      "size_bytes": 10104,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Domain/AdvancedBookSearch 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Domain/AdvancedBookSearch 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Domain/AdvancedBookSearch.swift",
+      "sha256": "3c63267f9ef314df6007d6717d21fe35c6730fc6ab841d95b2f4ba8e4e1f0b32",
+      "size_bytes": 11470,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "Bookshelf/Domain/BookRecord 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/Bookshelf/Domain/BookRecord 2.swift",
+      "canonical_path_at_archive": "Bookshelf/Domain/BookRecord.swift",
+      "sha256": "f52ce60fabaa09da7fdd8af007add60887fee214c8fffd7bea8b6c7f74a76e65",
+      "size_bytes": 3399,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/SidebarTagScopeTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/SidebarTagScopeTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/SidebarTagScopeTests.swift",
+      "sha256": "4e9d9c9a5bf4e4f30092b413643caf70d62711bf3d04fdf0b7c8eb765216b33f",
+      "size_bytes": 5702,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/BookBatchEditingTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/BookBatchEditingTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/BookBatchEditingTests.swift",
+      "sha256": "9554055bd0ac83e8d545cc7af0bba5944c3ab5661a37d049308ffb3c57823043",
+      "size_bytes": 11787,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/LibrarySafetyTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/LibrarySafetyTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/LibrarySafetyTests.swift",
+      "sha256": "a01f64cb15bb0ec83637ebf012c88daef3a900dd2a22b93cc5c3a5b1515b46ec",
+      "size_bytes": 17552,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/LibraryColumnAutoFitTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/LibraryColumnAutoFitTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/LibraryColumnAutoFitTests.swift",
+      "sha256": "43c488b5d9ceb1113f9acd79125ae6edaa0f0ea19d6e0f9a95ab3bab4475a2ad",
+      "size_bytes": 3754,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/BookTypeTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/BookTypeTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/BookTypeTests.swift",
+      "sha256": "025831b6840bb98c95839f6878b4354f0aa1402c27e6f50a4fc18565f03ed710",
+      "size_bytes": 14212,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/InlineBookMetadataTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/InlineBookMetadataTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/InlineBookMetadataTests.swift",
+      "sha256": "f305234434446b54601bc76852ebe8a67674090887819b094470bbdc3c789855",
+      "size_bytes": 12711,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/HierarchyNoteTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/HierarchyNoteTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/HierarchyNoteTests.swift",
+      "sha256": "1ea55bb042ba0ac4cd4c31ac80530493c55e5bd312e68321902384a62504481e",
+      "size_bytes": 23572,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/ReadingStatusRemovalTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/ReadingStatusRemovalTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/ReadingStatusRemovalTests.swift",
+      "sha256": "aa936b29a05e7778ffb3d8a59bed6056dcf552fb115b4d706bb4966dfd37faa6",
+      "size_bytes": 11991,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/MetadataNormalizerTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/MetadataNormalizerTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/MetadataNormalizerTests.swift",
+      "sha256": "66e21b9f56163eb0271424b154ac9744c9b107a648612ec3d164060c249d463c",
+      "size_bytes": 10512,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/SmartCollectionTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/SmartCollectionTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/SmartCollectionTests.swift",
+      "sha256": "1a784ab62bca33f0c1cef57c44ee6f848fb5749fec6d8b8b15c651d2f24e2c85",
+      "size_bytes": 21472,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/LibrarySearchScopeTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/LibrarySearchScopeTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/LibrarySearchScopeTests.swift",
+      "sha256": "e76dcb894b42b849867b568c36498cb445f7af8c45377df7bdc03890fb24af20",
+      "size_bytes": 8375,
+      "identical_to_canonical": false
+    },
+    {
+      "original_path": "BookshelfTests/BibliographicExchangeTests 2.swift",
+      "archived_path": "Archive/2026-11-15-numbered-copies/BookshelfTests/BibliographicExchangeTests 2.swift",
+      "canonical_path_at_archive": "BookshelfTests/BibliographicExchangeTests.swift",
+      "sha256": "072b5d4bc235c83f1b2983f25ba698f117202e924211849896b2a13dac99f2f3",
+      "size_bytes": 12980,
+      "identical_to_canonical": false
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "example.publisher",
+  "name": "示例出版社",
+  "version": "1.0.0",
+  "author": "请替换为规则作者",
+  "priority": 100,
+  "targets": [
+    {
+      "host": "books.example.org",
+      "pathPrefix": "/book/"
+    },
+    {
+      "host": "books.example.org",
+      "pathPrefix": "/catalog"
+    }
+  ],
+  "book": {
+    "detect": "//*[@class='book-detail']",
+    "fields": {
+      "title": {
+        "xpath": "//h1"
+      },
+      "authors": {
+        "xpath": "//*[@class='author']",
+        "splitBy": [
+          "、"
+        ]
+      },
+      "translators": {
+        "xpath": "//*[@class='translator']"
+      },
+      "publisher": {
+        "xpath": "//*[@class='publisher']"
+      },
+      "publicationDate": {
+        "xpath": "//*[@class='publication-date']"
+      },
+      "isbn": {
+        "xpath": "//meta[@name='isbn']/@content"
+      },
+      "pageCount": {
+        "xpath": "//*[@class='pages']"
+      },
+      "description": {
+        "xpath": "//*[@class='description']/p"
+      }
+    }
+  },
+  "list": {
+    "detect": "//*[@class='catalog']",
+    "items": "//*[@class='catalog']/a",
+    "title": ".",
+    "url": "@href"
+  }
+}

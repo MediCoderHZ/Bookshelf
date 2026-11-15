@@ -1,0 +1,1 @@
+Synthetic schema 8 library generated before cover removal, containing one book, an author, a tag, one manual collection, a child note, a CoverAsset and cover-only/mixed smart queries. The image filename is fictitious; no personal or downloaded data is included. Used to verify migration to the metadata-only schema, relationship identities and legacy backup compatibility.

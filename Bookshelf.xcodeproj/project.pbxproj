@@ -1,0 +1,762 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C67E83546AE648A89C925210 /* InspectorReadingPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 193B79E3E6E2458BB2C75564 /* InspectorReadingPosition.swift */; };
+		1FD7E5B2FF924AA3958B1659 /* RetiredReadingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D369B161D9A1433F9EEBEC56 /* RetiredReadingData.swift */; };
+		DA8A198AA06F43D6A7153EA2 /* LibraryColumnAutoFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6FE76C577F84743BE7222C2 /* LibraryColumnAutoFit.swift */; };
+		A10000000000000000000001 /* BookshelfApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* BookshelfApp.swift */; };
+		A10000000000000000000002 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppState.swift */; };
+		A10000000000000000000003 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* LibraryModels.swift */; };
+		A10000000000000000000005 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* ContentView.swift */; };
+		A10000000000000000000006 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* SidebarView.swift */; };
+		A10000000000000000000007 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* LibraryView.swift */; };
+		A10000000000000000000008 /* BookInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* BookInspectorView.swift */; };
+		A10000000000000000000009 /* BookEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* BookEditorView.swift */; };
+		A1000000000000000000000A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* SettingsView.swift */; };
+		A1000000000000000000000B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* Assets.xcassets */; };
+		A1000000000000000000000C /* DuplicateDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* DuplicateDetector.swift */; };
+		A1000000000000000000000D /* LibraryBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* LibraryBackupService.swift */; };
+		A1000000000000000000000E /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* PrivacyPolicyView.swift */; };
+		A1000000000000000000000F /* BookMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* BookMetadataService.swift */; };
+		A10000000000000000000010 /* BookMetadataSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* BookMetadataSearchView.swift */; };
+		A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* PrivacyInfo.xcprivacy */; };
+		A10000000000000000000012 /* WebMetadataTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* WebMetadataTranslator.swift */; };
+		A10000000000000000000013 /* WebMetadataImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* WebMetadataImportView.swift */; };
+		A10000000000000000000014 /* DoubanBookTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* DoubanBookTranslator.swift */; };
+		A10000000000000000000015 /* HTMLMetadataDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* HTMLMetadataDocument.swift */; };
+		A10000000000000000000016 /* WebMetadataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* WebMetadataClient.swift */; };
+		A10000000000000000000017 /* TranslatorRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001B /* TranslatorRules.swift */; };
+		A10000000000000000000018 /* TranslatorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* TranslatorStore.swift */; };
+		A10000000000000000000019 /* TranslatorSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001D /* TranslatorSettingsView.swift */; };
+		A1000000000000000000001A /* GoodreadsBookTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001E /* GoodreadsBookTranslator.swift */; };
+		A1000000000000000000001B /* MetadataSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001F /* MetadataSearchService.swift */; };
+		A1000000000000000000001C /* BookRecordMerge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* BookRecordMerge.swift */; };
+		A1000000000000000000001D /* LibraryHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* LibraryHistory.swift */; };
+		A1000000000000000000001E /* LibraryImportPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* LibraryImportPlanner.swift */; };
+		A1000000000000000000001F /* LibraryReviewViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000023 /* LibraryReviewViews.swift */; };
+		A10000000000000000000020 /* AdvancedBookSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000024 /* AdvancedBookSearch.swift */; };
+		A10000000000000000000021 /* AdvancedSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000025 /* AdvancedSearchView.swift */; };
+		A10000000000000000000022 /* BookBatchEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000026 /* BookBatchEditing.swift */; };
+		A10000000000000000000023 /* BookBatchEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000027 /* BookBatchEditView.swift */; };
+		A10000000000000000000024 /* BibliographicExchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000028 /* BibliographicExchange.swift */; };
+		A10000000000000000000025 /* BibliographicExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000029 /* BibliographicExportView.swift */; };
+		A10000000000000000000040 /* CollectionCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000040 /* CollectionCommands.swift */; };
+		A10000000000000000000041 /* LibraryCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000041 /* LibraryCommands.swift */; };
+		A10000000000000000000042 /* LibraryNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000042 /* LibraryNotifier.swift */; };
+		A10000000000000000000043 /* LibraryQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000043 /* LibraryQuery.swift */; };
+		A10000000000000000000044 /* SmartCollectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000044 /* SmartCollectionService.swift */; };
+		A10000000000000000000045 /* BookRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000045 /* BookRecord.swift */; };
+		A10000000000000000000046 /* BookValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000046 /* BookValues.swift */; };
+		A10000000000000000000047 /* LibraryDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000047 /* LibraryDatabase.swift */; };
+		A10000000000000000000048 /* LibraryOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000048 /* LibraryOrganization.swift */; };
+		A10000000000000000000049 /* LibraryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000049 /* LibraryRepository.swift */; };
+		A1000000000000000000004A /* SmartCollectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000004A /* SmartCollectionStore.swift */; };
+		A1000000000000000000004B /* StandardTranslators.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000004B /* StandardTranslators.swift */; };
+		A1000000000000000000004C /* TranslatorRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000004C /* TranslatorRegistry.swift */; };
+		A1000000000000000000004D /* LibraryBackupDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000004D /* LibraryBackupDocument.swift */; };
+		A68892F40833E90CAFBAD51C /* NoteCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866C96605468A9D76FEE7A8E /* NoteCommands.swift */; };
+		CD525B575AEAA10BE6FA7B30 /* OrganizationImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C42625819B5F6857C9CFE1 /* OrganizationImport.swift */; };
+		FCEE9A22EDE42761CA138AC1 /* LibraryOrganizationRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605C8A1365A5E6453DA60444 /* LibraryOrganizationRecords.swift */; };
+		C763814620DAD82D7D47ACE9 /* OrganizationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A12E77FF018C3017D66132 /* OrganizationStore.swift */; };
+		308497336F194A02929CAE46 /* CollectionEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454066FAD019ABF11FA3DA1 /* CollectionEditorView.swift */; };
+		D9118FE4072706711DF842B7 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4A91A6EFEBD4A4308F6FB8 /* NotesView.swift */; };
+		4DEDC8C28EFAA6604B797D58 /* LibraryItemTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07318764EBFC249BB7938A6D /* LibraryItemTree.swift */; };
+		37D0753C4CA6737A36CAE229 /* LibraryTableColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26AB269F32CBBD2B98EED464 /* LibraryTableColumn.swift */; };
+		6CFA41135A5DB83BA306A97F /* NoteEditingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7819E29801E166198AE845 /* NoteEditingSession.swift */; };
+		5A4D4B57B0F8A620D35808D6 /* NoteDraftRecoveryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55E67C8E41B6DAE18071D6C /* NoteDraftRecoveryStore.swift */; };
+		DF8D6EC5B24EBC7675D75641 /* NoteMarkdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD24A99E375B8096AF533C8 /* NoteMarkdown.swift */; };
+		67CB8F42F73F4643C4878A06 /* MarkdownNoteEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E00A0F359B18DED602A1185 /* MarkdownNoteEditor.swift */; };
+		0F341D968EF0CB72D6DDD20A /* RichNoteCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD434B3B00D68C47D0A6A063 /* RichNoteCodec.swift */; };
+		C1CAB342B38F7E24A510E999 /* RichNoteTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0D878113010CF3B9F89E67 /* RichNoteTextView.swift */; };
+		A10000000000000000000060 /* TagInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000060 /* TagInputView.swift */; };
+		A10000000000000000000061 /* TagRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000061 /* TagRecord.swift */; };
+		A10000000000000000000062 /* TagCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000062 /* TagCommands.swift */; };
+		A10000000000000000000063 /* TagStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000063 /* TagStore.swift */; };
+		A10000000000000000000064 /* TagEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000064 /* TagEditorView.swift */; };
+		A10000000000000000000065 /* SidebarTagSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000065 /* SidebarTagSplitView.swift */; };
+		A10000000000000000000066 /* PanelWidthPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000066 /* PanelWidthPersistence.swift */; };
+		A10000000000000000000067 /* SidebarTagPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000067 /* SidebarTagPanel.swift */; };
+		266EFDBCE4257BAC615E9577 /* TrashCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E9441F4163494700184928 /* TrashCommands.swift */; };
+		93E664F2BB49087764394E28 /* BookMetadataEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B320179E60D6EC48D043263 /* BookMetadataEditing.swift */; };
+		CC76ECF38D6BCD8A4BFECB40 /* ContributorEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1AC624EDD530A78EB65690 /* ContributorEditing.swift */; };
+		E5663A66363666F3A5A54FDA /* ContributorNameSuggestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BF3ED14D9DF1F042BF6445 /* ContributorNameSuggestions.swift */; };
+		D00C070C2B74DF9E25B512BD /* PublisherSuggestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85EE9A9C3A4D175543A95DBA /* PublisherSuggestions.swift */; };
+		3072FB5596CA167609931E82 /* NameSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808F9AAE35D383C29F4DB707 /* NameSuggestion.swift */; };
+		87FEC67703887BF9171FA53D /* BookMetadataDraftStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF99C7570BC2898534838AB /* BookMetadataDraftStore.swift */; };
+		4D659839C16EFCA759AD7E4A /* InlineBookMetadataField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4341F1B1155518AF1F1C0292 /* InlineBookMetadataField.swift */; };
+		61E64313BC15106A3B95CD26 /* PublisherMetadataField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1411444A630359CB0F0409 /* PublisherMetadataField.swift */; };
+		4278CEE4BFFBBDD69F433678 /* BookTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C8D1741DE7B71C7DFCAC32 /* BookTypePicker.swift */; };
+		4EC9EFDA048E7CE16DEBB67F /* ContributorListField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08EF6856D785F47CAD73B77E /* ContributorListField.swift */; };
+		72ECE71E183DF153FD73ED0E /* ContributorNameInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8883B37417D5DA097B56E0 /* ContributorNameInput.swift */; };
+		41591F64391EFE4B68F03451 /* MetadataSuggestionInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA59174D8EBD4273DA44E05 /* MetadataSuggestionInput.swift */; };
+		8218DBAE8E3429BBCED326F1 /* BookCollectionDrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EB4C121AB33828547C7884 /* BookCollectionDrop.swift */; };
+		7205ECBB125797EACF687472 /* BookDragDrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FF52327D9AC87A2AF1F185 /* BookDragDrop.swift */; };
+		39FE9925E56817414E1AA32F /* CollectionOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8691AC5B7306E829CE2A21 /* CollectionOrdering.swift */; };
+		20C0D64D66AB0E2E5E5325BA /* CollectionReordering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EBEB0ADCD4C77A68ED3905D /* CollectionReordering.swift */; };
+		B90B44BDBEB075CC2B9A170A /* CollectionDragDrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = E035C3E30CCA54A50E78A963 /* CollectionDragDrop.swift */; };
+		AC9D32E54D345BB9BFA67D01 /* LibraryTextSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9D32E54D345BB9BFA67D01 /* LibraryTextSearch.swift */; };
+		31A1F3DDAB514E79A660F1C2 /* LibraryWorkspaceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F66825AF3247368C793CD1 /* LibraryWorkspaceState.swift */; };
+		662A67499457444BAF994894 /* LibraryDisplayPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC76E08D8D694D06ADF48D12 /* LibraryDisplayPreferences.swift */; };
+		D533E18DA01A49419D496AA5 /* NoteDragDrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D1BE400DF484AB08AB57D /* NoteDragDrop.swift */; };
+		23D6BDCBC55C4236B2AAA120 /* NoteEditorPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD9B75B8DE9482485E170B5 /* NoteEditorPosition.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		193B79E3E6E2458BB2C75564 /* InspectorReadingPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorReadingPosition.swift; sourceTree = "<group>"; };
+		D369B161D9A1433F9EEBEC56 /* RetiredReadingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetiredReadingData.swift; sourceTree = "<group>"; };
+		E6FE76C577F84743BE7222C2 /* LibraryColumnAutoFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryColumnAutoFit.swift; sourceTree = "<group>"; };
+		B10000000000000000000001 /* BookshelfApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookshelfApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* LibraryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* BookInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookInspectorView.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* BookEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookEditorView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B1000000000000000000000C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B1000000000000000000000D /* Bookshelf.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Bookshelf.entitlements; sourceTree = "<group>"; };
+		B1000000000000000000000E /* Bookshelf.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bookshelf.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000000F /* DuplicateDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateDetector.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* LibraryBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryBackupService.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
+		B10000000000000000000012 /* BookMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataService.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* BookMetadataSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataSearchView.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B10000000000000000000015 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Release.xcconfig; sourceTree = SOURCE_ROOT; };
+		B10000000000000000000016 /* WebMetadataTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebMetadataTranslator.swift; sourceTree = "<group>"; };
+		B10000000000000000000017 /* WebMetadataImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebMetadataImportView.swift; sourceTree = "<group>"; };
+		B10000000000000000000018 /* DoubanBookTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubanBookTranslator.swift; sourceTree = "<group>"; };
+		B10000000000000000000019 /* HTMLMetadataDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLMetadataDocument.swift; sourceTree = "<group>"; };
+		B1000000000000000000001A /* WebMetadataClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebMetadataClient.swift; sourceTree = "<group>"; };
+		B1000000000000000000001B /* TranslatorRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatorRules.swift; sourceTree = "<group>"; };
+		B1000000000000000000001C /* TranslatorStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatorStore.swift; sourceTree = "<group>"; };
+		B1000000000000000000001D /* TranslatorSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatorSettingsView.swift; sourceTree = "<group>"; };
+		B1000000000000000000001E /* GoodreadsBookTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodreadsBookTranslator.swift; sourceTree = "<group>"; };
+		B1000000000000000000001F /* MetadataSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataSearchService.swift; sourceTree = "<group>"; };
+		B10000000000000000000020 /* BookRecordMerge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookRecordMerge.swift; sourceTree = "<group>"; };
+		B10000000000000000000021 /* LibraryHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryHistory.swift; sourceTree = "<group>"; };
+		B10000000000000000000022 /* LibraryImportPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryImportPlanner.swift; sourceTree = "<group>"; };
+		B10000000000000000000023 /* LibraryReviewViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryReviewViews.swift; sourceTree = "<group>"; };
+		B10000000000000000000024 /* AdvancedBookSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedBookSearch.swift; sourceTree = "<group>"; };
+		B10000000000000000000025 /* AdvancedSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSearchView.swift; sourceTree = "<group>"; };
+		B10000000000000000000026 /* BookBatchEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookBatchEditing.swift; sourceTree = "<group>"; };
+		B10000000000000000000027 /* BookBatchEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookBatchEditView.swift; sourceTree = "<group>"; };
+		B10000000000000000000028 /* BibliographicExchange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibliographicExchange.swift; sourceTree = "<group>"; };
+		B10000000000000000000029 /* BibliographicExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BibliographicExportView.swift; sourceTree = "<group>"; };
+		B10000000000000000000040 /* CollectionCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionCommands.swift; sourceTree = "<group>"; };
+		B10000000000000000000041 /* LibraryCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryCommands.swift; sourceTree = "<group>"; };
+		B10000000000000000000042 /* LibraryNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryNotifier.swift; sourceTree = "<group>"; };
+		B10000000000000000000043 /* LibraryQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryQuery.swift; sourceTree = "<group>"; };
+		B10000000000000000000044 /* SmartCollectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCollectionService.swift; sourceTree = "<group>"; };
+		B10000000000000000000045 /* BookRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookRecord.swift; sourceTree = "<group>"; };
+		B10000000000000000000046 /* BookValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookValues.swift; sourceTree = "<group>"; };
+		B10000000000000000000047 /* LibraryDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDatabase.swift; sourceTree = "<group>"; };
+		B10000000000000000000048 /* LibraryOrganization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryOrganization.swift; sourceTree = "<group>"; };
+		B10000000000000000000049 /* LibraryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryRepository.swift; sourceTree = "<group>"; };
+		B1000000000000000000004A /* SmartCollectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCollectionStore.swift; sourceTree = "<group>"; };
+		B1000000000000000000004B /* StandardTranslators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardTranslators.swift; sourceTree = "<group>"; };
+		B1000000000000000000004C /* TranslatorRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatorRegistry.swift; sourceTree = "<group>"; };
+		B1000000000000000000004D /* LibraryBackupDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryBackupDocument.swift; sourceTree = "<group>"; };
+		866C96605468A9D76FEE7A8E /* NoteCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCommands.swift; sourceTree = "<group>"; };
+		73C42625819B5F6857C9CFE1 /* OrganizationImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationImport.swift; sourceTree = "<group>"; };
+		605C8A1365A5E6453DA60444 /* LibraryOrganizationRecords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryOrganizationRecords.swift; sourceTree = "<group>"; };
+		32A12E77FF018C3017D66132 /* OrganizationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationStore.swift; sourceTree = "<group>"; };
+		8454066FAD019ABF11FA3DA1 /* CollectionEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionEditorView.swift; sourceTree = "<group>"; };
+		8A4A91A6EFEBD4A4308F6FB8 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		07318764EBFC249BB7938A6D /* LibraryItemTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemTree.swift; sourceTree = "<group>"; };
+		26AB269F32CBBD2B98EED464 /* LibraryTableColumn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTableColumn.swift; sourceTree = "<group>"; };
+		2B7819E29801E166198AE845 /* NoteEditingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditingSession.swift; sourceTree = "<group>"; };
+		C55E67C8E41B6DAE18071D6C /* NoteDraftRecoveryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDraftRecoveryStore.swift; sourceTree = "<group>"; };
+		4DD24A99E375B8096AF533C8 /* NoteMarkdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteMarkdown.swift; sourceTree = "<group>"; };
+		4E00A0F359B18DED602A1185 /* MarkdownNoteEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownNoteEditor.swift; sourceTree = "<group>"; };
+		CD434B3B00D68C47D0A6A063 /* RichNoteCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichNoteCodec.swift; sourceTree = "<group>"; };
+		1F0D878113010CF3B9F89E67 /* RichNoteTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichNoteTextView.swift; sourceTree = "<group>"; };
+		B10000000000000000000060 /* TagInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagInputView.swift; sourceTree = "<group>"; };
+		B10000000000000000000061 /* TagRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagRecord.swift; sourceTree = "<group>"; };
+		B10000000000000000000062 /* TagCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCommands.swift; sourceTree = "<group>"; };
+		B10000000000000000000063 /* TagStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagStore.swift; sourceTree = "<group>"; };
+		B10000000000000000000064 /* TagEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagEditorView.swift; sourceTree = "<group>"; };
+		B10000000000000000000065 /* SidebarTagSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTagSplitView.swift; sourceTree = "<group>"; };
+		B10000000000000000000066 /* PanelWidthPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelWidthPersistence.swift; sourceTree = "<group>"; };
+		B10000000000000000000067 /* SidebarTagPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarTagPanel.swift; sourceTree = "<group>"; };
+		F7E9441F4163494700184928 /* TrashCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashCommands.swift; sourceTree = "<group>"; };
+		8B320179E60D6EC48D043263 /* BookMetadataEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataEditing.swift; sourceTree = "<group>"; };
+		5D1AC624EDD530A78EB65690 /* ContributorEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorEditing.swift; sourceTree = "<group>"; };
+		F8BF3ED14D9DF1F042BF6445 /* ContributorNameSuggestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorNameSuggestions.swift; sourceTree = "<group>"; };
+		85EE9A9C3A4D175543A95DBA /* PublisherSuggestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherSuggestions.swift; sourceTree = "<group>"; };
+		808F9AAE35D383C29F4DB707 /* NameSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameSuggestion.swift; sourceTree = "<group>"; };
+		FCF99C7570BC2898534838AB /* BookMetadataDraftStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataDraftStore.swift; sourceTree = "<group>"; };
+		4341F1B1155518AF1F1C0292 /* InlineBookMetadataField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineBookMetadataField.swift; sourceTree = "<group>"; };
+		CE1411444A630359CB0F0409 /* PublisherMetadataField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherMetadataField.swift; sourceTree = "<group>"; };
+		D4C8D1741DE7B71C7DFCAC32 /* BookTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookTypePicker.swift; sourceTree = "<group>"; };
+		08EF6856D785F47CAD73B77E /* ContributorListField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorListField.swift; sourceTree = "<group>"; };
+		EE8883B37417D5DA097B56E0 /* ContributorNameInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributorNameInput.swift; sourceTree = "<group>"; };
+		DCA59174D8EBD4273DA44E05 /* MetadataSuggestionInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataSuggestionInput.swift; sourceTree = "<group>"; };
+		42EB4C121AB33828547C7884 /* BookCollectionDrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookCollectionDrop.swift; sourceTree = "<group>"; };
+		E1FF52327D9AC87A2AF1F185 /* BookDragDrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDragDrop.swift; sourceTree = "<group>"; };
+		3A8691AC5B7306E829CE2A21 /* CollectionOrdering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionOrdering.swift; sourceTree = "<group>"; };
+		2EBEB0ADCD4C77A68ED3905D /* CollectionReordering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReordering.swift; sourceTree = "<group>"; };
+		E035C3E30CCA54A50E78A963 /* CollectionDragDrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionDragDrop.swift; sourceTree = "<group>"; };
+		BC9D32E54D345BB9BFA67D01 /* LibraryTextSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTextSearch.swift; sourceTree = "<group>"; };
+		D8F66825AF3247368C793CD1 /* LibraryWorkspaceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryWorkspaceState.swift; sourceTree = "<group>"; };
+		EC76E08D8D694D06ADF48D12 /* LibraryDisplayPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDisplayPreferences.swift; sourceTree = "<group>"; };
+		028D1BE400DF484AB08AB57D /* NoteDragDrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDragDrop.swift; sourceTree = "<group>"; };
+		9AD9B75B8DE9482485E170B5 /* NoteEditorPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorPosition.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000002 /* Bookshelf */,
+				D10000000000000000000009 /* Products */,
+				B10000000000000000000015 /* Release.xcconfig */,
+			);
+			sourceTree = "<group>";
+		};
+		D10000000000000000000002 /* Bookshelf */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000003 /* App */,
+				D10000000000000000000004 /* Models */,
+				D10000000000000000000020 /* Domain */,
+				D10000000000000000000021 /* Application */,
+				D10000000000000000000022 /* Persistence */,
+				D10000000000000000000023 /* Translation */,
+				D10000000000000000000006 /* Views */,
+				D10000000000000000000007 /* Support */,
+				D10000000000000000000008 /* Resources */,
+			);
+			path = Bookshelf;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000002 /* AppState.swift */,
+				B10000000000000000000001 /* BookshelfApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000003 /* LibraryModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+
+		D10000000000000000000006 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				30C79B9AB6520C2E2ED7D25D /* Books */,
+				BB07F458CD4E944BE72BE58C /* Library */,
+				588BC2B02667BB4975B58D8E /* Metadata */,
+				9AFE832288EDE0B90BE9A4E4 /* Notes */,
+				F62EDC50EC54BB0E934F5DD0 /* Organization */,
+				A01A75CD6617CEFBC80E2C96 /* Settings */,
+				11A0057402BBE424A490A7DD /* Shared */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		30C79B9AB6520C2E2ED7D25D /* Books */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000027 /* BookBatchEditView.swift */,
+				B10000000000000000000009 /* BookEditorView.swift */,
+				B10000000000000000000008 /* BookInspectorView.swift */,
+				D4C8D1741DE7B71C7DFCAC32 /* BookTypePicker.swift */,
+				08EF6856D785F47CAD73B77E /* ContributorListField.swift */,
+				EE8883B37417D5DA097B56E0 /* ContributorNameInput.swift */,
+				4341F1B1155518AF1F1C0292 /* InlineBookMetadataField.swift */,
+				193B79E3E6E2458BB2C75564 /* InspectorReadingPosition.swift */,
+				CE1411444A630359CB0F0409 /* PublisherMetadataField.swift */,
+			);
+			path = Books;
+			sourceTree = "<group>";
+		};
+		BB07F458CD4E944BE72BE58C /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				E1FF52327D9AC87A2AF1F185 /* BookDragDrop.swift */,
+				B10000000000000000000005 /* ContentView.swift */,
+				E6FE76C577F84743BE7222C2 /* LibraryColumnAutoFit.swift */,
+				B10000000000000000000023 /* LibraryReviewViews.swift */,
+				B10000000000000000000007 /* LibraryView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		588BC2B02667BB4975B58D8E /* Metadata */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000025 /* AdvancedSearchView.swift */,
+				B10000000000000000000029 /* BibliographicExportView.swift */,
+				B10000000000000000000013 /* BookMetadataSearchView.swift */,
+				B1000000000000000000004D /* LibraryBackupDocument.swift */,
+				B10000000000000000000017 /* WebMetadataImportView.swift */,
+			);
+			path = Metadata;
+			sourceTree = "<group>";
+		};
+		9AFE832288EDE0B90BE9A4E4 /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				4E00A0F359B18DED602A1185 /* MarkdownNoteEditor.swift */,
+				028D1BE400DF484AB08AB57D /* NoteDragDrop.swift */,
+				9AD9B75B8DE9482485E170B5 /* NoteEditorPosition.swift */,
+				8A4A91A6EFEBD4A4308F6FB8 /* NotesView.swift */,
+				CD434B3B00D68C47D0A6A063 /* RichNoteCodec.swift */,
+				1F0D878113010CF3B9F89E67 /* RichNoteTextView.swift */,
+			);
+			path = Notes;
+			sourceTree = "<group>";
+		};
+		F62EDC50EC54BB0E934F5DD0 /* Organization */ = {
+			isa = PBXGroup;
+			children = (
+				E035C3E30CCA54A50E78A963 /* CollectionDragDrop.swift */,
+				8454066FAD019ABF11FA3DA1 /* CollectionEditorView.swift */,
+				B10000000000000000000067 /* SidebarTagPanel.swift */,
+				B10000000000000000000065 /* SidebarTagSplitView.swift */,
+				B10000000000000000000006 /* SidebarView.swift */,
+				B10000000000000000000064 /* TagEditorView.swift */,
+				B10000000000000000000060 /* TagInputView.swift */,
+			);
+			path = Organization;
+			sourceTree = "<group>";
+		};
+		A01A75CD6617CEFBC80E2C96 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000011 /* PrivacyPolicyView.swift */,
+				B1000000000000000000000A /* SettingsView.swift */,
+				B1000000000000000000001D /* TranslatorSettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		11A0057402BBE424A490A7DD /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				EC76E08D8D694D06ADF48D12 /* LibraryDisplayPreferences.swift */,
+				D8F66825AF3247368C793CD1 /* LibraryWorkspaceState.swift */,
+				DCA59174D8EBD4273DA44E05 /* MetadataSuggestionInput.swift */,
+				B10000000000000000000066 /* PanelWidthPersistence.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000007 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000C /* Info.plist */,
+				B1000000000000000000000D /* Bookshelf.entitlements */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000008 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000B /* Assets.xcassets */,
+				B10000000000000000000014 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000009 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000E /* Bookshelf.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000020 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				3A8691AC5B7306E829CE2A21 /* CollectionOrdering.swift */,
+				4DD24A99E375B8096AF533C8 /* NoteMarkdown.swift */,
+				605C8A1365A5E6453DA60444 /* LibraryOrganizationRecords.swift */,
+				B10000000000000000000024 /* AdvancedBookSearch.swift */,
+				BC9D32E54D345BB9BFA67D01 /* LibraryTextSearch.swift */,
+				B10000000000000000000045 /* BookRecord.swift */,
+				B10000000000000000000020 /* BookRecordMerge.swift */,
+				B10000000000000000000061 /* TagRecord.swift */,
+				B10000000000000000000046 /* BookValues.swift */,
+				D369B161D9A1433F9EEBEC56 /* RetiredReadingData.swift */,
+				B1000000000000000000000F /* DuplicateDetector.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000021 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				2EBEB0ADCD4C77A68ED3905D /* CollectionReordering.swift */,
+				42EB4C121AB33828547C7884 /* BookCollectionDrop.swift */,
+				8B320179E60D6EC48D043263 /* BookMetadataEditing.swift */,
+				5D1AC624EDD530A78EB65690 /* ContributorEditing.swift */,
+				F8BF3ED14D9DF1F042BF6445 /* ContributorNameSuggestions.swift */,
+				85EE9A9C3A4D175543A95DBA /* PublisherSuggestions.swift */,
+				808F9AAE35D383C29F4DB707 /* NameSuggestion.swift */,
+				2B7819E29801E166198AE845 /* NoteEditingSession.swift */,
+				07318764EBFC249BB7938A6D /* LibraryItemTree.swift */,
+				26AB269F32CBBD2B98EED464 /* LibraryTableColumn.swift */,
+				73C42625819B5F6857C9CFE1 /* OrganizationImport.swift */,
+				F7E9441F4163494700184928 /* TrashCommands.swift */,
+				866C96605468A9D76FEE7A8E /* NoteCommands.swift */,
+				B10000000000000000000026 /* BookBatchEditing.swift */,
+				B10000000000000000000040 /* CollectionCommands.swift */,
+				B10000000000000000000062 /* TagCommands.swift */,
+				B10000000000000000000041 /* LibraryCommands.swift */,
+				B10000000000000000000021 /* LibraryHistory.swift */,
+				B10000000000000000000022 /* LibraryImportPlanner.swift */,
+				B10000000000000000000042 /* LibraryNotifier.swift */,
+				B10000000000000000000043 /* LibraryQuery.swift */,
+				B10000000000000000000044 /* SmartCollectionService.swift */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000022 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				FCF99C7570BC2898534838AB /* BookMetadataDraftStore.swift */,
+				C55E67C8E41B6DAE18071D6C /* NoteDraftRecoveryStore.swift */,
+				B10000000000000000000063 /* TagStore.swift */,
+				32A12E77FF018C3017D66132 /* OrganizationStore.swift */,
+				B10000000000000000000010 /* LibraryBackupService.swift */,
+				B10000000000000000000047 /* LibraryDatabase.swift */,
+				B10000000000000000000048 /* LibraryOrganization.swift */,
+				B10000000000000000000049 /* LibraryRepository.swift */,
+				B1000000000000000000004A /* SmartCollectionStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		D10000000000000000000023 /* Translation */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000028 /* BibliographicExchange.swift */,
+				B10000000000000000000012 /* BookMetadataService.swift */,
+				B10000000000000000000018 /* DoubanBookTranslator.swift */,
+				B1000000000000000000001E /* GoodreadsBookTranslator.swift */,
+				B10000000000000000000019 /* HTMLMetadataDocument.swift */,
+				B1000000000000000000001F /* MetadataSearchService.swift */,
+				B1000000000000000000004B /* StandardTranslators.swift */,
+				B1000000000000000000004C /* TranslatorRegistry.swift */,
+				B1000000000000000000001B /* TranslatorRules.swift */,
+				B1000000000000000000001C /* TranslatorStore.swift */,
+				B1000000000000000000001A /* WebMetadataClient.swift */,
+				B10000000000000000000016 /* WebMetadataTranslator.swift */,
+			);
+			path = Translation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* Bookshelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000002 /* Build configuration list for PBXNativeTarget "Bookshelf" */;
+			buildPhases = (
+				C10000000000000000000002 /* Sources */,
+				C10000000000000000000001 /* Frameworks */,
+				C10000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Bookshelf;
+			productName = Bookshelf;
+			productReference = B1000000000000000000000E /* Bookshelf.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E10000000000000000000002 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					E10000000000000000000001 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+				};
+			};
+			buildConfigurationList = F10000000000000000000001 /* Build configuration list for PBXProject "Bookshelf" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				"zh-Hans",
+				en,
+				Base,
+			);
+			mainGroup = D10000000000000000000001;
+			productRefGroup = D10000000000000000000009 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E10000000000000000000001 /* Bookshelf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C10000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000000000000000000000B /* Assets.xcassets in Resources */,
+				A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C10000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				662A67499457444BAF994894 /* LibraryDisplayPreferences.swift in Sources */,
+				31A1F3DDAB514E79A660F1C2 /* LibraryWorkspaceState.swift in Sources */,
+				B90B44BDBEB075CC2B9A170A /* CollectionDragDrop.swift in Sources */,
+				20C0D64D66AB0E2E5E5325BA /* CollectionReordering.swift in Sources */,
+				39FE9925E56817414E1AA32F /* CollectionOrdering.swift in Sources */,
+				7205ECBB125797EACF687472 /* BookDragDrop.swift in Sources */,
+				D533E18DA01A49419D496AA5 /* NoteDragDrop.swift in Sources */,
+				8218DBAE8E3429BBCED326F1 /* BookCollectionDrop.swift in Sources */,
+				C1CAB342B38F7E24A510E999 /* RichNoteTextView.swift in Sources */,
+				0F341D968EF0CB72D6DDD20A /* RichNoteCodec.swift in Sources */,
+				67CB8F42F73F4643C4878A06 /* MarkdownNoteEditor.swift in Sources */,
+				DF8D6EC5B24EBC7675D75641 /* NoteMarkdown.swift in Sources */,
+				87FEC67703887BF9171FA53D /* BookMetadataDraftStore.swift in Sources */,
+				5A4D4B57B0F8A620D35808D6 /* NoteDraftRecoveryStore.swift in Sources */,
+				93E664F2BB49087764394E28 /* BookMetadataEditing.swift in Sources */,
+				CC76ECF38D6BCD8A4BFECB40 /* ContributorEditing.swift in Sources */,
+				E5663A66363666F3A5A54FDA /* ContributorNameSuggestions.swift in Sources */,
+				D00C070C2B74DF9E25B512BD /* PublisherSuggestions.swift in Sources */,
+				3072FB5596CA167609931E82 /* NameSuggestion.swift in Sources */,
+				6CFA41135A5DB83BA306A97F /* NoteEditingSession.swift in Sources */,
+				4DEDC8C28EFAA6604B797D58 /* LibraryItemTree.swift in Sources */,
+				37D0753C4CA6737A36CAE229 /* LibraryTableColumn.swift in Sources */,
+				D9118FE4072706711DF842B7 /* NotesView.swift in Sources */,
+				308497336F194A02929CAE46 /* CollectionEditorView.swift in Sources */,
+				A10000000000000000000063 /* TagStore.swift in Sources */,
+				C763814620DAD82D7D47ACE9 /* OrganizationStore.swift in Sources */,
+				FCEE9A22EDE42761CA138AC1 /* LibraryOrganizationRecords.swift in Sources */,
+				CD525B575AEAA10BE6FA7B30 /* OrganizationImport.swift in Sources */,
+				266EFDBCE4257BAC615E9577 /* TrashCommands.swift in Sources */,
+				A68892F40833E90CAFBAD51C /* NoteCommands.swift in Sources */,
+				A10000000000000000000040 /* CollectionCommands.swift in Sources */,
+				A10000000000000000000062 /* TagCommands.swift in Sources */,
+				A10000000000000000000041 /* LibraryCommands.swift in Sources */,
+				A10000000000000000000042 /* LibraryNotifier.swift in Sources */,
+				A10000000000000000000043 /* LibraryQuery.swift in Sources */,
+				A10000000000000000000044 /* SmartCollectionService.swift in Sources */,
+				A10000000000000000000045 /* BookRecord.swift in Sources */,
+				A10000000000000000000061 /* TagRecord.swift in Sources */,
+				A10000000000000000000046 /* BookValues.swift in Sources */,
+				1FD7E5B2FF924AA3958B1659 /* RetiredReadingData.swift in Sources */,
+				A10000000000000000000047 /* LibraryDatabase.swift in Sources */,
+				A10000000000000000000048 /* LibraryOrganization.swift in Sources */,
+				A10000000000000000000049 /* LibraryRepository.swift in Sources */,
+				A1000000000000000000004A /* SmartCollectionStore.swift in Sources */,
+				A1000000000000000000004B /* StandardTranslators.swift in Sources */,
+				A1000000000000000000004C /* TranslatorRegistry.swift in Sources */,
+				A1000000000000000000004D /* LibraryBackupDocument.swift in Sources */,
+				A10000000000000000000001 /* BookshelfApp.swift in Sources */,
+				A10000000000000000000002 /* AppState.swift in Sources */,
+				A10000000000000000000003 /* LibraryModels.swift in Sources */,
+				A10000000000000000000005 /* ContentView.swift in Sources */,
+				A10000000000000000000065 /* SidebarTagSplitView.swift in Sources */,
+				A10000000000000000000066 /* PanelWidthPersistence.swift in Sources */,
+				A10000000000000000000067 /* SidebarTagPanel.swift in Sources */,
+				A10000000000000000000006 /* SidebarView.swift in Sources */,
+				A10000000000000000000007 /* LibraryView.swift in Sources */,
+				DA8A198AA06F43D6A7153EA2 /* LibraryColumnAutoFit.swift in Sources */,
+				A10000000000000000000064 /* TagEditorView.swift in Sources */,
+				4D659839C16EFCA759AD7E4A /* InlineBookMetadataField.swift in Sources */,
+				61E64313BC15106A3B95CD26 /* PublisherMetadataField.swift in Sources */,
+				4278CEE4BFFBBDD69F433678 /* BookTypePicker.swift in Sources */,
+				4EC9EFDA048E7CE16DEBB67F /* ContributorListField.swift in Sources */,
+				72ECE71E183DF153FD73ED0E /* ContributorNameInput.swift in Sources */,
+				41591F64391EFE4B68F03451 /* MetadataSuggestionInput.swift in Sources */,
+				A10000000000000000000060 /* TagInputView.swift in Sources */,
+				A10000000000000000000008 /* BookInspectorView.swift in Sources */,
+				C67E83546AE648A89C925210 /* InspectorReadingPosition.swift in Sources */,
+				23D6BDCBC55C4236B2AAA120 /* NoteEditorPosition.swift in Sources */,
+				A10000000000000000000009 /* BookEditorView.swift in Sources */,
+				A1000000000000000000000A /* SettingsView.swift in Sources */,
+				A1000000000000000000000C /* DuplicateDetector.swift in Sources */,
+				A1000000000000000000000D /* LibraryBackupService.swift in Sources */,
+				A1000000000000000000000E /* PrivacyPolicyView.swift in Sources */,
+				A1000000000000000000000F /* BookMetadataService.swift in Sources */,
+				A1000000000000000000001B /* MetadataSearchService.swift in Sources */,
+				A1000000000000000000001F /* LibraryReviewViews.swift in Sources */,
+				A10000000000000000000020 /* AdvancedBookSearch.swift in Sources */,
+				AC9D32E54D345BB9BFA67D01 /* LibraryTextSearch.swift in Sources */,
+				A10000000000000000000021 /* AdvancedSearchView.swift in Sources */,
+				A10000000000000000000022 /* BookBatchEditing.swift in Sources */,
+				A10000000000000000000023 /* BookBatchEditView.swift in Sources */,
+				A10000000000000000000024 /* BibliographicExchange.swift in Sources */,
+				A10000000000000000000025 /* BibliographicExportView.swift in Sources */,
+				A1000000000000000000001E /* LibraryImportPlanner.swift in Sources */,
+				A1000000000000000000001D /* LibraryHistory.swift in Sources */,
+				A1000000000000000000001C /* BookRecordMerge.swift in Sources */,
+				A10000000000000000000010 /* BookMetadataSearchView.swift in Sources */,
+				A10000000000000000000012 /* WebMetadataTranslator.swift in Sources */,
+				A10000000000000000000013 /* WebMetadataImportView.swift in Sources */,
+				A10000000000000000000014 /* DoubanBookTranslator.swift in Sources */,
+				A10000000000000000000015 /* HTMLMetadataDocument.swift in Sources */,
+				A10000000000000000000016 /* WebMetadataClient.swift in Sources */,
+				A10000000000000000000017 /* TranslatorRules.swift in Sources */,
+				A10000000000000000000018 /* TranslatorStore.swift in Sources */,
+				A10000000000000000000019 /* TranslatorSettingsView.swift in Sources */,
+				A1000000000000000000001A /* GoodreadsBookTranslator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F20000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+		};
+			name = Debug;
+		};
+		F20000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+		};
+			name = Release;
+		};
+		F20000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Bookshelf/Support/Bookshelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				APP_DISPLAY_NAME = "书架";
+				APP_COPYRIGHT = "Copyright © 2026. All rights reserved.";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Bookshelf/Support/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.Bookshelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		F20000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B10000000000000000000015 /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Bookshelf/Support/Bookshelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Bookshelf/Support/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F10000000000000000000001 /* Build configuration list for PBXProject "Bookshelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F20000000000000000000001 /* Debug */,
+				F20000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F10000000000000000000002 /* Build configuration list for PBXNativeTarget "Bookshelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F20000000000000000000003 /* Debug */,
+				F20000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E10000000000000000000002 /* Project object */;
+}
