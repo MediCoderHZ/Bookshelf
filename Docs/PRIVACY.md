@@ -1,8 +1,8 @@
 # 书架隐私政策（发布草案）
 
-最后更新：2026 年 11 月 14 日
+最后更新：2026 年 11 月 15 日
 
-发布前需确认最终应用名、开发者名称、公开支持网址和联系邮箱。“书架”是当前工作名称。
+应用名称：书架（Bookshelf）。维护者：MediCoderHZ。项目地址：[MediCoderHZ/Bookshelf](https://github.com/MediCoderHZ/Bookshelf)。
 
 ## 本地存储
 
@@ -17,6 +17,12 @@
 检索用于展示和填充书籍信息。应用不要求登录 Open Library，不主动发送用户账户标识；这不代表服务方不会记录 IP 地址等请求信息。第三方日志的保留、删除与用途受 [Internet Archive 服务与隐私说明](https://archive.org/about/terms.php)约束，应用开发者无法代其删除日志。
 
 用户可以取消搜索、继续手动录入。取消会停止当前检索任务，已经发出的请求无法撤回。
+
+## 软件更新
+
+正式发行版使用 Sparkle 2 检查和安装更新。手动检查或同意自动检查后，应用会请求 GitHub Pages 上的更新清单；下载更新时访问 GitHub Releases。GitHub 可能收到 IP 地址、应用版本等常规网络信息，不会收到书籍、笔记、标签或书库备份。Sparkle 的可选系统分析默认关闭。相关服务日志受 [GitHub 隐私声明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)约束。
+
+首次使用时，Sparkle 会请求自动检查更新的许可；用户也可以在设置中修改自动检查、自动下载与安装选项。应用默认不会静默安装更新。未启用更新服务的开发版不发起更新请求。
 
 ## 网页解析器与自定义规则
 
@@ -44,4 +50,4 @@ RIS 书目在本机解析，不读取或下载其中列出的附件，也不请�
 
 ## 联系方式
 
-发布前补齐开发者名称、公开支持网址和联系邮箱，并在 App Store Connect 与应用设置中保持一致。
+通过 [GitHub Issues](https://github.com/MediCoderHZ/Bookshelf/issues) 联系维护者。请勿在公开反馈中附带私密书库、个人信息或密钥。

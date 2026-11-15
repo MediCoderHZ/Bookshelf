@@ -7,3 +7,13 @@ work/
 Config/Release.local.xcconfig
 *.xcarchive/
 *.pkg
+dist/
+*.dmg
+*.p12
+*.p8
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+__pycache__/

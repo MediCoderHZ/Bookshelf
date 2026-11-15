@@ -11,3 +11,8 @@ APP_SUPPORT_URL = https:/$()/REPLACE_SUPPORT_HOST/support
 APP_PRIVACY_URL = https:/$()/REPLACE_PRIVACY_HOST/privacy
 // Public developer contact for Open Library, not a user's email.
 APP_METADATA_CONTACT = REPLACE_DEVELOPER_CONTACT_EMAIL
+// The public key is safe to commit to Release.xcconfig once generated.
+// Keep the private key in Keychain or the release runner's secret store.
+BOOKSHELF_UPDATES_ENABLED = YES
+BOOKSHELF_UPDATE_FEED_URL = https:/$()/REPLACE_OWNER.github.io/REPLACE_REPOSITORY/appcast.xml
+BOOKSHELF_UPDATE_PUBLIC_KEY = REPLACE_SPARKLE_ED25519_PUBLIC_KEY

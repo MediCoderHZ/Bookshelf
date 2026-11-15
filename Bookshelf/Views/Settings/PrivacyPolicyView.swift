@@ -33,6 +33,10 @@ struct PrivacyPolicyView: View {
           )
           Link("Goodreads 隐私政策", destination: URL(string: "https://www.goodreads.com/about/privacy")!)
           policySection(
+            "软件更新",
+            "正式发行版通过 Sparkle 检查和安装更新。手动检查或允许自动检查后，会访问 GitHub Pages 上的更新清单，并在下载时访问 GitHub Releases。服务方可收到 IP 地址、应用版本等常规网络信息；不会发送书籍、笔记或书库备份。系统分析默认关闭。你可以在设置中关闭自动检查和自动下载；未启用更新服务的开发版不会发起更新请求。"
+          )
+          policySection(
             "文件访问",
             "只有在用户主动导入 HTML 网页或解析规则、导出规则、导入或导出备份与书目清单时，应用才会访问用户明确选择的文件或位置。应用会加载自身沙盒目录内已安装的解析规则。HTML 在本机解析，不执行脚本、不加载其引用资源。应用不会扫描用户的其他文件夹。"
           )
@@ -42,7 +46,7 @@ struct PrivacyPolicyView: View {
           )
           policySection(
             "数据共享",
-            "应用不会向开发者或任何第三方出售用户数据。除用户主动发起在线书籍检索、网页提取所必需的数据外，应用不会共享或传输用户数据。用户自行导出的 JSON 备份由用户负责保管。"
+            "应用不会向开发者或任何第三方出售用户数据。在线检索、网页提取与软件更新会产生前述网络请求；本地书库和笔记不会随请求发送。用户自行导出的 JSON 备份由用户负责保管。"
           )
           policySection(
             "删除数据",
@@ -50,11 +54,11 @@ struct PrivacyPolicyView: View {
           )
           policySection(
             "联系我们",
-            "如对隐私政策有疑问，请通过 Mac App Store 产品页面提供的开发者支持渠道联系。"
+            "如对隐私政策有疑问，请通过项目 GitHub 仓库的 Issues 联系维护者。请勿在公开反馈中附上私密书库或个人信息。"
           )
 
           if let url = AppReleaseInfo.supportURL { Link("帮助与支持", destination: url) }
-          Text("最后更新：2026 年 11 月 14 日")
+          Text("最后更新：2026 年 11 月 15 日")
             .font(.caption)
             .foregroundStyle(.secondary)
         }

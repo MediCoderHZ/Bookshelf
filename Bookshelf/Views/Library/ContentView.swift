@@ -92,6 +92,7 @@ struct ContentView: View {
   @State private var isConfirmingPurge = false
   @State private var advancedQuery = AdvancedBookQuery()
   @State private var showsAdvancedSearch = false
+  @State private var isAdvancedSearchCollapsed = false
   @State private var advancedDraft = AdvancedBookQuery(rules: [BookSearchRule()])
   @State private var smartRuleEdit: SmartRuleEdit?
   private var isCreatingSmartCollection: Bool {
@@ -247,7 +248,7 @@ struct ContentView: View {
       VStack(spacing: 0) {
       libraryListToolbar
       Divider()
-      if showsAdvancedSearch && !isTrashScope {
+      if showsAdvancedSearch && !isAdvancedSearchCollapsed && !isTrashScope {
         inlineAdvancedSearchPanel(availableHeight: availableHeight)
         Divider()
       }
@@ -319,6 +320,16 @@ struct ContentView: View {
       if showsAdvancedSearch {
         HStack(spacing: 10) {
           Text(isCreatingSmartCollection ? "新建智能文件夹" : "高级筛选").font(.system(size: 13, weight: .semibold)).lineLimit(1)
+          Button {
+            isAdvancedSearchCollapsed.toggle()
+          } label: {
+            Image(systemName: isAdvancedSearchCollapsed
+              ? "arrow.up.left.and.arrow.down.right" : "arrow.down.right.and.arrow.up.left")
+              .font(.system(size: 13)).frame(width: 24, height: 24)
+          }
+          .help(isAdvancedSearchCollapsed ? "展开高级筛选" : "收起条件编辑区，保留筛选条件和当前结果")
+          .accessibilityLabel(isAdvancedSearchCollapsed ? "展开高级筛选" : "收起高级筛选")
+          .accessibilityValue(isAdvancedSearchCollapsed ? "已收起" : "已展开")
           Button(action: closeAdvancedSearch) {
             Image(systemName: "xmark").frame(width: 24, height: 28)
           }.help(smartRuleEdit == nil ? "收起条件面板，保留当前筛选结果" : isCreatingSmartCollection ? "取消新建，不创建文件夹" : "取消编辑，保留文件夹原有规则")
@@ -348,11 +359,13 @@ struct ContentView: View {
 
   private func presentAdvancedSearch() {
     guard !isTrashScope else { return }
+    isAdvancedSearchCollapsed = false
     showsAdvancedSearch = true
   }
 
   private func closeAdvancedSearch() {
     smartRuleEdit = nil
+    isAdvancedSearchCollapsed = false
     showsAdvancedSearch = false
   }
 
@@ -365,6 +378,7 @@ struct ContentView: View {
     searchText = ""; selectedTagIDs.removeAll(); advancedQuery = AdvancedBookQuery()
     selectedBookIDs.removeAll(); selectedNoteID = nil; selectedTrashItemIDs.removeAll()
     navigationSelection = .all
+    isAdvancedSearchCollapsed = false
     showsAdvancedSearch = true
   }
 
@@ -846,6 +860,7 @@ struct ContentView: View {
       smartRuleEdit = SmartRuleEdit(original: archive, name: archive.name, query: archive.query)
       searchText = ""; selectedTagIDs.removeAll(); advancedQuery = AdvancedBookQuery()
       navigationSelection = .smart(archive.id)
+      isAdvancedSearchCollapsed = false
       showsAdvancedSearch = true
     } catch { errorMessage = error.localizedDescription }
   }

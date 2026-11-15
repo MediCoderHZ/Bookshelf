@@ -12,7 +12,9 @@
 | `Package.swift` | SwiftPM 应用目标、测试目标和测试资源定义 |
 | `Config/` | 发布构建配置；本机签名配置放入被忽略的 `Release.local.xcconfig` |
 | `Docs/` | 当前维护的使用、架构、专题与隐私文档 |
-| `AppStore/` | 发布准备、商店元数据、审核说明与历史验收记录 |
+| `Distribution/Updates/` | GitHub Pages 发布的 Sparkle 更新清单 |
+| `.github/` | 构建验证、手动 Pages 发布及协作模板 |
+| `AppStore/` | 历史商店元数据与验收记录，不作为 GitHub 分发要求 |
 | `Examples/` | 可供手动体验和测试复用的 RIS、JSON 与 HTML 示例 |
 | `scripts/` | 架构检查、项目验证、Release 构建和发布前检查；`lib/` 共用工具链与构建目录设置 |
 | `Archive/` | 整理时发现的编号副本，保留原文件内容、原相对路径和校验清单 |
@@ -24,13 +26,13 @@
 
 | 目录 | 主要职责 |
 | --- | --- |
-| `App/` | `BookshelfApp` 应用入口和 `AppState` 窗口状态 |
+| `App/` | `BookshelfApp` 应用入口、`AppState` 窗口状态与 `AppUpdater` 更新协调 |
 | `Domain/` | 书籍快照、标签、文件夹顺序、搜索、Markdown 与重复项判断 |
 | `Models/` | SwiftData 实体及关系定义 |
 | `Application/` | 书籍、文件夹、笔记与标签命令，查询、建议、历史和通知 |
 | `Persistence/` | 数据库打开、事务仓储、组织数据、JSON 备份与草稿恢复 |
 | `Translation/` | 解析器注册、规则与存储、网络客户端、站点适配和格式交换 |
-| `Resources/` | Asset Catalog、应用图标与 PrivacyInfo.xcprivacy |
+| `Resources/` | Asset Catalog、应用图标、隐私清单与许可声明 |
 | `Support/` | Info.plist 和 Bookshelf.entitlements |
 
 `Views/` 进一步按界面用途划分：
@@ -75,7 +77,9 @@ SwiftPM 递归发现测试文件，`Fixtures/` 仍通过 `.copy("Fixtures")` 打
 - [PRIVACY.md](PRIVACY.md)：可用于发布准备的隐私政策草案。
 - [BUILDING.md](BUILDING.md)：工具链、验证命令、中间文件位置与环境排查。
 - [BUILD-VALIDATION.md](BUILD-VALIDATION.md)：目录整理后的完整编译、测试与本机运行结果。
-- [AppStore](../AppStore/RELEASE-READINESS.md)：发布材料独立维护，其中验收记录描述各次历史验证，不代表本次全部重新执行。
+- [UPDATE-VALIDATION.md](UPDATE-VALIDATION.md)：开源准备与 Sparkle 集成的实测结果。
+- [DISTRIBUTION.md](DISTRIBUTION.md)：当前 GitHub 开源分发、签名、公证与自动更新流程。
+- [AppStore](../AppStore/RELEASE-READINESS.md)：保留的历史商店材料，不参与当前分发流程。
 
 ## 编号副本与本地工作区
 

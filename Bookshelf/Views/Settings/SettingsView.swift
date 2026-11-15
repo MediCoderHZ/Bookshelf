@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+  @EnvironmentObject private var updater: AppUpdater
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Book.addedAt, order: .reverse) private var books: [Book]
   @AppStorage("libraryDisplayDensity") private var density = LibraryDisplayDensity.compact
@@ -14,6 +15,7 @@ struct SettingsView: View {
   @State private var isExporting = false
   @State private var isImporting = false
   @State private var isShowingPrivacyPolicy = false
+  @State private var isShowingLicenses = false
   @State private var resultMessage: String?
   @State private var errorMessage: String?
   @State private var importPlan: LibraryImportPlan?
@@ -26,7 +28,9 @@ struct SettingsView: View {
         LabeledContent("应用", value: AppReleaseInfo.displayName)
         LabeledContent("版本", value: "\(AppReleaseInfo.version) (\(AppReleaseInfo.build))")
         if let url = AppReleaseInfo.supportURL { Link("帮助与支持", destination: url) }
+        Button("许可与致谢…") { isShowingLicenses = true }
       }
+      AppUpdateSettings(updater: updater)
       Section("显示") {
 
         Picker("界面密度", selection: $density) {
@@ -71,7 +75,7 @@ struct SettingsView: View {
 
       Section("隐私") {
         LabeledContent("数据位置", value: "仅保存在这台 Mac 上")
-        Text("本地书库不会上传；主动搜索或提取网页时，会向对应网站发送查询或页面请求。")
+        Text("本地书库不会上传。在线检索和软件更新会访问相应服务，详见隐私政策。")
           .font(.caption)
           .foregroundStyle(.secondary)
         Button("查看隐私政策…") {
@@ -103,6 +107,16 @@ struct SettingsView: View {
       PrivacyPolicyView()
         .frame(minWidth: 620, minHeight: 560)
     }
+    .sheet(isPresented: $isShowingLicenses) {
+      VStack(alignment: .leading, spacing: 16) {
+        Text("许可与致谢").font(.title2)
+        ScrollView {
+          Text(licenseText).font(.system(.caption, design: .monospaced))
+            .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+        }
+        Button("完成") { isShowingLicenses = false }.frame(maxWidth: .infinity, alignment: .trailing)
+      }.padding(24).frame(width: 640, height: 520)
+    }
     .sheet(isPresented: $isShowingTranslators) { TranslatorSettingsView() }
     .sheet(item: $importPlan, onDismiss: {
       if let message = pendingImportMessage { resultMessage = message; pendingImportMessage = nil }
@@ -132,6 +146,13 @@ struct SettingsView: View {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
     return "书架备份-\(formatter.string(from: Date()))"
+  }
+
+  private var licenseText: String {
+    guard let url = Bundle.main.url(forResource: "ThirdPartyNotices", withExtension: "txt"),
+      let text = try? String(contentsOf: url, encoding: .utf8)
+    else { return "请查看源码仓库中的 LICENSE 与 Bookshelf/Resources/ThirdPartyNotices.txt。" }
+    return text
   }
 
   private func prepareExport() {

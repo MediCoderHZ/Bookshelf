@@ -1,0 +1,40 @@
+name: Build and test
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      BOOKSHELF_BUILD_ROOT: ${{ runner.temp }}/Bookshelf
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Run release tooling tests
+        run: python3 -m unittest discover -s scripts/tests
+      - name: Run XCTest
+        run: bash scripts/verify-project.sh
+      - name: Build unsigned universal application
+        run: bash scripts/build-release.sh
+      - name: Check updater integration
+        run: python3 scripts/check-update-config.py --app "$BOOKSHELF_BUILD_ROOT/ReleaseCheck/Build/Products/Release/Bookshelf.app"
+      - name: Preserve validation bundle symlinks
+        run: ditto -c -k --sequesterRsrc --keepParent "$BOOKSHELF_BUILD_ROOT/ReleaseCheck/Build/Products/Release/Bookshelf.app" "$RUNNER_TEMP/Bookshelf-unsigned-validation.zip"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Bookshelf-unsigned-validation
+          path: ${{ runner.temp }}/Bookshelf-unsigned-validation.zip
+          retention-days: 7
+          if-no-files-found: error

@@ -4,6 +4,7 @@ import SwiftUI
 
 @main
 struct BookshelfApp: App {
+  @StateObject private var updater = AppUpdater()
   private let storage: Result<ModelContainer, Error> = Result {
     RetiredReadingData.cleanPreferences(.standard)
     LibrarySearchScope.migratePreference(in: .standard)
@@ -26,6 +27,7 @@ struct BookshelfApp: App {
     .defaultSize(width: 1380, height: 820)
     .windowToolbarStyle(.unifiedCompact(showsTitle: false))
     .commands {
+      AppUpdateCommands(updater: updater)
       LibraryUndoCommands()
       LibraryNewBookCommands()
       LibrarySearchCommands()
@@ -35,7 +37,9 @@ struct BookshelfApp: App {
     Settings {
       switch storage {
       case .success(let container):
-        LibraryUndoScope { SettingsView().modelContainer(container).frame(width: 500, height: 560) }
+        LibraryUndoScope {
+          SettingsView().environmentObject(updater).modelContainer(container).frame(width: 500, height: 680)
+        }
       case .failure(let error):
         storageFailure(error).frame(width: 500, height: 340)
       }

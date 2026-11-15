@@ -1,10 +1,14 @@
 // Local release defaults. These deliberately do not claim a registered identity.
 APP_DISPLAY_NAME = 书架
-APP_COPYRIGHT = Copyright © 2026. All rights reserved.
-APP_SUPPORT_URL =
-APP_PRIVACY_URL =
+APP_COPYRIGHT = Copyright © 2026 MediCoderHZ. MIT License.
+APP_SUPPORT_URL = https:/$()/github.com/MediCoderHZ/Bookshelf/issues
+APP_PRIVACY_URL = https:/$()/github.com/MediCoderHZ/Bookshelf/blob/main/Docs/PRIVACY.md
 APP_METADATA_CONTACT =
-PRODUCT_BUNDLE_IDENTIFIER = com.example.Bookshelf
+// Enable only after the HTTPS appcast is published and verified.
+BOOKSHELF_UPDATES_ENABLED = NO
+BOOKSHELF_UPDATE_FEED_URL = https:/$()/medicoderhz.github.io/Bookshelf/appcast.xml
+BOOKSHELF_UPDATE_PUBLIC_KEY = h9h4SBSkpRsZtuNnjC1yKp66IAOni/sl7XYIGhT1Kkw=
+PRODUCT_BUNDLE_IDENTIFIER = io.github.medicoderhz.bookshelf
 MARKETING_VERSION = 0.1.0
 CURRENT_PROJECT_VERSION = 1
 DEVELOPMENT_TEAM =

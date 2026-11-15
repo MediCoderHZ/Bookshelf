@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Bookshelf Updates</title>
+    <link>https://github.com/MediCoderHZ/Bookshelf/releases</link>
+    <description>Bookshelf for macOS release feed</description>
+    <language>zh-Hans</language>
+  </channel>
+</rss>

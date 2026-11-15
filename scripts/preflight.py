@@ -39,7 +39,11 @@ try:
     check(entitlements.get("com.apple.security.files.user-selected.read-write") is True, "缺少用户所选文件访问权限")
     check(set(entitlements) == {
         "com.apple.security.app-sandbox", "com.apple.security.network.client",
-        "com.apple.security.files.user-selected.read-write"}, "沙盒权限发生变化，请重新审计")
+        "com.apple.security.files.user-selected.read-write",
+        "com.apple.security.temporary-exception.mach-lookup.global-name"}, "出现未预期的沙盒权限")
+    check(entitlements.get("com.apple.security.temporary-exception.mach-lookup.global-name") == [
+        "$(PRODUCT_BUNDLE_IDENTIFIER)-spks", "$(PRODUCT_BUNDLE_IDENTIFIER)-spki"],
+        "Sparkle 安装服务的沙盒通信权限不匹配")
     privacy_path = ROOT / "Bookshelf/Resources/PrivacyInfo.xcprivacy"
     privacy = load_plist(privacy_path)
     check(privacy.get("NSPrivacyTracking") is False, "跟踪声明与当前设计不一致")
@@ -61,16 +65,18 @@ try:
         check(struct.unpack(">II", image[16:24]) == (size * scale, size * scale),
               "AppIcon 像素尺寸不匹配：" + item["filename"])
     check(expected <= actual, "AppIcon 尺寸集不完整")
-    metadata = json.loads((ROOT / "AppStore/metadata.zh-Hans.json").read_text())
-    for key, maximum in {"name": 30, "subtitle": 30, "promotionalText": 170,
-                         "description": 4000, "keywords": 100}.items():
-        check(bool(metadata.get(key)) and len(metadata[key]) <= maximum,
-              f"商店文案 {key} 为空或超长")
-    check(len(metadata["keywords"].encode("utf-8")) <= 100, "关键词超过保守的 100 字节限制")
-    checklist = json.loads((ROOT / "AppStore/submission-checklist.json").read_text())
-    for key, item in checklist.items():
-        if item["confirmed"] is not True:
-            pending.append(item["description"])
+    # Historical App Store material is not a requirement for GitHub distribution.
+    if args.submission:
+        metadata = json.loads((ROOT / "AppStore/metadata.zh-Hans.json").read_text())
+        for key, maximum in {"name": 30, "subtitle": 30, "promotionalText": 170,
+                             "description": 4000, "keywords": 100}.items():
+            check(bool(metadata.get(key)) and len(metadata[key]) <= maximum,
+                  f"商店文案 {key} 为空或超长")
+        check(len(metadata["keywords"].encode("utf-8")) <= 100, "关键词超过保守的 100 字节限制")
+        checklist = json.loads((ROOT / "AppStore/submission-checklist.json").read_text())
+        for key, item in checklist.items():
+            if item["confirmed"] is not True:
+                pending.append(item["description"])
 
     if args.app:
         app = args.app.resolve()
@@ -78,6 +84,13 @@ try:
         check((app / "Contents/Resources/AppIcon.icns").is_file(), "产物缺少编译后的图标")
         embedded = load_plist(app / "Contents/Resources/PrivacyInfo.xcprivacy")
         check(embedded == privacy, "产物缺少或使用了旧版隐私清单")
+        framework = app / "Contents/Frameworks/Sparkle.framework"
+        check((framework / "Sparkle").is_file(), "产物缺少 Sparkle.framework")
+        check((framework / "XPCServices/Installer.xpc").is_dir(), "缺少 Sparkle 沙盒安装服务")
+        check((app / "Contents/Resources/ThirdPartyNotices.txt").is_file(), "缺少第三方许可声明")
+        check(info.get("SUEnableInstallerLauncherService") is True, "未启用 Sparkle 沙盒安装服务")
+        check(info.get("SUEnableSystemProfiling") is False, "更新系统分析必须默认关闭")
+        check(info.get("SUVerifyUpdateBeforeExtraction") is True, "更新包必须在解压前验证签名")
         check(info.get("LSMinimumSystemVersion") == "14.0", "最低系统版本发生变化，需更新文案")
         check(bool(re.fullmatch(r"\d+\.\d+(\.\d+)?", info.get("CFBundleShortVersionString", ""))), "版本号无效")
         check(bool(re.fullmatch(r"\d+(\.\d+){0,2}", info.get("CFBundleVersion", ""))), "构建号无效")
@@ -130,6 +143,6 @@ for message in errors:
 for message in dict.fromkeys(pending):
     print("待办:", message)
 if errors or (args.submission and pending):
-    print("未通过；不可据此提交商店。")
+    print("技术检查未通过。")
     raise SystemExit(1)
-print("本地技术检查通过；待办未清零时仍不能正式提交。")
+print("本地技术检查通过；正式 GitHub 分发另需运行 check-update-config.py --distribution。")

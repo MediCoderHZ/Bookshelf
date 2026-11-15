@@ -1,0 +1,59 @@
+# 开源准备与 Sparkle 接入验证
+
+日期：2026-11-15。基于本地基准提交 `78041e4`，使用 Xcode 27.2、Swift 6.4.2。当前分发路线为 GitHub Releases + GitHub Pages + Sparkle，不要求上架 Mac App Store。
+
+## 已完成
+
+- 根目录添加 MIT LICENSE、贡献指南、Issue/PR 模板，更新 README、目录说明及应用内外隐私说明。
+- 添加 GitHub CI 配置与手动 Pages 发布配置；本地 origin 指向 `https://github.com/MediCoderHZ/Bookshelf.git`。源码尚未推送，工作流尚未在 GitHub 上运行。
+- Sparkle 2.10.1 同时接入 SwiftPM 和 Xcode，锁定同一 revision；应用框架、Installer XPC、许可声明正确嵌入。
+- 添加“检查更新…”菜单、自动检查及自动下载与安装设置、发布页链接、许可与致谢界面。
+- 保留 App Sandbox，新增 Sparkle 安装器所需的两个 Mach 服务通信权限。Release 保留 Hardened Runtime；Debug 使用独立数据容器和本地加载配置。
+- 创建独立 Sparkle 更新密钥，私钥保存在本机钥匙串账户 `io.github.medicoderhz.bookshelf`，仅公钥进入项目。
+- 添加正式分发预检与本地打包脚本，校验启用状态、HTTPS 清单、公钥、嵌入框架、实际签名、公证票据及递增构建号。脚本不会上传或发布。
+
+## 自动验证
+
+| 验证 | 结果 |
+| --- | --- |
+| 完整 XCTest | 491 项：481 通过、10 项原有可选测试跳过、0 失败 |
+| 新增 XCTest | 5 项：有效配置、关闭渠道、无效 URL、无效公钥、测试进程不启动更新器 |
+| Python 发布工具测试 | 8 项通过，包括禁用渠道、配置缺失、权限要求、重复与倒退构建号拒绝 |
+| Release | arm64 / x86_64 双架构构建通过 |
+| 产物预检 | 框架、Installer XPC、公钥配置、隐私清单、图标和许可证检查通过 |
+| 签名更新包 | 测试包生成 appcast 成功，版本、URL、文件长度及 Ed25519 签名校验通过 |
+| 损坏包 | 修改 ZIP 中一个字节后，签名验证明确拒绝 |
+| 正式发行拦截 | 本地临时签名副本被分发检查拒绝，原因包含未启用渠道、缺少 Developer ID 和公证 |
+| 配置检查 | 两份锁文件版本/revision 一致；Xcode/Plist、Shell、工作流 YAML 语法检查通过 |
+
+## 本机界面验证
+
+以下是 Sparkle 初次接入时的历史验证，使用不同 Bundle Identifier 的临时签名副本。后续已完成书库合并，改为下文所述的固定应用入口，不再启动多个验证版本。
+
+1. 默认关闭渠道的副本成功启动；菜单“检查更新…”显示尚未启用在线更新的提示；设置中自动更新选项禁用、发布页链接正确。
+2. 设置中的“许可与致谢…”完整显示本项目 MIT 与 Sparkle 许可。
+3. 仅在连接测试副本中将启用标志改为 YES，并关闭自动检查默认值：Sparkle 成功启动，自动检查开关可用；手动检查能进入 Sparkle 的请求流程。
+4. 因线上清单尚未发布，请求显示“获取升级信息时出现错误，请稍后再试”；取消后恢复可再次检查。该项验证错误处理，不代表在线升级成功。
+
+本机证据位于 Git 忽略的 `work/SparkleIntegration/`：`swift-tests.log`、`release-build.log`、`update-config.log`、`signature-generation.log`、`signature-result.json`、`distribution-refusal.log`。测试副本和签名测试包仅用于验证，不可上传为正式发行包。
+
+## 当前完整版本基准
+
+在上述接入基础上，当前版本还包含以下已验证改动：
+
+- 高级筛选标题右侧提供收起／展开按钮，保留条件草稿、已应用结果及智能文件夹编辑状态。
+- 未选中书籍或笔记时，右侧显示当前视图的顶层条目数量；搜索与空结果实时更新，再次点击“全部书籍”返回数量显示。此项已单独保存在提交 `b1fd826` 中。
+- 本机统一安装到 `~/Applications/Bookshelf.app`，保持 `io.github.medicoderhz.bookshelf` 身份；`scripts/install-local.sh` 安装前检查运行状态、保留旧应用备份，不改动书库也不自动启动应用。
+- 旧书库已先备份、再合并，完成所有模型记录、笔记关联、正文及重启读取校验。个人数据和迁移证据只保存在 Git 忽略的本机 `work/` 中。
+- 最后一次应用源码修改后，完整 XCTest 为 481 通过、10 跳过、0 失败，双架构 Release 构建通过；当前固定应用的数量显示与点击行为已实测，更新前后的书库模型记录完全一致。
+
+对应本机证据位于 `work/AdvancedSearchCollapse/`、`work/LibraryMigration/`、`work/ViewItemCount/`。完整基准使用 Git 标签 `baseline-2026-11-15-full` 标记，保留初始基准 `baseline-2026-11-15`。本地版本基准不等同于正式发行，线上更新、签名与公证的待办仍如下所列。
+
+## 尚待正式发布时完成
+
+- 将源码推送到 GitHub，运行远程 CI；在 Pages 中启用 GitHub Actions 来源并发布空更新清单，验证 HTTPS 地址后启用发行配置。
+- 本机当前未检测到有效代码签名证书；需配置 Developer ID Application，完成签名、公证并装订票据。
+- 发布首个正式包后，实际验证旧版发现新版、下载、安装、重启及书籍/笔记保留；本轮未将在线更新和跨版本安装标记为已通过。
+- Intel Mac 与 macOS 14 的实际运行尚未验证，当前只完成双架构编译及本机运行。
+
+完整操作顺序见 [GitHub 分发与更新](DISTRIBUTION.md)。

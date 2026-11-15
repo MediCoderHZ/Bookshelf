@@ -23,6 +23,24 @@ DEVELOPER_DIR="/path/to/Xcode.app/Contents/Developer" bash scripts/build-release
 
 安装 Xcode 后，先打开一次，阅读并接受许可协议，完成它提示的组件设置。工具链检查会在缺少 Xcode、首次启动未完成、缺少 `xctest` 或 `actool` 时明确退出，避免继续输出大量连带编译错误。
 
+## 本机固定应用入口
+
+日常使用与界面检查统一使用 `~/Applications/Bookshelf.app`，显示名称为“书架”，Bundle Identifier 固定为 `io.github.medicoderhz.bookshelf`。后续更新替换这个应用，继续使用同一个书库，不再创建或启动多个验证版本。
+
+先正常退出“书架”，再运行：
+
+```sh
+# 编译、临时签名并安装到固定位置
+bash scripts/install-local.sh
+
+# 或安装已经编译验证的标准 Release 产物
+bash scripts/install-local.sh --app /path/to/Bookshelf.app
+```
+
+安装脚本保留旧应用到 `work/LocalAppBackups/`，拒绝覆盖仍在运行的应用，不启动应用，也不修改书库。安装完成后只打开 `~/Applications/Bookshelf.app`。本机数据位于 `~/Library/Containers/io.github.medicoderhz.bookshelf/Data/Library/Application Support/`；迁移前备份保存在被 Git 忽略的 `work/LibraryMigration/`，不要上传个人书库。
+
+此脚本为本机运行临时签名，原始 Release 产物保持不变；安装后的本机应用不作为公开分发包。
+
 ## 构建文件的位置
 
 源码可以继续保存在当前外置卷。脚本默认将中间文件放到 `/private/tmp/Bookshelf-<用户 ID>-<项目路径摘要>/`，具体位置会在执行时打印：
@@ -56,11 +74,11 @@ bash scripts/verify-project.sh --disable-sandbox
 
 若 Xcode Release 构建同时报告 `sandbox-exec: sandbox_apply: Operation not permitted` 和宏插件 `malformed response`，需要通过运行器正常的权限审批，在执行沙盒外运行 `bash scripts/build-release.sh`。本次按此方式已成功构建；无需改写 SwiftData/SwiftUI 业务代码或削弱应用沙盒权限。
 
-默认测试不访问真实站点。依赖在线网站、手工 HTML 样本或额外旧数据库的可选测试可能跳过，具体以测试输出为准。完整验证还需要打开新生成的应用检查主窗口、空书库、添加书籍和笔记，并确认重启后数据仍可读取。
+默认测试不访问真实站点。依赖在线网站、手工 HTML 样本或额外旧数据库的可选测试可能跳过，具体以测试输出为准。界面检查在上述固定入口中进行；用户书库只做读取与重启检查，不自动添加验证样本。空书库、增删和迁移等自动测试使用临时数据。
 
 ## 当前验证状态
 
-2026-11-15 已使用 Xcode 27.2 完成编译与运行验证：486 项测试中 476 项通过、10 项按设计跳过、0 项失败；arm64 / x86_64 Release 构建及本机书籍、笔记保存与重启读取均通过。证据与范围见[验证记录](BUILD-VALIDATION.md)。
+2026-11-15 当前完整版本已使用 Xcode 27.2 完成验证：491 项 XCTest 中 481 项通过、10 项按设计跳过、0 项失败，8 项发布工具测试通过；arm64 / x86_64 Release 构建通过。固定应用入口中的书库重启读取、高级筛选缩放和视图条目数量显示均已检查。当前范围见[完整版本验收记录](UPDATE-VALIDATION.md)，早期目录整理的验证保留在[初始验证记录](BUILD-VALIDATION.md)。
 
 ## 2026-11-15 初始排查记录
 
@@ -73,3 +91,18 @@ bash scripts/verify-project.sh --disable-sandbox
 - 原有源码未因这些环境错误而修改。随后用户安装 Xcode 并确认许可协议，完整编译、XCTest 回归和新产物启动验证已完成。
 
 应用编译日志在本机 `work/DirectoryOrganization/2026-11-15/`：`swift-build-local.log`、`swiftpm-probe.log` 和此前的测试日志。沙盒对照及验证脚本日志在 `work/ToolchainInvestigation/`：`probe-external.log`、`probe-external-unrestricted.log`、`verify-project.log`、`build-release.log`。
+
+## Sparkle 依赖与发行构建
+
+SwiftPM 和 Xcode 都固定 Sparkle 2.10.1；根目录与 Xcode workspace 下的 `Package.resolved` 一并纳入 Git。首次构建需要访问官方 GitHub 仓库及二进制附件。应用框架由 Xcode 的 Swift Package 集成自动嵌入；不要手工添加引用包产品的 Copy Files 阶段。
+
+Debug 构建配置使用 `io.github.medicoderhz.bookshelf.debug` 容器并关闭 Hardened Runtime，以便临时签名加载 Sparkle；App Sandbox 保持开启。日常体验不启动该配置，统一通过 `install-local.sh` 更新固定的 Release 应用入口。Release 发行配置保持 Hardened Runtime，正式发行必须使用 Developer ID 签名、公证；本机安装脚本只对暂存副本进行临时签名，不修改发行配置。
+
+更新配置及发布脚本测试：
+
+```sh
+python3 -m unittest discover -s scripts/tests
+python3 scripts/check-update-config.py --app /path/to/Bookshelf.app
+```
+
+正式分发还需 `--distribution` 检查，详见 [分发与更新](DISTRIBUTION.md)。线上清单未发布前，`BOOKSHELF_UPDATES_ENABLED = NO` 是有意配置，不影响书籍与笔记功能。

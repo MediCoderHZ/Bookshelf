@@ -34,6 +34,20 @@
 	<string>$(APP_METADATA_CONTACT)</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>$(BOOKSHELF_UPDATE_FEED_URL)</string>
+	<key>BookshelfUpdatesEnabled</key>
+	<string>$(BOOKSHELF_UPDATES_ENABLED)</string>
+	<key>SUPublicEDKey</key>
+	<string>$(BOOKSHELF_UPDATE_PUBLIC_KEY)</string>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>
