@@ -131,6 +131,9 @@ struct SidebarView: View {
       List(selection: navigationListSelection) {
         Group {
           SidebarNavigationRow(title: "全部书籍", systemImage: "books.vertical", count: activeBooks.count)
+            // List does not write its selection when the selected row is clicked again.
+            // Re-selecting the library should still clear item details and show its count.
+            .simultaneousGesture(TapGesture().onEnded { navigationListSelection.wrappedValue = .all })
             .modifier(SidebarCollectionDropTarget(rowID: nil, canMove: canMoveCollection,
               onMove: moveCollection, onError: { errorMessage = $0.localizedDescription }))
             .help("全部书籍；将文件夹拖到这里可移回顶层")

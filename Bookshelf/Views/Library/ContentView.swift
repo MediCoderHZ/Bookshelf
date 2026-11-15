@@ -642,9 +642,15 @@ struct ContentView: View {
         Menu("整理所选书籍") { selectionActions }.fixedSize()
       }.padding(24).frame(maxWidth: .infinity, maxHeight: .infinity)
     } else {
-      Color.clear
+      // Use the same root items as the table, independent of child-note expansion.
+      let itemCount = LibraryItemTree.rows(books: visibleBooks, notes: listNotes, inTrash: isTrashScope).count
+      Text("此视图中有 \(itemCount.formatted()) 个条目")
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+        .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityHidden(true)
+        .help("统计当前筛选结果中的书籍与独立显示的笔记，不重复计入书籍下的笔记。")
+        .accessibilityIdentifier("libraryViewItemCount")
     }
   }
 
