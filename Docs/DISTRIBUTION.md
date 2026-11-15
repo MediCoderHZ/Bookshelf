@@ -67,6 +67,10 @@ Apple 证书缺失时，可以完成源码构建和本地接入测试，但正�
 
 ## 数据兼容
 
+当前版本在 Sparkle 更新获准继续前创建完整备份，安装重启和待退出安装路径通过更新委托与应用退出委托补做最新备份。备份失败时停止或暂停升级，取消或跳过更新后恢复正常退出。回调依据 [Sparkle 更新委托文档](https://sparkle-project.org/documentation/api-reference/Protocols/SPUUpdaterDelegate.html) 接入；线上完整安装链路仍需在签名发布后验收。
+
+应用版本／构建号改变或首次启用此保护时，在创建 `ModelContainer` 前使用 SQLite backup API 生成现有数据库的独立快照，包含 WAL 中已提交的数据；备份失败不进入迁移。日常本机安装脚本也会在替换应用前执行同样的快照校验。定时与手动快照包含 JSON、数据库及可用的恢复草稿，升级前快照独立保留 10 份。具体使用见[自动备份与历史恢复](USER-GUIDE.md#自动备份与历史恢复)。
+
 此前验证版使用不同的 Bundle Identifier，与正式版容器隔离。当前开发机已备份并合并旧书库到 `io.github.medicoderhz.bookshelf`，并完成正文、关联和重启读取检查；原容器与备份保留在本机，不纳入 Git。
 
 后续本机安装统一使用 `scripts/install-local.sh`，固定入口为 `~/Applications/Bookshelf.app`，不再切换验证版书库。今后的正式更新保持 Bundle Identifier 不变，并继续通过现有 SwiftData 迁移与备份机制保留数据。其他机器若仍有旧容器，迁移前应先备份；JSON 导入会按已有导入规则匹配书目，不能直接当作无损数据库合并。

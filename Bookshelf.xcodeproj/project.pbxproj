@@ -108,6 +108,9 @@
 		AA2000000000000000000001 /* AppUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2000000000000000000001 /* AppUpdater.swift */; };
 		AA2000000000000000000002 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = FF2000000000000000000001 /* Sparkle */; };
 		AA2000000000000000000004 /* ThirdPartyNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = BB2000000000000000000002 /* ThirdPartyNotices.txt */; };
+		DE87F7B37B07426DA2179D0A /* AutomaticBackupStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B8630EC935472480697C5B /* AutomaticBackupStore.swift */; };
+		A1A04E326BCF4F019002EBD7 /* AutomaticBackupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822377FBF88E48388FAA2BAD /* AutomaticBackupController.swift */; };
+		BB8BB3A2640443829B4F325B /* AutomaticBackupSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -215,6 +218,9 @@
 		9AD9B75B8DE9482485E170B5 /* NoteEditorPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorPosition.swift; sourceTree = "<group>"; };
 		BB2000000000000000000001 /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
 		BB2000000000000000000002 /* ThirdPartyNotices.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ThirdPartyNotices.txt; sourceTree = "<group>"; };
+		34B8630EC935472480697C5B /* AutomaticBackupStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticBackupStore.swift; sourceTree = "<group>"; };
+		822377FBF88E48388FAA2BAD /* AutomaticBackupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticBackupController.swift; sourceTree = "<group>"; };
+		FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticBackupSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -360,6 +366,7 @@
 				B10000000000000000000011 /* PrivacyPolicyView.swift */,
 				B1000000000000000000000A /* SettingsView.swift */,
 				B1000000000000000000001D /* TranslatorSettingsView.swift */,
+				FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -445,6 +452,7 @@
 				B10000000000000000000042 /* LibraryNotifier.swift */,
 				B10000000000000000000043 /* LibraryQuery.swift */,
 				B10000000000000000000044 /* SmartCollectionService.swift */,
+				822377FBF88E48388FAA2BAD /* AutomaticBackupController.swift */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -461,6 +469,7 @@
 				B10000000000000000000048 /* LibraryOrganization.swift */,
 				B10000000000000000000049 /* LibraryRepository.swift */,
 				B1000000000000000000004A /* SmartCollectionStore.swift */,
+				34B8630EC935472480697C5B /* AutomaticBackupStore.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -655,6 +664,9 @@
 				A10000000000000000000018 /* TranslatorStore.swift in Sources */,
 				A10000000000000000000019 /* TranslatorSettingsView.swift in Sources */,
 				A1000000000000000000001A /* GoodreadsBookTranslator.swift in Sources */,
+				DE87F7B37B07426DA2179D0A /* AutomaticBackupStore.swift in Sources */,
+				A1A04E326BCF4F019002EBD7 /* AutomaticBackupController.swift in Sources */,
+				BB8BB3A2640443829B4F325B /* AutomaticBackupSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

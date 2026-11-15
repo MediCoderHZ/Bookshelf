@@ -37,7 +37,7 @@ bash scripts/install-local.sh
 bash scripts/install-local.sh --app /path/to/Bookshelf.app
 ```
 
-安装脚本保留旧应用到 `work/LocalAppBackups/`，拒绝覆盖仍在运行的应用，不启动应用，也不修改书库。安装完成后只打开 `~/Applications/Bookshelf.app`。本机数据位于 `~/Library/Containers/io.github.medicoderhz.bookshelf/Data/Library/Application Support/`；迁移前备份保存在被 Git 忽略的 `work/LibraryMigration/`，不要上传个人书库。
+安装脚本保留旧应用到 `work/LocalAppBackups/`，拒绝覆盖仍在运行的应用。在替换应用前，通过 `scripts/lib/backup_local_library.py` 将现有书库及恢复草稿备份到正式容器的 `Bookshelf/Backups/`，包含 WAL 数据并校验完整性；备份失败时停止安装。脚本不启动应用，也不修改书库。安装完成后只打开 `~/Applications/Bookshelf.app`。本机数据位于 `~/Library/Containers/io.github.medicoderhz.bookshelf/Data/Library/Application Support/`；此前迁移备份仍保存在被 Git 忽略的 `work/LibraryMigration/`，不要上传个人书库。
 
 此脚本为本机运行临时签名，原始 Release 产物保持不变；安装后的本机应用不作为公开分发包。
 
@@ -78,7 +78,7 @@ bash scripts/verify-project.sh --disable-sandbox
 
 ## 当前验证状态
 
-2026-11-15 当前完整版本已使用 Xcode 27.2 完成验证：491 项 XCTest 中 481 项通过、10 项按设计跳过、0 项失败，8 项发布工具测试通过；arm64 / x86_64 Release 构建通过。固定应用入口中的书库重启读取、高级筛选缩放和视图条目数量显示均已检查。当前范围见[完整版本验收记录](UPDATE-VALIDATION.md)，早期目录整理的验证保留在[初始验证记录](BUILD-VALIDATION.md)。
+2026-11-15 加入自动备份后的版本已使用 Xcode 27.2 完成验证：503 项 XCTest 中 493 项通过、10 项按设计跳过、0 项失败，14 项发布与本机备份工具测试通过；arm64 / x86_64 Release 构建通过。固定应用入口中的自动备份、历史恢复预览和重启读取已检查，升级前、启动时及手动生成的备份均通过完整性校验，全部模型记录与现有书库一致。此前高级筛选缩放和视图条目数量显示的验证仍保留。当前范围见[完整版本验收记录](UPDATE-VALIDATION.md)，早期目录整理的验证保留在[初始验证记录](BUILD-VALIDATION.md)。
 
 ## 2026-11-15 初始排查记录
 

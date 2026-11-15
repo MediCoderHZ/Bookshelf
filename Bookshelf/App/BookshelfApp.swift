@@ -4,13 +4,28 @@ import SwiftUI
 
 @main
 struct BookshelfApp: App {
-  @StateObject private var updater = AppUpdater()
-  private let storage: Result<ModelContainer, Error> = Result {
-    RetiredReadingData.cleanPreferences(.standard)
-    LibrarySearchScope.migratePreference(in: .standard)
-    let container = try LibraryDatabase.open()
-    try SmartCollectionService.retireBookTypeDefaults(in: container.mainContext)
-    return container
+  @NSApplicationDelegateAdaptor(BookshelfLifecycleDelegate.self) private var lifecycle
+  @StateObject private var updater: AppUpdater
+  @StateObject private var backups: AutomaticBackupController
+  private let storage: Result<ModelContainer, Error>
+
+  init() {
+    let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    let backups = AutomaticBackupController(appVersion: "\(AppReleaseInfo.version) (\(AppReleaseInfo.build))",
+      recoveryRoot: support.appendingPathComponent("Bookshelf"))
+    _backups = StateObject(wrappedValue: backups)
+    storage = Result {
+      let url = LibraryDatabase.defaultStoreURL
+      try backups.prepareToOpenStore(at: url)
+      RetiredReadingData.cleanPreferences(.standard)
+      LibrarySearchScope.migratePreference(in: .standard)
+      let container = try LibraryDatabase.open(at: url)
+      try SmartCollectionService.retireBookTypeDefaults(in: container.mainContext)
+      backups.attach(context: container.mainContext, storeURL: url)
+      return container
+    }
+    _updater = StateObject(wrappedValue: AppUpdater(backups: backups))
+    lifecycle.backups = backups
   }
 
   var body: some Scene {
@@ -19,6 +34,8 @@ struct BookshelfApp: App {
         switch storage {
         case .success(let container):
           LibraryWindowRoot(container: container)
+            .safeAreaInset(edge: .bottom) { AutomaticBackupWarning(backups: backups) }
+            .task { backups.start() }
         case .failure(let error):
           storageFailure(error)
         }
@@ -38,7 +55,8 @@ struct BookshelfApp: App {
       switch storage {
       case .success(let container):
         LibraryUndoScope {
-          SettingsView().environmentObject(updater).modelContainer(container).frame(width: 500, height: 680)
+          SettingsView().environmentObject(updater).environmentObject(backups)
+            .modelContainer(container).frame(width: 560, height: 760)
         }
       case .failure(let error):
         storageFailure(error).frame(width: 500, height: 340)
@@ -56,6 +74,24 @@ struct BookshelfApp: App {
       if let url = AppReleaseInfo.supportURL { Link("联系支持", destination: url) }
     }.padding(32).frame(maxWidth: 560)
   }
+}
+
+@MainActor
+final class BookshelfLifecycleDelegate: NSObject, NSApplicationDelegate {
+  var backups: AutomaticBackupController?
+  func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+    guard let backups, backups.upgradePending else { return .terminateNow }
+    do { try backups.prepareForTermination(); return .terminateNow }
+    catch {
+      let alert = NSAlert()
+      alert.messageText = "升级前备份未完成"
+      alert.informativeText = error.localizedDescription
+      alert.addButton(withTitle: "返回书架")
+      alert.runModal()
+      return .terminateCancel
+    }
+  }
+  func applicationWillTerminate(_ notification: Notification) { backups?.stop() }
 }
 
 private struct LibraryWindowRoot: View {

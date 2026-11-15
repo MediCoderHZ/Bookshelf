@@ -10,6 +10,8 @@ enum LibraryDatabase {
       BookCollection.self, CollectionItem.self, BookSeries.self, SeriesMembership.self, LibraryNote.self])
   }
 
+  static var defaultStoreURL: URL { ModelConfiguration(schema: schema).url }
+
   static func open(inMemory: Bool = false, at url: URL? = nil) throws -> ModelContainer {
     let configuration = url.map { ModelConfiguration(schema: schema, url: $0) }
       ?? ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)

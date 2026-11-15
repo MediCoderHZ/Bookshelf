@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
   @EnvironmentObject private var updater: AppUpdater
+  @EnvironmentObject private var backups: AutomaticBackupController
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Book.addedAt, order: .reverse) private var books: [Book]
   @AppStorage("libraryDisplayDensity") private var density = LibraryDisplayDensity.compact
@@ -16,6 +17,8 @@ struct SettingsView: View {
   @State private var isImporting = false
   @State private var isShowingPrivacyPolicy = false
   @State private var isShowingLicenses = false
+  @State private var isShowingBackupHistory = false
+  @State private var pendingBackupRestore: Data?
   @State private var resultMessage: String?
   @State private var errorMessage: String?
   @State private var importPlan: LibraryImportPlan?
@@ -57,6 +60,7 @@ struct SettingsView: View {
           .font(.caption).foregroundStyle(.secondary)
       }
 
+      AutomaticBackupSettings(backups: backups, onHistory: { isShowingBackupHistory = true })
       Section("备份与恢复") {
         LibraryUndoButtons()
         HStack {
@@ -118,6 +122,14 @@ struct SettingsView: View {
       }.padding(24).frame(width: 640, height: 520)
     }
     .sheet(isPresented: $isShowingTranslators) { TranslatorSettingsView() }
+    .sheet(isPresented: $isShowingBackupHistory, onDismiss: {
+      guard let data = pendingBackupRestore else { return }
+      pendingBackupRestore = nil
+      do { importPlan = try LibraryImportPlanner.prepare(data, context: modelContext) }
+      catch { errorMessage = error.localizedDescription }
+    }) {
+      AutomaticBackupHistoryView(backups: backups) { pendingBackupRestore = $0 }
+    }
     .sheet(item: $importPlan, onDismiss: {
       if let message = pendingImportMessage { resultMessage = message; pendingImportMessage = nil }
     }) { plan in
