@@ -6,25 +6,30 @@ struct AutomaticBackupSettings: View {
   let onHistory: () -> Void
 
   var body: some View {
-    Section(L10n.tr("自动备份")) {
+    VStack(alignment: .leading, spacing: 18) {
       Toggle(L10n.tr("定期备份书籍和笔记"), isOn: $backups.isEnabled)
-      Picker(L10n.tr("备份频率"), selection: $backups.intervalHours) {
-        Text(L10n.tr("每小时")).tag(1)
-        Text(L10n.tr("每 6 小时")).tag(6)
-        Text(L10n.tr("每天")).tag(24)
-      }.disabled(!backups.isEnabled)
-      Picker(L10n.tr("保留定时与手动备份"), selection: $backups.retentionCount) {
-        ForEach([7, 30, 90], id: \.self) { Text(L10n.tr("最近 \($0) 份")).tag($0) }
+      SettingsControlRow(title: L10n.tr("备份频率")) {
+        Picker(L10n.tr("备份频率"), selection: $backups.intervalHours) {
+          Text(L10n.tr("每小时")).tag(1)
+          Text(L10n.tr("每 6 小时")).tag(6)
+          Text(L10n.tr("每天")).tag(24)
+        }.labelsHidden().frame(width: 210, alignment: .leading).disabled(!backups.isEnabled)
       }
-      LabeledContent(L10n.tr("最近成功备份"), value: backups.lastBackup?.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale)) ?? L10n.tr("尚未完成"))
-      HStack {
+      SettingsControlRow(title: L10n.tr("保留定时与手动备份")) {
+        Picker(L10n.tr("保留定时与手动备份"), selection: $backups.retentionCount) {
+          ForEach([7, 30, 90], id: \.self) { Text(L10n.tr("最近 \($0) 份")).tag($0) }
+        }.labelsHidden().frame(width: 210, alignment: .leading)
+      }
+      SettingsControlRow(title: L10n.tr("最近成功备份")) {
+        Text(backups.lastBackup?.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale)) ?? L10n.tr("尚未完成"))
+          .textSelection(.enabled)
+      }
+      HStack(spacing: 12) {
         Button(L10n.tr("立即备份")) { _ = try? backups.create() }
         Button(L10n.tr("查看历史备份…"), action: onHistory)
       }
-      Text(L10n.tr("运行期间按时备份，关闭或休眠错过的备份在下次运行时补做。升级前始终额外备份，并单独保留最近 10 份；关闭定期备份不关闭升级保护。"))
-        .font(.caption).foregroundStyle(.secondary)
-      Text(L10n.tr("备份保存在本机，不能防止整块磁盘损坏。可通过历史备份窗口导出 JSON 到其他磁盘。"))
-        .font(.caption).foregroundStyle(.secondary)
+      SettingsHelp(L10n.tr("运行期间按时备份，关闭或休眠错过的备份在下次运行时补做。升级前始终额外备份，并单独保留最近 10 份；关闭定期备份不关闭升级保护。"))
+      SettingsHelp(L10n.tr("备份保存在本机，不能防止整块磁盘损坏。可通过历史备份窗口导出 JSON 到其他磁盘。"))
       if let message = backups.lastError {
         Text(L10n.tr("备份未完成：") + message).foregroundStyle(.red).textSelection(.enabled)
       }

@@ -7,6 +7,7 @@ struct BookshelfApp: App {
   @NSApplicationDelegateAdaptor(BookshelfLifecycleDelegate.self) private var lifecycle
   @StateObject private var updater: AppUpdater
   @StateObject private var backups: AutomaticBackupController
+  @StateObject private var relauncher: AppRelaunchController
   private let storage: Result<ModelContainer, Error>
 
   init() {
@@ -25,6 +26,10 @@ struct BookshelfApp: App {
       return container
     }
     _updater = StateObject(wrappedValue: AppUpdater(backups: backups))
+    _relauncher = StateObject(wrappedValue: AppRelaunchController(prepare: {
+      guard NSApp.keyWindow?.makeFirstResponder(nil) != false else { throw AutomaticBackupError.pendingChanges }
+      _ = try backups.create()
+    }))
     lifecycle.backups = backups
   }
 
@@ -56,9 +61,10 @@ struct BookshelfApp: App {
       switch storage {
       case .success(let container):
         LibraryUndoScope {
-          SettingsView().environmentObject(updater).environmentObject(backups)
+          SettingsView().environmentObject(updater).environmentObject(backups).environmentObject(relauncher)
             .environment(\.locale, L10n.locale)
-            .modelContainer(container).frame(width: 560, height: 760)
+            .modelContainer(container)
+            .frame(width: 960, height: 700)
         }
       case .failure(let error):
         storageFailure(error).frame(width: 500, height: 340)
@@ -82,16 +88,19 @@ struct BookshelfApp: App {
 final class BookshelfLifecycleDelegate: NSObject, NSApplicationDelegate {
   var backups: AutomaticBackupController?
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-    guard let backups, backups.upgradePending else { return .terminateNow }
-    do { try backups.prepareForTermination(); return .terminateNow }
-    catch {
-      let alert = NSAlert()
-      alert.messageText = L10n.tr("升级前备份未完成")
-      alert.informativeText = error.localizedDescription
-      alert.addButton(withTitle: L10n.tr("返回书架"))
-      alert.runModal()
-      return .terminateCancel
+    if let backups, backups.upgradePending {
+      do { try backups.prepareForTermination() }
+      catch {
+        let alert = NSAlert()
+        alert.messageText = L10n.tr("升级前备份未完成")
+        alert.informativeText = error.localizedDescription
+        alert.addButton(withTitle: L10n.tr("返回书架"))
+        alert.runModal()
+        return .terminateCancel
+      }
     }
+    InterfaceLanguagePreferences.shared.prepareForRelaunch()
+    return .terminateNow
   }
   func applicationWillTerminate(_ notification: Notification) { backups?.stop() }
 }
@@ -99,11 +108,23 @@ final class BookshelfLifecycleDelegate: NSObject, NSApplicationDelegate {
 private struct LibraryWindowRoot: View {
   let container: ModelContainer
   @State private var appState = AppState()
+  @Environment(\.openSettings) private var openSettings
   var body: some View {
     LibraryUndoScope {
       ContentView().environment(appState).modelContainer(container)
         .focusedSceneValue(\.newBookAction, { appState.presentNewBook() })
+        .task { reopenSettingsIfRequested() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+          reopenSettingsIfRequested()
+        }
     }
+  }
+  private func reopenSettingsIfRequested() {
+    guard NSApp.isActive, UserDefaults.standard.bool(forKey: AppRelaunchController.settingsRequestKey) else { return }
+    UserDefaults.standard.removeObject(forKey: AppRelaunchController.settingsRequestKey)
+    // Launch Services can omit launch arguments for a sandboxed app. Consume
+    // this one-shot preference after activation, when Settings is registered.
+    DispatchQueue.main.async { openSettings() }
   }
 }
 

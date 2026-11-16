@@ -59,6 +59,16 @@ struct MetadataFieldOrigin: Codable, Equatable {
   let url: String?
   let retrievedAt: Date?
   var inferred: Bool? = nil
+  var displayName: String { Self.displayName(for: name) }
+  static func displayName(for name: String) -> String {
+    switch name {
+    case "手动编辑", "Manual edit": L10n.tr("手动编辑")
+    case "手动记录", "Manual entry": L10n.tr("手动记录")
+    case "RIS 文件导入", "RIS file import": L10n.tr("RIS 文件导入")
+    case "豆瓣图书", "Douban Books": L10n.tr("豆瓣图书")
+    default: name // Preserve custom translator names and other source content.
+    }
+  }
 }
 
 enum BookRecordMerge {

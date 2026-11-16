@@ -827,3 +827,50 @@
 "界面语言" = "Interface language";
 "界面立即切换并记住选择。系统菜单、文件对话框及更新窗口在重新打开应用后使用所选语言。" = "The interface changes immediately and your choice is saved. System menus, file dialogs, and update windows use the selected language after reopening the app.";
 "编者" = "Editor";
+
+/* Settings navigation and search */
+"通用" = "General";
+"导入与导出" = "Import and Export";
+"外观与语言" = "Appearance and Language";
+"书库显示" = "Library Display";
+"本地数据与隐私" = "Local Data and Privacy";
+"关于书架" = "About Bookshelf";
+"搜索结果" = "Search Results";
+"未找到相关设置" = "No Settings Found";
+"试试其他关键词，或从左侧选择分类。" = "Try another keyword, or choose a category in the sidebar.";
+"清除搜索" = "Clear Search";
+"设置分类" = "Settings Categories";
+"搜索设置" = "Search Settings";
+"搜索所有设置，支持中英文关键词（⌘F）。" = "Search all settings using Chinese or English keywords (⌘F).";
+"前往备份与恢复" = "Go to Backup and Restore";
+"简体中文" = "Simplified Chinese";
+"中文" = "Chinese";
+"英文" = "English";
+"字体" = "Font";
+"书目" = "Bibliography";
+"自定义规则" = "Custom Rules";
+"升级" = "Update";
+"历史" = "History";
+"频率" = "Frequency";
+"更新设置" = "Update Preferences";
+
+/* Consistent process language and native UI */
+"书架设置" = "Bookshelf Settings";
+"语言更改将在重新打开应用后统一生效，包括窗口、菜单、文件对话框和更新窗口。当前界面保持原语言，避免中英文混用。" = "Language changes take effect throughout the app when you reopen it, including windows, menus, file dialogs, and update windows. The current interface keeps its language until then.";
+"语言更改已保存。请先完成当前编辑，再退出并重新打开应用。" = "Your language choice is saved. Finish any current edits, then quit and reopen the app.";
+"退出应用" = "Quit App";
+"取消语言更改" = "Cancel Language Change";
+"撤销{0}" = "Undo {0}";
+"重做{0}" = "Redo {0}";
+"手动编辑" = "Manual edit";
+"手动记录" = "Manual entry";
+"RIS 文件导入" = "RIS file import";
+
+/* Restart after a language change */
+"未找到重启组件，请重新安装应用后再试。" = "The restart component is missing. Reinstall the app and try again.";
+"无法准备自动重启，应用尚未退出，请重试。" = "The app could not prepare to restart. It is still open; please try again.";
+"退出已取消，应用保持打开。请完成当前操作后再重试。" = "Quitting was cancelled and the app is still open. Finish the current operation and try again.";
+"无法重启应用：{0}" = "Unable to restart the app: {0}";
+"语言更改已保存。重启后将自动重新打开当前应用并应用所选语言。" = "Your language choice is saved. Restart to reopen this app automatically in the selected language.";
+"正在重启…" = "Restarting…";
+"重启应用" = "Restart App";

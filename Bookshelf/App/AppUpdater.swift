@@ -158,7 +158,7 @@ struct AppUpdateSettings: View {
   @ObservedObject var updater: AppUpdater
 
   var body: some View {
-    Section(L10n.tr("软件更新")) {
+    VStack(alignment: .leading, spacing: 18) {
       Toggle(L10n.tr("自动检查更新"), isOn: Binding(
         get: { updater.automaticallyChecksForUpdates },
         set: updater.setAutomaticallyChecksForUpdates))
@@ -173,7 +173,7 @@ struct AppUpdateSettings: View {
         Link(L10n.tr("版本与下载"), destination: URL(string: "https://github.com/MediCoderHZ/Bookshelf/releases")!)
       }
       if !updater.isAvailable {
-        Text(L10n.tr("此版本尚未启用在线更新。")).font(.caption).foregroundStyle(.secondary)
+        SettingsHelp(L10n.tr("此版本尚未启用在线更新。"))
       }
       if updater.installationPaused {
         Text(L10n.tr("升级已暂停，完成备份后才能继续。")).foregroundStyle(.red)

@@ -1,6 +1,15 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
+enum LibraryUndoLabel {
+  static func title(_ manager: UndoManager?, redo: Bool = false) -> String {
+    let name = redo ? manager?.redoActionName : manager?.undoActionName
+    guard let name, !name.isEmpty else { return redo ? L10n.tr("重做") : L10n.tr("撤销") }
+    return redo ? L10n.tr("重做\(name)") : L10n.tr("撤销\(name)")
+  }
+}
+
 struct LibraryUndoButtons: View {
   @Environment(\.modelContext) private var context
   @Environment(\.libraryUndoManager) private var manager
@@ -9,12 +18,12 @@ struct LibraryUndoButtons: View {
     HStack(spacing: 6) {
       Button(L10n.tr("撤销"), systemImage: "arrow.uturn.backward") { manager?.undo() }
         .disabled(!(manager?.canUndo ?? false))
-        .help(manager?.undoMenuItemTitle ?? L10n.tr("撤销"))
-        .accessibilityLabel(manager?.undoMenuItemTitle ?? L10n.tr("撤销"))
+        .help(LibraryUndoLabel.title(manager))
+        .accessibilityLabel(LibraryUndoLabel.title(manager))
       Button(L10n.tr("重做"), systemImage: "arrow.uturn.forward") { manager?.redo() }
         .disabled(!(manager?.canRedo ?? false))
-        .help(manager?.redoMenuItemTitle ?? L10n.tr("重做"))
-        .accessibilityLabel(manager?.redoMenuItemTitle ?? L10n.tr("重做"))
+        .help(LibraryUndoLabel.title(manager, redo: true))
+        .accessibilityLabel(LibraryUndoLabel.title(manager, redo: true))
     }.id(history.revision)
   }
 }
@@ -25,9 +34,9 @@ struct LibraryUndoMenuItems: View {
   private var history: LibraryHistory { LibraryServices.forContext(context).history }
   var body: some View {
     Group {
-      Button(manager?.undoMenuItemTitle ?? L10n.tr("撤销"), systemImage: "arrow.uturn.backward") { manager?.undo() }
+      Button(LibraryUndoLabel.title(manager), systemImage: "arrow.uturn.backward") { manager?.undo() }
         .disabled(!(manager?.canUndo ?? false))
-      Button(manager?.redoMenuItemTitle ?? L10n.tr("重做"), systemImage: "arrow.uturn.forward") { manager?.redo() }
+      Button(LibraryUndoLabel.title(manager, redo: true), systemImage: "arrow.uturn.forward") { manager?.redo() }
         .disabled(!(manager?.canRedo ?? false))
     }.id(history.revision)
   }
@@ -54,8 +63,8 @@ struct MetadataOriginView: View {
     VStack(alignment: .leading, spacing: 3) {
       if let origin {
         if let value = origin.url, let url = URL(string: value), url.scheme == "https", url.host != nil {
-          Link(origin.name, destination: url)
-        } else { Text(origin.name) }
+          Link(origin.displayName, destination: url)
+        } else { Text(origin.displayName) }
         if legacy { Text(L10n.tr("历史来源，未逐字段记录")) }
         if let date = origin.retrievedAt { Text(date.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale))) }
       } else { Text(L10n.tr("手动录入或未记录来源")) }
@@ -259,7 +268,7 @@ struct MetadataUpdateView: View {
           }
           Button(L10n.tr("全部保留当前值")) { selected = [] }
           Spacer()
-          Text(L10n.tr("来源：\(proposal.incoming.metadataSourceName ?? L10n.tr("导入"))")).font(.caption)
+          Text(L10n.tr("来源：\(proposal.incoming.metadataSourceName.map(MetadataFieldOrigin.displayName(for:)) ?? L10n.tr("导入"))")).font(.caption)
         }
         if versionChanged {
           Text(L10n.tr("新旧 ISBN 不同。请特别核对作者、译者、出版社和出版日期，避免混合不同版本。")).foregroundStyle(.orange)

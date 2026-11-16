@@ -40,6 +40,67 @@ final class InterfaceLanguageTests: XCTestCase {
     wait(for: [changed], timeout: 1)
   }
 
+  func testRequestedLanguageDoesNotPartiallySwitchTheRunningProcess() {
+    let defaults = preferences()
+    defaults.set(["zh-Hans"], forKey: "AppleLanguages")
+    let settings = InterfaceLanguagePreferences(preferences: defaults, launchLanguage: .chinese)
+    settings.requestedLanguage = .english
+    XCTAssertEqual(settings.language, .chinese)
+    XCTAssertEqual(settings.requestedLanguage, .english)
+    XCTAssertTrue(settings.requiresRelaunch)
+    XCTAssertEqual(defaults.stringArray(forKey: "AppleLanguages"), ["zh-Hans"])
+    settings.prepareForRelaunch()
+    XCTAssertEqual(defaults.stringArray(forKey: "AppleLanguages"), ["en"])
+    let reopened = InterfaceLanguagePreferences(preferences: defaults, launchLanguage: .english)
+    XCTAssertEqual(reopened.language, .english)
+    XCTAssertFalse(reopened.requiresRelaunch)
+  }
+
+  func testLanguageChangeCanBeCancelledAndFirstLaunchMatchesNativeLanguage() {
+    let defaults = preferences()
+    let settings = InterfaceLanguagePreferences(preferences: defaults, launchLanguage: .english)
+    XCTAssertEqual(settings.language, .english)
+    XCTAssertEqual(settings.requestedLanguage, .english)
+    settings.requestedLanguage = .chinese
+    settings.requestedLanguage = settings.language
+    XCTAssertFalse(settings.requiresRelaunch)
+    settings.prepareForRelaunch()
+    XCTAssertEqual(defaults.stringArray(forKey: "AppleLanguages"), ["en"])
+  }
+
+  func testNativeApplicationNamesAndSettingsTitleAreFullyLocalized() throws {
+    for (language, name, title) in [(InterfaceLanguage.chinese, "书架", "书架设置"), (.english, "Bookshelf", "Bookshelf Settings")] {
+      let url = try XCTUnwrap(L10n.resourceBundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: language.rawValue))
+      let info = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as? [String: String])
+      XCTAssertEqual(info["CFBundleName"], name)
+      XCTAssertEqual(info["CFBundleDisplayName"], name)
+      XCTAssertEqual(L10n.render("书架设置", language: language), title)
+    }
+  }
+
+  func testUndoLabelsDoNotInheritSystemLanguage() {
+    let manager = UndoManager()
+    let previous = InterfaceLanguagePreferences.shared.language
+    defer { InterfaceLanguagePreferences.shared.language = previous }
+    InterfaceLanguagePreferences.shared.language = .chinese
+    XCTAssertEqual(LibraryUndoLabel.title(manager), "撤销")
+    XCTAssertEqual(LibraryUndoLabel.title(manager, redo: true), "重做")
+    InterfaceLanguagePreferences.shared.language = .english
+    XCTAssertEqual(LibraryUndoLabel.title(manager), "Undo")
+    XCTAssertEqual(LibraryUndoLabel.title(manager, redo: true), "Redo")
+  }
+
+  func testBuiltInOriginLabelsTranslateWithoutChangingStoredData() throws {
+    let origin = MetadataFieldOrigin(name: "手动编辑", url: nil, retrievedAt: nil)
+    let before = try JSONEncoder().encode(origin)
+    try withEnglish {
+      XCTAssertEqual(origin.displayName, "Manual edit")
+      XCTAssertEqual(MetadataFieldOrigin.displayName(for: "RIS 文件导入"), "RIS file import")
+      XCTAssertEqual(MetadataFieldOrigin.displayName(for: "我的自定义来源"), "我的自定义来源")
+      XCTAssertEqual(try JSONEncoder().encode(origin), before)
+    }
+  }
+
   func testBothResourceCatalogsHaveCompleteMatchingKeysAndTokens() throws {
     func catalog(_ language: InterfaceLanguage) throws -> [String: String] {
       let url = try XCTUnwrap(L10n.resourceBundle.url(forResource: "Localizable", withExtension: "strings", subdirectory: nil, localization: language.rawValue))

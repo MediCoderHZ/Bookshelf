@@ -113,6 +113,10 @@
 		BB8BB3A2640443829B4F325B /* AutomaticBackupSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */; };
 		0723B8730DF74EDA94D2E22B /* InterfaceLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04B29EEB7C3489E8D983814 /* InterfaceLanguage.swift */; };
 		7F2E47B9205A4D4999BE207A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CFF08C97208C4F0DA40916F2 /* Localizable.strings */; };
+		DAEF785F6A9151C8B9FC56E0 /* SettingsNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADB28FA335B2208BC6B8443C /* SettingsNavigation.swift */; };
+		AC68428F9863EFA6D384B39E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 266C08804E3EC9725014FD79 /* InfoPlist.strings */; };
+		63E8F082E577780FE821FC77 /* AppRelaunchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F1890DCD24F3502A65338C /* AppRelaunchController.swift */; };
+		4846CB5DF8801935F0AA93D3 /* relaunch.sh in Resources */ = {isa = PBXBuildFile; fileRef = D92F0C0E015850F836E428A3 /* relaunch.sh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -226,6 +230,11 @@
 		F04B29EEB7C3489E8D983814 /* InterfaceLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceLanguage.swift; sourceTree = "<group>"; };
 		EE55D81D76E0440495E494E2 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		253C4AE3C4B345738D12FCBF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "en.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		ADB28FA335B2208BC6B8443C /* SettingsNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigation.swift; sourceTree = "<group>"; };
+		00ED3D135D9E69DBDE6A5663 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en"; path = "en.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		4A3526F95E838C139BE09A10 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		D1F1890DCD24F3502A65338C /* AppRelaunchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRelaunchController.swift; sourceTree = "<group>"; };
+		D92F0C0E015850F836E428A3 /* relaunch.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = relaunch.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -270,6 +279,7 @@
 			children = (
 				B10000000000000000000002 /* AppState.swift */,
 				B10000000000000000000001 /* BookshelfApp.swift */,
+				D1F1890DCD24F3502A65338C /* AppRelaunchController.swift */,
 				BB2000000000000000000001 /* AppUpdater.swift */,
 			);
 			path = App;
@@ -370,6 +380,7 @@
 			children = (
 				B10000000000000000000011 /* PrivacyPolicyView.swift */,
 				B1000000000000000000000A /* SettingsView.swift */,
+				ADB28FA335B2208BC6B8443C /* SettingsNavigation.swift */,
 				B1000000000000000000001D /* TranslatorSettingsView.swift */,
 				FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */,
 			);
@@ -402,7 +413,9 @@
 				B1000000000000000000000B /* Assets.xcassets */,
 				B10000000000000000000014 /* PrivacyInfo.xcprivacy */,
 				BB2000000000000000000002 /* ThirdPartyNotices.txt */,
+				D92F0C0E015850F836E428A3 /* relaunch.sh */,
 				CFF08C97208C4F0DA40916F2 /* Localizable.strings */,
+				266C08804E3EC9725014FD79 /* InfoPlist.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -525,6 +538,7 @@
 
 /* Begin PBXVariantGroup section */
 		CFF08C97208C4F0DA40916F2 /* Localizable.strings */ = {isa = PBXVariantGroup; children = (EE55D81D76E0440495E494E2 /* zh-Hans */, 253C4AE3C4B345738D12FCBF /* en */,); name = Localizable.strings; sourceTree = "<group>"; };
+		266C08804E3EC9725014FD79 /* InfoPlist.strings */ = {isa = PBXVariantGroup; children = (4A3526F95E838C139BE09A10 /* zh-Hans */, 00ED3D135D9E69DBDE6A5663 /* en */,); name = InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXVariantGroup section */
 
 /* Begin PBXProject section */
@@ -568,7 +582,9 @@
 				A1000000000000000000000B /* Assets.xcassets in Resources */,
 				A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
 				AA2000000000000000000004 /* ThirdPartyNotices.txt in Resources */,
+				4846CB5DF8801935F0AA93D3 /* relaunch.sh in Resources */,
 				7F2E47B9205A4D4999BE207A /* Localizable.strings in Resources */,
+				AC68428F9863EFA6D384B39E /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -627,6 +643,7 @@
 				A1000000000000000000004C /* TranslatorRegistry.swift in Sources */,
 				A1000000000000000000004D /* LibraryBackupDocument.swift in Sources */,
 				A10000000000000000000001 /* BookshelfApp.swift in Sources */,
+				63E8F082E577780FE821FC77 /* AppRelaunchController.swift in Sources */,
 				AA2000000000000000000001 /* AppUpdater.swift in Sources */,
 				A10000000000000000000002 /* AppState.swift in Sources */,
 				A10000000000000000000003 /* LibraryModels.swift in Sources */,
@@ -650,6 +667,7 @@
 				23D6BDCBC55C4236B2AAA120 /* NoteEditorPosition.swift in Sources */,
 				A10000000000000000000009 /* BookEditorView.swift in Sources */,
 				A1000000000000000000000A /* SettingsView.swift in Sources */,
+				DAEF785F6A9151C8B9FC56E0 /* SettingsNavigation.swift in Sources */,
 				A1000000000000000000000C /* DuplicateDetector.swift in Sources */,
 				A1000000000000000000000D /* LibraryBackupService.swift in Sources */,
 				A1000000000000000000000E /* PrivacyPolicyView.swift in Sources */,

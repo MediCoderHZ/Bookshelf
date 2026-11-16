@@ -88,9 +88,12 @@ try:
         check((framework / "Sparkle").is_file(), "产物缺少 Sparkle.framework")
         check((framework / "XPCServices/Installer.xpc").is_dir(), "缺少 Sparkle 沙盒安装服务")
         check((app / "Contents/Resources/ThirdPartyNotices.txt").is_file(), "缺少第三方许可声明")
+        check((app / "Contents/Resources/relaunch.sh").is_file(), "缺少自动重启组件")
         for language in ("zh-Hans", "en"):
             check((app / "Contents/Resources" / (language + ".lproj") / "Localizable.strings").is_file(),
                   "产物缺少界面语言资源：" + language)
+            check((app / "Contents/Resources" / (language + ".lproj") / "InfoPlist.strings").is_file(),
+                  "产物缺少本地化应用名称：" + language)
         check(info.get("SUEnableInstallerLauncherService") is True, "未启用 Sparkle 沙盒安装服务")
         check(info.get("SUEnableSystemProfiling") is False, "更新系统分析必须默认关闭")
         check(info.get("SUVerifyUpdateBeforeExtraction") is True, "更新包必须在解压前验证签名")
