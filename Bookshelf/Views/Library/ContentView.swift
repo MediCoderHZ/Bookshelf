@@ -308,18 +308,18 @@ struct ContentView: View {
   private func libraryToolbarContent(searchWidth: CGFloat) -> some View {
     HStack(spacing: 0) {
       Menu {
-        Button("添加书籍…", systemImage: "book") { presentNewBook() }
-        Button("新建笔记", systemImage: "note.text") { createNoteFromSelection() }
+        Button(L10n.tr("添加书籍…"), systemImage: "book") { presentNewBook() }
+        Button(L10n.tr("新建笔记"), systemImage: "note.text") { createNoteFromSelection() }
           .disabled(newNoteTarget == .unavailable).help(newNoteHelp)
-      } label: { LibraryToolbarLabel("添加", systemImage: "plus") }
+      } label: { LibraryToolbarLabel(L10n.tr("添加"), systemImage: "plus") }
         .buttonStyle(.plain).menuStyle(.button).menuIndicator(.hidden)
         .foregroundStyle(Color(nsColor: .secondaryLabelColor))
-        .help("添加书籍或新建笔记").fixedSize().frame(width: 32, height: 32)
+        .help(L10n.tr("添加书籍或新建笔记")).fixedSize().frame(width: 32, height: 32)
       Spacer(minLength: 8)
       // Search keeps the same view identity across pane resizing.
       if showsAdvancedSearch {
         HStack(spacing: 10) {
-          Text(isCreatingSmartCollection ? "新建智能文件夹" : "高级筛选").font(.system(size: 13, weight: .semibold)).lineLimit(1)
+          Text(isCreatingSmartCollection ? L10n.tr("新建智能文件夹") : L10n.tr("高级筛选")).font(.system(size: 13, weight: .semibold)).lineLimit(1)
           Button {
             isAdvancedSearchCollapsed.toggle()
           } label: {
@@ -327,13 +327,13 @@ struct ContentView: View {
               ? "arrow.up.left.and.arrow.down.right" : "arrow.down.right.and.arrow.up.left")
               .font(.system(size: 13)).frame(width: 24, height: 24)
           }
-          .help(isAdvancedSearchCollapsed ? "展开高级筛选" : "收起条件编辑区，保留筛选条件和当前结果")
-          .accessibilityLabel(isAdvancedSearchCollapsed ? "展开高级筛选" : "收起高级筛选")
-          .accessibilityValue(isAdvancedSearchCollapsed ? "已收起" : "已展开")
+          .help(isAdvancedSearchCollapsed ? L10n.tr("展开高级筛选") : L10n.tr("收起条件编辑区，保留筛选条件和当前结果"))
+          .accessibilityLabel(isAdvancedSearchCollapsed ? L10n.tr("展开高级筛选") : L10n.tr("收起高级筛选"))
+          .accessibilityValue(isAdvancedSearchCollapsed ? L10n.tr("已收起") : L10n.tr("已展开"))
           Button(action: closeAdvancedSearch) {
             Image(systemName: "xmark").frame(width: 24, height: 28)
-          }.help(smartRuleEdit == nil ? "收起条件面板，保留当前筛选结果" : isCreatingSmartCollection ? "取消新建，不创建文件夹" : "取消编辑，保留文件夹原有规则")
-            .accessibilityLabel(smartRuleEdit == nil ? "关闭高级筛选" : isCreatingSmartCollection ? "取消新建智能文件夹" : "取消编辑智能文件夹")
+          }.help(smartRuleEdit == nil ? L10n.tr("收起条件面板，保留当前筛选结果") : isCreatingSmartCollection ? L10n.tr("取消新建，不创建文件夹") : L10n.tr("取消编辑，保留文件夹原有规则"))
+            .accessibilityLabel(smartRuleEdit == nil ? L10n.tr("关闭高级筛选") : isCreatingSmartCollection ? L10n.tr("取消新建智能文件夹") : L10n.tr("取消编辑智能文件夹"))
         }.buttonStyle(.plain).foregroundStyle(.secondary)
       } else {
         LibrarySearchField(text: $searchText, scope: $searchScope, focusRequest: searchFocusRequest,
@@ -447,9 +447,9 @@ struct ContentView: View {
       .frame(minWidth: 600, idealWidth: 620, minHeight: 440, idealHeight: 480)
     }
     .sheet(item: $batchEditRequest) { BookBatchEditView(request: $0) }
-    .confirmationDialog(purgePlan?.confirmationTitle ?? "永久删除？", isPresented: $isConfirmingPurge, titleVisibility: .visible) {
-      Button(purgePlan?.emptiesTrash == true ? "清空回收站" : "永久删除", role: .destructive) { purgeSelection() }
-      Button("取消", role: .cancel) { purgePlan = nil }
+    .confirmationDialog(purgePlan?.confirmationTitle ?? L10n.tr("永久删除？"), isPresented: $isConfirmingPurge, titleVisibility: .visible) {
+      Button(purgePlan?.emptiesTrash == true ? L10n.tr("清空回收站") : L10n.tr("永久删除"), role: .destructive) { purgeSelection() }
+      Button(L10n.tr("取消"), role: .cancel) { purgePlan = nil }
     } message: { Text(purgePlan?.confirmationMessage ?? "") }
   }
 
@@ -542,12 +542,12 @@ struct ContentView: View {
       if !groups.contains(selectedBookIDs) { selectedBookIDs.removeAll() }
     }
     .alert(
-      "无法保存更改",
+      L10n.tr("无法保存更改"),
       isPresented: Binding(
         get: { errorMessage != nil || history.errorMessage != nil }, set: { if !$0 { errorMessage = nil; history.errorMessage = nil } }
       )
     ) {
-      Button("好", role: .cancel) {}
+      Button(L10n.tr("好"), role: .cancel) {}
     } message: {
       Text(errorMessage ?? history.errorMessage ?? "")
     }
@@ -563,8 +563,8 @@ struct ContentView: View {
       books: selectedBooks, collections: manualCollections, currentCollectionID: currentCollectionID,
       onCollection: changeCollection, onBatchEdit: openBatchEdit)
       Divider()
-      Button("合并所选书籍…") { openMerge(selectedBookIDs) }.disabled(selectedBooks.count < 2)
-      Button("移入回收站", role: .destructive) { changeTrash(selectedBookIDs, true) }
+      Button(L10n.tr("合并所选书籍…")) { openMerge(selectedBookIDs) }.disabled(selectedBooks.count < 2)
+      Button(L10n.tr("移入回收站"), role: .destructive) { changeTrash(selectedBookIDs, true) }
     }
     }
   }
@@ -624,11 +624,11 @@ struct ContentView: View {
     if isTrashScope && selectedTrashItemIDs.count > 1 {
       VStack(spacing: 16) {
         Image(systemName: "trash").font(.system(size: 36)).foregroundStyle(.secondary)
-        Text("已选择 \(selectedTrashItemIDs.count) 个条目")
-        Text("\(selectedTrashItemIDs.compactMap(\.bookID).count) 本书 · \(selectedTrashItemIDs.compactMap(\.noteID).count) 条笔记")
+        Text(L10n.tr("已选择 \(selectedTrashItemIDs.count) 个条目"))
+        Text(L10n.tr("\(selectedTrashItemIDs.compactMap(\.bookID).count) 本书 · \(selectedTrashItemIDs.compactMap(\.noteID).count) 条笔记"))
           .foregroundStyle(.secondary)
         if !canRestoreTrashItems(selectedTrashItemIDs) {
-          Text("部分笔记的所属书籍仍在回收站中，请同时选择这些书籍，或先恢复书籍。")
+          Text(L10n.tr("部分笔记的所属书籍仍在回收站中，请同时选择这些书籍，或先恢复书籍。"))
             .foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
         TrashSelectionActions(canRestore: canRestoreTrashItems(selectedTrashItemIDs),
@@ -637,7 +637,7 @@ struct ContentView: View {
     } else if !isTrashScope && selectedNoteIDs.count > 1 {
       VStack(spacing: 16) {
         Image(systemName: "note.text").font(.system(size: 36)).foregroundStyle(.secondary)
-        Text("已选择 \(selectedNoteIDs.count) 条笔记")
+        Text(L10n.tr("已选择 \(selectedNoteIDs.count) 条笔记"))
       }.padding(24).frame(maxWidth: .infinity, maxHeight: .infinity)
     } else if let note = selectedNote {
       NoteDetailView(note: note, positions: noteEditorPositions, onRestore: { restoreTrashItems([.note(note.id)]) },
@@ -647,23 +647,23 @@ struct ContentView: View {
     } else if selectedBooks.count > 1 {
       VStack(spacing: 18) {
         Image(systemName: "books.vertical").font(.system(size: 42)).foregroundStyle(.secondary)
-        Text("已选择 \(selectedBooks.count) 本书")
-        Text("统一设置标签与出版信息，或加入文件夹。")
+        Text(L10n.tr("已选择 \(selectedBooks.count) 本书"))
+        Text(L10n.tr("统一设置标签与出版信息，或加入文件夹。"))
           .foregroundStyle(.secondary).multilineTextAlignment(.center)
         if selectedBooks.allSatisfy({ $0.deletedAt == nil }) {
-          Button("批量编辑…") { openBatchEdit(selectedBookIDs) }.buttonStyle(.borderedProminent)
+          Button(L10n.tr("批量编辑…")) { openBatchEdit(selectedBookIDs) }.buttonStyle(.borderedProminent)
         }
-        Menu("整理所选书籍") { selectionActions }.fixedSize()
+        Menu(L10n.tr("整理所选书籍")) { selectionActions }.fixedSize()
       }.padding(24).frame(maxWidth: .infinity, maxHeight: .infinity)
     } else {
       // Use the same root items as the table, independent of child-note expansion.
       let itemCount = LibraryItemTree.rows(books: visibleBooks, notes: listNotes, inTrash: isTrashScope).count
-      Text("此视图中有 \(itemCount.formatted()) 个条目")
+      Text(L10n.tr("此视图中有 \(itemCount.formatted()) 个条目"))
         .foregroundStyle(.secondary)
         .multilineTextAlignment(.center)
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .help("统计当前筛选结果中的书籍与独立显示的笔记，不重复计入书籍下的笔记。")
+        .help(L10n.tr("统计当前筛选结果中的书籍与独立显示的笔记，不重复计入书籍下的笔记。"))
         .accessibilityIdentifier("libraryViewItemCount")
     }
   }
@@ -726,9 +726,9 @@ struct ContentView: View {
 
   private var newNoteHelp: String {
     switch newNoteTarget {
-    case .standalone: "新建独立笔记"
-    case .child: "在所选书籍下新建子笔记"
-    case .unavailable: isTrashScope ? "回收站中不能新建笔记" : "请选择一本书籍来新建子笔记"
+    case .standalone: L10n.tr("新建独立笔记")
+    case .child: L10n.tr("在所选书籍下新建子笔记")
+    case .unavailable: isTrashScope ? L10n.tr("回收站中不能新建笔记") : L10n.tr("请选择一本书籍来新建子笔记")
     }
   }
 
@@ -766,14 +766,14 @@ struct ContentView: View {
     if !noteEditing.pendingDrafts.isEmpty || noteEditing.recoveryIssue != nil {
       HStack {
         if !noteEditing.pendingDrafts.isEmpty {
-          Menu("未保存草稿（\(noteEditing.pendingDrafts.count)）") {
+          Menu(L10n.tr("未保存草稿（\(noteEditing.pendingDrafts.count)）")) {
             ForEach(noteEditing.pendingDrafts, id: \.value.id) { draft in
               Button(draft.value.displayTitle) {
                 navigationSelection = .all; openNote(draft.value.id)
               }
             }
           }
-          Text("保存失败的内容已保留，可打开重试或另存。")
+          Text(L10n.tr("保存失败的内容已保留，可打开重试或另存。"))
         }
         if let issue = noteEditing.recoveryIssue { Text(issue).textSelection(.enabled) }
         Spacer()
@@ -785,10 +785,10 @@ struct ContentView: View {
     if !metadataEditing.pendingDrafts.isEmpty || metadataEditing.recoveryIssue != nil {
       HStack {
         if !metadataEditing.pendingDrafts.isEmpty {
-          Menu("未保存的元信息（\(metadataEditing.pendingDrafts.count)）") {
+          Menu(L10n.tr("未保存的元信息（\(metadataEditing.pendingDrafts.count)）")) {
             ForEach(metadataEditing.pendingDrafts) { draft in
               Menu("\(draft.bookTitle) · \(draft.field.label)") {
-                Button("前往字段") {
+                Button(L10n.tr("前往字段")) {
                   guard let book = books.first(where: { $0.id == draft.bookID }) else { return }
                   searchText = ""; selectedTagIDs.removeAll(); advancedQuery = AdvancedBookQuery()
                   let request = BookMetadataFocusRequest(bookID: book.id, field: draft.field)
@@ -796,15 +796,15 @@ struct ContentView: View {
                   if navigationSelection == scope { selectMetadataField(request) }
                   else { pendingMetadataNavigation = request; navigationSelection = scope }
                 }.disabled(!books.contains { $0.id == draft.bookID })
-                Button("复制未保存内容") {
+                Button(L10n.tr("复制未保存内容")) {
                   NSPasteboard.general.clearContents()
                   NSPasteboard.general.setString(draft.text, forType: .string)
                 }
-                Button("放弃此字段修改") { metadataEditing.discard(draft.bookID, field: draft.field) }
+                Button(L10n.tr("放弃此字段修改")) { metadataEditing.discard(draft.bookID, field: draft.field) }
               }
             }
           }
-          Text("输入已保留，可继续修改或重试保存。")
+          Text(L10n.tr("输入已保留，可继续修改或重试保存。"))
         }
         if let issue = metadataEditing.recoveryIssue { Text(issue).textSelection(.enabled) }
         Spacer()
@@ -891,7 +891,7 @@ struct ContentView: View {
   }
   private func presentPurge(_ plan: TrashPlan) throws {
     guard !plan.notes.keys.contains(where: { noteEditing.drafts[$0]?.hasUnsavedChanges == true }) else {
-      errorMessage = "所选笔记仍有未保存的草稿，请先保存或另存草稿，再永久删除。"
+      errorMessage = L10n.tr("所选笔记仍有未保存的草稿，请先保存或另存草稿，再永久删除。")
       return
     }
     purgePlan = plan; isConfirmingPurge = true
@@ -962,6 +962,7 @@ private struct PanelLayoutState: Hashable {
 }
 
 private struct LibrarySearchField: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   @Environment(\.libraryDisplay) private var display
   @Binding var text: String
   @Binding var scope: LibrarySearchScope
@@ -995,6 +996,8 @@ private struct LibrarySearchField: NSViewRepresentable {
   }
 
   func updateNSView(_ field: FilterSearchField, context: Context) {
+    let _ = locale
+    field.filterButton.setAccessibilityLabel(L10n.tr("高级筛选"))
     context.coordinator.parent = self
     field.font = .systemFont(ofSize: display.fontSize)
     context.coordinator.updateScopeMenu()
@@ -1015,7 +1018,7 @@ private struct LibrarySearchField: NSViewRepresentable {
     field.applyDisplayMetrics(display)
     field.filterButton.isEnabled = canShowAdvancedSearch
     field.filterButton.contentTintColor = hasAdvancedSearch ? .controlAccentColor : .secondaryLabelColor
-    field.filterButton.toolTip = hasAdvancedSearch ? "编辑当前高级筛选（⌥⌘F）" : "高级筛选（⌥⌘F）"
+    field.filterButton.toolTip = hasAdvancedSearch ? L10n.tr("编辑当前高级筛选（⌥⌘F）") : L10n.tr("高级筛选（⌥⌘F）")
   }
 
   func sizeThatFits(_ proposal: ProposedViewSize, nsView: FilterSearchField, context: Context) -> CGSize? {
@@ -1025,6 +1028,7 @@ private struct LibrarySearchField: NSViewRepresentable {
   @MainActor final class Coordinator: NSObject, NSSearchFieldDelegate, NSMenuItemValidation {
     var parent: LibrarySearchField
     weak var field: NSSearchField?
+    var displayedLanguage: InterfaceLanguage?
     var displayedScope: LibrarySearchScope?
     var displayedCanSaveSearch: Bool?
     var lastFocusRequest: UUID?
@@ -1037,13 +1041,15 @@ private struct LibrarySearchField: NSViewRepresentable {
     }
 
     func updateScopeMenu() {
-      guard let field, displayedScope != parent.scope || displayedCanSaveSearch != parent.canSaveSearch else { return }
+      let language = InterfaceLanguagePreferences.shared.language
+      guard let field, displayedScope != parent.scope || displayedCanSaveSearch != parent.canSaveSearch || displayedLanguage != language else { return }
+      displayedLanguage = language
       displayedScope = parent.scope
       displayedCanSaveSearch = parent.canSaveSearch
       field.placeholderString = parent.scope.title
-      field.setAccessibilityLabel("搜索：" + parent.scope.title)
-      field.toolTip = parent.scope.help + " 空格表示同时匹配，大写 OR 表示任选条件；双引号匹配连续短语，- 排除词、短语或括号组。括号优先，例如 (经济 OR 金融) -教材。支持嵌套和中文括号。点击放大镜旁的箭头切换范围（⌘F 聚焦）。"
-      let menu = NSMenu(title: "搜索范围")
+      field.setAccessibilityLabel(L10n.tr("搜索：") + parent.scope.title)
+      field.toolTip = parent.scope.help + L10n.tr(" 空格表示同时匹配，大写 OR 表示任选条件；双引号匹配连续短语，- 排除词、短语或括号组。括号优先，例如 (经济 OR 金融) -教材。支持嵌套和中文括号。点击放大镜旁的箭头切换范围（⌘F 聚焦）。")
+      let menu = NSMenu(title: L10n.tr("搜索范围"))
       menu.autoenablesItems = false
       for scope in LibrarySearchScope.quickSearchScopes {
         let item = NSMenuItem(title: scope.title, action: #selector(selectScope(_:)), keyEquivalent: "")
@@ -1054,7 +1060,7 @@ private struct LibrarySearchField: NSViewRepresentable {
         menu.addItem(item)
       }
       menu.addItem(.separator())
-      let save = NSMenuItem(title: "保存搜索为智能文件夹…", action: #selector(saveSearch(_:)), keyEquivalent: "")
+      let save = NSMenuItem(title: L10n.tr("保存搜索为智能文件夹…"), action: #selector(saveSearch(_:)), keyEquivalent: "")
       save.target = self; save.isEnabled = parent.canSaveSearch
       menu.addItem(save)
       field.searchMenuTemplate = menu
@@ -1110,7 +1116,7 @@ final class FilterSearchField: NSSearchField {
     filterButton.isBordered = false
     filterButton.imagePosition = .imageOnly
     filterButton.bezelStyle = .regularSquare
-    filterButton.setAccessibilityLabel("高级筛选")
+    filterButton.setAccessibilityLabel(L10n.tr("高级筛选"))
     filterButton.imageScaling = .scaleNone
     addSubview(filterButton)
   }

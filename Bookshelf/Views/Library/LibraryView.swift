@@ -94,13 +94,13 @@ struct LibraryView: View {
         .customizationID(LibraryTableColumn.title.rawValue)
         .disabledCustomizationBehavior([.visibility, .reorder])
       metadataColumn(.subtitle, ideal: 180, visibility: .visible)
-      TableColumn("作者", sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.authorDisplayName))) { row in
+      TableColumn(L10n.tr("作者"), sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.authorDisplayName))) { row in
         Text(row.book?.authorDisplayName ?? "").lineLimit(1).help(row.book?.authorDisplayName ?? "")
       }.width(min: 40, ideal: 130, max: .infinity).customizationID(LibraryTableColumn.author.rawValue)
-      TableColumn("出版社", sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.publisherSortText))) { row in
+      TableColumn(L10n.tr("出版社"), sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.publisherSortText))) { row in
         Text(row.book?.publisherSortText ?? "").lineLimit(1).help(row.book?.publisherSortText ?? "")
       }.width(min: 40, ideal: 150, max: .infinity).customizationID(LibraryTableColumn.publisher.rawValue)
-      TableColumn("出版日期", sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.publicationSortText))) { row in
+      TableColumn(L10n.tr("出版日期"), sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.publicationSortText))) { row in
         Text(row.book?.publicationSortText ?? "").lineLimit(1).help(row.book?.publicationSortText ?? "")
       }.width(min: 40, ideal: 100, max: .infinity).customizationID(LibraryTableColumn.publicationDate.rawValue)
       optionalColumns
@@ -133,11 +133,11 @@ struct LibraryView: View {
             onRestore: { onRestoreItems(ids) }, onPurge: { onPurgeItems(ids) })
         }
       } else if ids.count == 1, let id = ids.first?.noteID, let note = notes.first(where: { $0.id == id }) {
-        Button("查看笔记") { selectedBookIDs.removeAll(); selectedNoteIDs = [id] }
+        Button(L10n.tr("查看笔记")) { selectedBookIDs.removeAll(); selectedNoteIDs = [id] }
         if books.first(where: { $0.id == note.parentBookID })?.deletedAt == nil {
-          Button("编辑笔记") { onEditNote(note) }
+          Button(L10n.tr("编辑笔记")) { onEditNote(note) }
           Divider()
-          Button("移入回收站", role: .destructive) { onTrashNote(note) }
+          Button(L10n.tr("移入回收站"), role: .destructive) { onTrashNote(note) }
         }
       } else if ids.allSatisfy({ $0.bookID != nil }) {
         actions(for: Set(ids.compactMap(\.bookID)))
@@ -223,21 +223,21 @@ struct LibraryView: View {
   @ViewBuilder private func actions(for ids: Set<UUID>) -> some View {
     let selected = books.filter { ids.contains($0.id) }
     if selected.count == 1, let book = selected.first, book.deletedAt == nil {
-      Button("编辑书籍…") { appState.presentEditor(for: book) }
-      Button("新建笔记…") { onNewNote(book.id) }
+      Button(L10n.tr("编辑书籍…")) { appState.presentEditor(for: book) }
+      Button(L10n.tr("新建笔记…")) { onNewNote(book.id) }
       Divider()
     }
     if !selected.isEmpty {
       if selected.allSatisfy({ $0.deletedAt != nil }) {
-        Button("恢复书籍") { onTrash(ids, false) }
-        Button("永久删除…", role: .destructive) { onPurge(ids) }
+        Button(L10n.tr("恢复书籍")) { onTrash(ids, false) }
+        Button(L10n.tr("永久删除…"), role: .destructive) { onPurge(ids) }
       } else {
       BookSelectionActions(
         books: selected, collections: collections, currentCollectionID: currentCollectionID,
         onCollection: onCollection)
         Divider()
-        if selected.count >= 2 { Button("合并所选书籍…") { onMerge(ids) } }
-        Button("移入回收站", role: .destructive) { onTrash(ids, true) }
+        if selected.count >= 2 { Button(L10n.tr("合并所选书籍…")) { onMerge(ids) } }
+        Button(L10n.tr("移入回收站"), role: .destructive) { onTrash(ids, true) }
       }
     }
   }
@@ -249,10 +249,10 @@ struct TrashSelectionActions: View {
   let onRestore: () -> Void
   let onPurge: () -> Void
   var body: some View {
-    Button("恢复所选条目", action: onRestore).disabled(!canRestore)
-      .help(canRestore ? "恢复所选书籍和笔记" : "请同时选择所属书籍，或先恢复所属书籍")
+    Button(L10n.tr("恢复所选条目"), action: onRestore).disabled(!canRestore)
+      .help(canRestore ? L10n.tr("恢复所选书籍和笔记") : L10n.tr("请同时选择所属书籍，或先恢复所属书籍"))
     Divider()
-    Button("永久删除所选条目…", role: .destructive, action: onPurge)
+    Button(L10n.tr("永久删除所选条目…"), role: .destructive, action: onPurge)
   }
 }
 
@@ -266,11 +266,11 @@ struct BookSelectionActions: View {
 
   var body: some View {
     if let onBatchEdit {
-      Button("批量编辑标签与信息…") { onBatchEdit(ids) }
+      Button(L10n.tr("批量编辑标签与信息…")) { onBatchEdit(ids) }
       Divider()
     }
-    Menu("加入文件夹") {
-      if collections.isEmpty { Text("请先在侧栏新建文件夹") }
+    Menu(L10n.tr("加入文件夹")) {
+      if collections.isEmpty { Text(L10n.tr("请先在侧栏新建文件夹")) }
       CollectionHierarchyMenuItems(nodes: CollectionTree.nodes(collections.map(ManualCollectionRecord.init))) { record in
         Button {
           guard let collection = collections.first(where: { $0.id == record.id }) else { return }
@@ -279,7 +279,7 @@ struct BookSelectionActions: View {
       }
     }
     if let collection = collections.first(where: { $0.id == currentCollectionID }) {
-      Button("从当前文件夹移除") { onCollection(ids, collection, false) }
+      Button(L10n.tr("从当前文件夹移除")) { onCollection(ids, collection, false) }
     }
   }
 }

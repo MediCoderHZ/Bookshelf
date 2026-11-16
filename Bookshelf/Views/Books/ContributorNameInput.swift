@@ -15,10 +15,10 @@ struct ContributorNameInput: View {
   let currentValue: () -> String
   var body: some View {
     MetadataSuggestionInput(
-      input: NativeBookMetadataField(value: value, label: field.label + "姓名", multiline: false,
+      input: NativeBookMetadataField(value: value, label: field.label + L10n.tr("姓名"), multiline: false,
         focusToken: focusToken, onFocus: onFocus, onBegin: onBegin, onChange: onChange,
         onCommit: onCommit, onCancel: onCancel, currentValue: currentValue),
       suggestions: ContributorNameSuggestions.matches(value, usages: usages, field: field),
-      noun: "姓名", systemImage: "person")
+      noun: L10n.tr("姓名"), systemImage: "person")
   }
 }

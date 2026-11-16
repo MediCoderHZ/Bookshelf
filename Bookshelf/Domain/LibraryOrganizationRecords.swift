@@ -136,10 +136,10 @@ enum OrganizationError: LocalizedError {
   case invalidHierarchy, missingParent, noteInTrash, collectionInUse
   var errorDescription: String? {
     switch self {
-    case .invalidHierarchy: "文件夹层级无效：不能移动到自己或子文件夹下，父文件夹必须存在。"
-    case .missingParent: "关联的书籍或文件夹已变化，请重新打开编辑器。"
-    case .noteInTrash: "请先恢复笔记及其所属书籍，再编辑内容。"
-    case .collectionInUse: "文件夹或书籍中已有新的内容，已停止撤销以保留这些内容。"
+    case .invalidHierarchy: L10n.tr("文件夹层级无效：不能移动到自己或子文件夹下，父文件夹必须存在。")
+    case .missingParent: L10n.tr("关联的书籍或文件夹已变化，请重新打开编辑器。")
+    case .noteInTrash: L10n.tr("请先恢复笔记及其所属书籍，再编辑内容。")
+    case .collectionInUse: L10n.tr("文件夹或书籍中已有新的内容，已停止撤销以保留这些内容。")
     }
   }
 }

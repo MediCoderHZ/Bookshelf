@@ -10,7 +10,7 @@ struct TranslatorCapabilities: OptionSet, Sendable {
   static let web = Self(rawValue: 4)
   static let search = Self(rawValue: 8)
   var title: String {
-    [(Self.web, "网页"), (.search, "搜索"), (.fileImport, "导入"), (.fileExport, "导出")]
+    [(Self.web, L10n.tr("网页")), (.search, L10n.tr("搜索")), (.fileImport, L10n.tr("导入")), (.fileExport, L10n.tr("导出"))]
       .filter { contains($0.0) }.map(\.1).joined(separator: " · ")
   }
 }
@@ -49,7 +49,7 @@ struct TranslatorRegistry: Sendable {
 
   func validate() throws {
     guard Set(translators.map(\.descriptor.id)).count == translators.count else {
-      throw WebMetadataError.invalidConfiguration("解析器 ID 重复")
+      throw WebMetadataError.invalidConfiguration(L10n.tr("解析器 ID 重复"))
     }
   }
   var ordered: [any BookTranslator] {
@@ -68,7 +68,7 @@ struct TranslatorRegistry: Sendable {
     try validate()
     guard !disabledIDs.contains(id) else { throw WebMetadataError.disabled }
     guard let result = translators.first(where: { $0.descriptor.id == id }) else {
-      throw WebMetadataError.invalidConfiguration("找不到解析器：\(id)")
+      throw WebMetadataError.invalidConfiguration(L10n.tr("找不到解析器：\(id)"))
     }
     return result
   }
@@ -115,7 +115,7 @@ struct TranslationEngine: Sendable {
   }
   func searchTranslator(_ id: String) throws -> any SearchMetadataTranslator {
     guard let translator = try registry.translator(id) as? any SearchMetadataTranslator else {
-      throw WebMetadataError.invalidConfiguration("该解析器不支持搜索")
+      throw WebMetadataError.invalidConfiguration(L10n.tr("该解析器不支持搜索"))
     }
     return translator
   }
@@ -130,12 +130,12 @@ struct TranslationEngine: Sendable {
     if !candidates.isEmpty && candidates.allSatisfy({ registry.disabledIDs.contains($0.descriptor.id) }) {
       throw WebMetadataError.disabled
     }
-    throw BibliographicExchangeError.invalid("没有可读取此文件的导入解析器，请核对格式和文件编码。")
+    throw BibliographicExchangeError.invalid(L10n.tr("没有可读取此文件的导入解析器，请核对格式和文件编码。"))
   }
   @MainActor
   func exportFile(_ records: [BookArchive], translatorID: String, includeNotes: Bool = false) throws -> Data {
     guard let translator = try registry.translator(translatorID) as? any FileExportTranslator else {
-      throw WebMetadataError.invalidConfiguration("该解析器不支持导出")
+      throw WebMetadataError.invalidConfiguration(L10n.tr("该解析器不支持导出"))
     }
     return try translator.doExport(records.filter { $0.deletedAt == nil }, includeNotes: includeNotes)
   }

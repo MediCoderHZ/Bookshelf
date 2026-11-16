@@ -41,7 +41,13 @@ final class AppUpdater: NSObject, ObservableObject, SPUUpdaterDelegate {
   private let backups: AutomaticBackupController?
   private var pendingInstall: (() -> Void)?
   private var controller: SPUStandardUpdaterController?
-  private var unavailableMessage = "此版本尚未启用在线更新。你可以前往项目发布页面获取新版。"
+  private var startupError: String?
+  private var unavailableMessage: String {
+    if let startupError {
+      return L10n.tr("暂时无法启用在线更新，请前往项目发布页面获取新版。\n\(startupError)")
+    }
+    return L10n.tr("此版本尚未启用在线更新。你可以前往项目发布页面获取新版。")
+  }
 
   init(bundle: Bundle = .main, backups: AutomaticBackupController? = nil) {
     self.backups = backups
@@ -64,7 +70,7 @@ final class AppUpdater: NSObject, ObservableObject, SPUUpdaterDelegate {
       candidate.updater.publisher(for: \.automaticallyDownloadsUpdates)
         .assign(to: &$automaticallyDownloadsUpdates)
     } catch {
-      unavailableMessage = "暂时无法启用在线更新，请前往项目发布页面获取新版。\n\(error.localizedDescription)"
+      startupError = error.localizedDescription
     }
   }
 
@@ -75,9 +81,9 @@ final class AppUpdater: NSObject, ObservableObject, SPUUpdaterDelegate {
       controller.checkForUpdates(nil)
     } else {
       let alert = NSAlert()
-      alert.messageText = "软件更新"
+      alert.messageText = L10n.tr("软件更新")
       alert.informativeText = unavailableMessage
-      alert.addButton(withTitle: "好")
+      alert.addButton(withTitle: L10n.tr("好"))
       alert.runModal()
     }
   }
@@ -142,7 +148,7 @@ struct AppUpdateCommands: Commands {
 
   var body: some Commands {
     CommandGroup(after: .appInfo) {
-      Button("检查更新…", action: updater.checkForUpdates)
+      Button(L10n.tr("检查更新…"), action: updater.checkForUpdates)
         .disabled(!updater.canCheckForUpdates)
     }
   }
@@ -152,26 +158,26 @@ struct AppUpdateSettings: View {
   @ObservedObject var updater: AppUpdater
 
   var body: some View {
-    Section("软件更新") {
-      Toggle("自动检查更新", isOn: Binding(
+    Section(L10n.tr("软件更新")) {
+      Toggle(L10n.tr("自动检查更新"), isOn: Binding(
         get: { updater.automaticallyChecksForUpdates },
         set: updater.setAutomaticallyChecksForUpdates))
         .disabled(!updater.isAvailable)
-      Toggle("自动下载并安装更新", isOn: Binding(
+      Toggle(L10n.tr("自动下载并安装更新"), isOn: Binding(
         get: { updater.automaticallyDownloadsUpdates },
         set: updater.setAutomaticallyDownloadsUpdates))
         .disabled(!updater.isAvailable || !updater.automaticallyChecksForUpdates)
       HStack {
-        Button("检查更新…", action: updater.checkForUpdates)
+        Button(L10n.tr("检查更新…"), action: updater.checkForUpdates)
           .disabled(!updater.canCheckForUpdates)
-        Link("版本与下载", destination: URL(string: "https://github.com/MediCoderHZ/Bookshelf/releases")!)
+        Link(L10n.tr("版本与下载"), destination: URL(string: "https://github.com/MediCoderHZ/Bookshelf/releases")!)
       }
       if !updater.isAvailable {
-        Text("此版本尚未启用在线更新。").font(.caption).foregroundStyle(.secondary)
+        Text(L10n.tr("此版本尚未启用在线更新。")).font(.caption).foregroundStyle(.secondary)
       }
       if updater.installationPaused {
-        Text("升级已暂停，完成备份后才能继续。").foregroundStyle(.red)
-        Button("重试备份并继续升级", action: updater.retryInstallation)
+        Text(L10n.tr("升级已暂停，完成备份后才能继续。")).foregroundStyle(.red)
+        Button(L10n.tr("重试备份并继续升级"), action: updater.retryInstallation)
       }
     }
   }

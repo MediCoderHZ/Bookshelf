@@ -38,10 +38,10 @@ final class NoteEditingSession {
     for snapshot in result.drafts {
       let state = InlineNoteDraft(snapshot.baseline)
       state.value = snapshot.draft; state.tagsText = snapshot.tagsText; state.hasUnsavedChanges = true
-      state.errorMessage = "已恢复未保存草稿。请重试保存，或另存为新笔记以保留两个版本。"
+      state.errorMessage = L10n.tr("已恢复未保存草稿。请重试保存，或另存为新笔记以保留两个版本。")
       drafts[snapshot.draft.id] = state
     }
-    if !result.errors.isEmpty { recoveryIssue = "部分恢复草稿无法读取，原文件已保留：" + result.errors.joined(separator: "；") }
+    if !result.errors.isEmpty { recoveryIssue = L10n.tr("部分恢复草稿无法读取，原文件已保留：") + result.errors.joined(separator: "；") }
   }
   var pendingDrafts: [InlineNoteDraft] {
     drafts.values.filter(\.hasUnsavedChanges).sorted { $0.value.createdAt < $1.value.createdAt }
@@ -71,11 +71,11 @@ final class NoteEditingSession {
       clearRecovery(saved.id)
       return true
     } catch {
-      state.errorMessage = "尚未保存：" + error.localizedDescription
+      state.errorMessage = L10n.tr("尚未保存：") + error.localizedDescription
       do {
         try recovery.save(NoteDraftSnapshot(baseline: state.baseline, draft: state.value, tagsText: state.tagsText))
-        state.errorMessage! += " 草稿已在本机保留。"
-      } catch { state.errorMessage! += " 恢复副本也未能写入，请保留编辑窗口并复制正文：" + error.localizedDescription }
+        state.errorMessage! += L10n.tr(" 草稿已在本机保留。")
+      } catch { state.errorMessage! += L10n.tr(" 恢复副本也未能写入，请保留编辑窗口并复制正文：") + error.localizedDescription }
       return false
     }
   }
@@ -94,6 +94,6 @@ final class NoteEditingSession {
 
   private func clearRecovery(_ id: UUID) {
     do { try recovery.remove(id) }
-    catch { recoveryIssue = "笔记已保存，但旧的恢复副本未能清理：" + error.localizedDescription }
+    catch { recoveryIssue = L10n.tr("笔记已保存，但旧的恢复副本未能清理：") + error.localizedDescription }
   }
 }

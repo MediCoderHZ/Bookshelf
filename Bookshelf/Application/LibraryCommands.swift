@@ -16,11 +16,11 @@ struct LibraryCommands {
     }
     record.updatedAt = Date()
     record.contributors.sort { ($0.roleRaw, $0.displayOrder, $0.name) < ($1.roleRaw, $1.displayOrder, $1.name) }
-    try commit(expected == nil ? "添加书籍" : "编辑书籍", records: [record],
+    try commit(expected == nil ? L10n.tr("添加书籍") : L10n.tr("编辑书籍"), records: [record],
       expected: expected.map { [$0.id: $0] } ?? [:])
   }
 
-  func update(_ books: [Book], name: String = "整理书籍", change: (inout BookArchive) -> Void) throws {
+  func update(_ books: [Book], name: String = L10n.tr("整理书籍"), change: (inout BookArchive) -> Void) throws {
     guard books.allSatisfy({ $0.deletedAt == nil && $0.modelContext === context }) else {
       throw LibraryOperationError.invalidSelection
     }
@@ -38,7 +38,7 @@ struct LibraryCommands {
 
   func setMembership(_ books: [Book], collection: BookCollection, included: Bool) throws {
     guard !collection.isSmart, collection.modelContext === context else { throw LibraryOperationError.invalidSelection }
-    try update(books, name: included ? "加入文件夹" : "从文件夹移除") { record in
+    try update(books, name: included ? L10n.tr("加入文件夹") : L10n.tr("从文件夹移除")) { record in
       record.collections.removeAll { $0 == collection.name }
       if included { record.collections.append(collection.name) }
       record.collections.sort()
@@ -62,7 +62,7 @@ struct LibraryCommands {
     var record = expected; record.notes = text.isEmpty ? nil : text
     guard record != expected else { return }
     record.updatedAt = Date()
-    try commit("编辑笔记", records: [record], expected: [expected.id: expected])
+    try commit(L10n.tr("编辑笔记"), records: [record], expected: [expected.id: expected])
   }
 
   private func commit(_ name: String, records: [BookArchive], expected: [UUID: BookArchive]) throws {

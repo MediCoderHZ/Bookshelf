@@ -57,8 +57,8 @@ struct ContributorListField: View {
           VStack(alignment: .leading, spacing: 6) {
             Text(message).font(display.font).foregroundStyle(.red).textSelection(.enabled)
             HStack {
-              Button("重试") { finishCurrentEditing(); commit() }
-              Button("放弃修改") {
+              Button(L10n.tr("重试")) { finishCurrentEditing(); commit() }
+              Button(L10n.tr("放弃修改")) {
                 finishCurrentEditing()
                 editing.discard(book.id, field: field)
                 editing.prepareContributors(record, field: field)
@@ -80,10 +80,10 @@ struct ContributorListField: View {
         Button { add(after: nil) } label: {
           Color.clear.frame(maxWidth: .infinity, alignment: .leading)
             .frame(height: display.inspectorRowHeight).contentShape(Rectangle())
-        }.buttonStyle(.plain).accessibilityLabel("填写" + field.label)
+        }.buttonStyle(.plain).accessibilityLabel(L10n.tr("填写") + field.label)
         Button { add(after: nil) } label: { actionIcon("plus.circle") }
           .buttonStyle(.plain).foregroundStyle(.secondary)
-          .accessibilityLabel("添加" + field.label).help("添加一位" + field.label)
+          .accessibilityLabel(L10n.tr("添加") + field.label).help(L10n.tr("添加一位") + field.label)
           .opacity(emptyRowHovered || voiceOverEnabled ? 1 : 0)
           .allowsHitTesting(emptyRowHovered || voiceOverEnabled)
           .accessibilityHidden(!emptyRowHovered && !voiceOverEnabled)
@@ -142,7 +142,7 @@ struct ContributorListField: View {
 
   @ViewBuilder private func expansionControl(count: Int) -> some View {
     if count > Self.collapsedCount {
-      Button(showsAll ? "收起" : "还有 \(count - Self.collapsedCount) 位" + field.label + "…") {
+      Button(showsAll ? L10n.tr("收起") : L10n.tr("还有 \(count - Self.collapsedCount) 位") + field.label + "…") {
         finishCurrentEditing()
         guard isReadOnly || commit() else { return }
         showsAll.toggle()
@@ -195,20 +195,20 @@ private struct ContributorRowActions: View {
   var body: some View {
     HStack(spacing: 2) {
       Button(action: onRemove) { icon("minus.circle") }
-        .buttonStyle(.plain).accessibilityLabel("删除" + field.label + " " + name)
-        .help("删除此" + field.label)
+        .buttonStyle(.plain).accessibilityLabel(L10n.tr("删除") + field.label + " " + name)
+        .help(L10n.tr("删除此") + field.label)
       Button(action: onAdd) { icon("plus.circle") }
-        .buttonStyle(.plain).accessibilityLabel("在" + name + "下方添加" + field.label)
-        .help("在此行下方添加" + field.label)
+        .buttonStyle(.plain).accessibilityLabel(L10n.tr("在") + name + L10n.tr("下方添加") + field.label)
+        .help(L10n.tr("在此行下方添加") + field.label)
       Menu {
-        Button("上移") { onMove(index - 1) }.disabled(index == 0)
-        Button("下移") { onMove(index + 1) }.disabled(index == count - 1)
+        Button(L10n.tr("上移")) { onMove(index - 1) }.disabled(index == 0)
+        Button(L10n.tr("下移")) { onMove(index + 1) }.disabled(index == count - 1)
         Divider()
-        Button("移至首位") { onMove(0) }.disabled(index == 0)
-        Button("移至末位") { onMove(count - 1) }.disabled(index == count - 1)
+        Button(L10n.tr("移至首位")) { onMove(0) }.disabled(index == 0)
+        Button(L10n.tr("移至末位")) { onMove(count - 1) }.disabled(index == count - 1)
       } label: { icon("ellipsis") }
         .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-        .accessibilityLabel("调整" + field.label + "顺序 " + name).help("调整" + field.label + "顺序")
+        .accessibilityLabel(L10n.tr("调整") + field.label + L10n.tr("顺序 ") + name).help(L10n.tr("调整") + field.label + L10n.tr("顺序"))
     }.foregroundStyle(.secondary)
   }
 

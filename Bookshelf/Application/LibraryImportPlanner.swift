@@ -6,8 +6,8 @@ enum ImportAction: String, CaseIterable, Identifiable {
   var id: String { rawValue }
   var title: String {
     switch self {
-    case .skip: "保留本地 / 跳过"; case .add: "作为新记录添加"
-    case .fill: "合并补全空白"; case .update: "采用导入的出版信息"
+    case .skip: L10n.tr("保留本地 / 跳过"); case .add: L10n.tr("作为新记录添加")
+    case .fill: L10n.tr("合并补全空白"); case .update: L10n.tr("采用导入的出版信息")
     }
   }
 }
@@ -24,12 +24,12 @@ struct ImportPreviewItem: Identifiable {
     ImportChoice(action: matches.isEmpty && !repeatedInFile ? .add : .skip, targetID: matches.first?.id)
   }
   var explanation: String {
-    if repeatedInFile { return "文件内有相似记录，请核对后选择是否添加。" }
-    if matches.isEmpty { return record.deletedAt == nil ? "新书籍" : "备份中的回收站记录" }
-    if matches.allSatisfy({ BookRecordMerge.differentEditions(record, $0) }) { return "ISBN 不同：作为不同版本保留，不允许覆盖。" }
-    if matches.contains(where: { $0.deletedAt != nil }) { return "包含回收站记录；更新保留其回收站状态。" }
-    if matches.contains(where: { $0.id == record.id }) { return "记录 ID 相同，默认保留本地。" }
-    return "ISBN 或书名、作者相似，需确认合并对象。"
+    if repeatedInFile { return L10n.tr("文件内有相似记录，请核对后选择是否添加。") }
+    if matches.isEmpty { return record.deletedAt == nil ? L10n.tr("新书籍") : L10n.tr("备份中的回收站记录") }
+    if matches.allSatisfy({ BookRecordMerge.differentEditions(record, $0) }) { return L10n.tr("ISBN 不同：作为不同版本保留，不允许覆盖。") }
+    if matches.contains(where: { $0.deletedAt != nil }) { return L10n.tr("包含回收站记录；更新保留其回收站状态。") }
+    if matches.contains(where: { $0.id == record.id }) { return L10n.tr("记录 ID 相同，默认保留本地。") }
+    return L10n.tr("ISBN 或书名、作者相似，需确认合并对象。")
   }
 }
 struct LibraryImportPlan: Identifiable {
@@ -151,7 +151,7 @@ enum LibraryImportPlanner {
       try LibraryRepository.apply(records, smartCollections: smart, manualCollections: organization.records, notes: notes, into: context)
       let ids = Set(records.map(\.id))
       let after = try context.fetch(FetchDescriptor<Book>()).filter { ids.contains($0.id) }
-      LibraryServices.forContext(context).history.register(plan.isRIS ? "导入 RIS 书目" : "导入备份", before: before, after: LibraryHistory.snapshots(after),
+      LibraryServices.forContext(context).history.register(plan.isRIS ? L10n.tr("导入 RIS 书目") : L10n.tr("导入备份"), before: before, after: LibraryHistory.snapshots(after),
         afterSmart: try SmartCollectionService.snapshots(in: context, ids: Set(smart.map(\.id))),
         afterCollections: try OrganizationStore.collections(in: context, ids: Set(organization.records.map(\.id))),
         afterNotes: try OrganizationStore.notes(in: context, ids: Set(notes.map(\.id))),

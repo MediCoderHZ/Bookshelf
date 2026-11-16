@@ -22,21 +22,21 @@ struct CollectionMoveView: View {
   var body: some View {
     NavigationStack {
       Form {
-        Picker("上级文件夹", selection: $parentID) {
-          Text("顶层文件夹").tag(UUID?.none)
+        Picker(L10n.tr("上级文件夹"), selection: $parentID) {
+          Text(L10n.tr("顶层文件夹")).tag(UUID?.none)
           ForEach(records.filter { !excluded.contains($0.id) }.sorted { CollectionTree.path($0.id, in: records) < CollectionTree.path($1.id, in: records) }) { record in
             Text(CollectionTree.path(record.id, in: records)).tag(Optional(record.id))
           }
         }
-        Text("书籍可同时加入多个文件夹。上级文件夹默认只显示直接加入的内容，可在侧栏右键菜单中开启「包含子文件夹」。文件夹名称需在普通文件夹中唯一。")
+        Text(L10n.tr("书籍可同时加入多个文件夹。上级文件夹默认只显示直接加入的内容，可在侧栏右键菜单中开启「包含子文件夹」。文件夹名称需在普通文件夹中唯一。"))
           .font(.caption).foregroundStyle(.secondary)
         if let errorMessage { Text(errorMessage).foregroundStyle(.red) }
       }.formStyle(.grouped)
-        .navigationTitle("移动文件夹")
+        .navigationTitle(L10n.tr("移动文件夹"))
         .toolbar {
-          ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+          ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { dismiss() } }
           ToolbarItem(placement: .confirmationAction) {
-            Button("保存") {
+            Button(L10n.tr("保存")) {
               do {
                 let id = try CollectionCommands(context: context, undoManager: undoManager)
                   .save(name: request.existing.name, replacing: request.existing, parentID: parentID)
@@ -77,9 +77,9 @@ struct InlineFolderDraft: Identifiable {
     self.parentID = parentID; existing = nil
     sortOrder = CollectionOrdering.nextOrder(in: items, parentID: parentID)
     let names = Set(items.map { MetadataNormalizer.normalizedName($0.name) })
-    var candidate = "新建文件夹", suffix = 2
+    var candidate = L10n.tr("新建文件夹"), suffix = 2
     while names.contains(MetadataNormalizer.normalizedName(candidate)) {
-      candidate = "新建文件夹 \(suffix)"; suffix += 1
+      candidate = L10n.tr("新建文件夹 \(suffix)"); suffix += 1
     }
     name = candidate
   }
@@ -93,7 +93,7 @@ struct InlineFolderDraft: Identifiable {
       sortOrder: sortOrder, updatedAt: .distantPast)
   }
   var isNew: Bool { existing == nil }
-  var accessibilityLabel: String { isNew ? "新建文件夹名称" : "重命名文件夹" }
+  var accessibilityLabel: String { isNew ? L10n.tr("新建文件夹名称") : L10n.tr("重命名文件夹") }
 }
 
 struct InlineFolderEditorRow: View {
@@ -125,6 +125,7 @@ struct InlineFolderEditorRow: View {
 /// AppKit editing keeps Chinese composition intact and selects the proposed name
 /// only once, after the row is attached to the native outline's window.
 private struct InlineFolderNameField: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   @Binding var text: String
   let fontSize: CGFloat
   let accessibilityLabel: String
@@ -146,6 +147,8 @@ private struct InlineFolderNameField: NSViewRepresentable {
     return field
   }
   func updateNSView(_ field: MetadataTextField, context: Context) {
+    let _ = locale
+    field.setAccessibilityLabel(accessibilityLabel)
     context.coordinator.parent = self
     if field.stringValue != text, (field.currentEditor() as? NSTextView)?.hasMarkedText() != true {
       field.stringValue = text

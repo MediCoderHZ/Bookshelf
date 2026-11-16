@@ -35,14 +35,14 @@ enum BookMetadataEditError: LocalizedError {
   case emptyTitle, invalidISBN, invalidPageCount, conflict, readOnly, missingBook, unsupportedField, invalidBookType
   var errorDescription: String? {
     switch self {
-    case .invalidBookType: "请选择中文原版书、英文原版书或中文译本。"
-    case .emptyTitle: "标题不能为空。"
-    case .invalidISBN: "请输入有效的 ISBN-10 或 ISBN-13，或清空此字段。"
-    case .invalidPageCount: "页数应为大于 0 的整数，或留空。"
-    case .conflict: "此字段已被其他操作修改，未覆盖新内容。可复制当前输入，或放弃修改后重新编辑。"
-    case .readOnly: "书籍已在回收站中，请先恢复书籍。"
-    case .missingBook: "书籍已不存在，当前输入仍保留，可复制后使用。"
-    case .unsupportedField: "此字段不支持文本编辑。"
+    case .invalidBookType: L10n.tr("请选择中文原版书、英文原版书或中文译本。")
+    case .emptyTitle: L10n.tr("标题不能为空。")
+    case .invalidISBN: L10n.tr("请输入有效的 ISBN-10 或 ISBN-13，或清空此字段。")
+    case .invalidPageCount: L10n.tr("页数应为大于 0 的整数，或留空。")
+    case .conflict: L10n.tr("此字段已被其他操作修改，未覆盖新内容。可复制当前输入，或放弃修改后重新编辑。")
+    case .readOnly: L10n.tr("书籍已在回收站中，请先恢复书籍。")
+    case .missingBook: L10n.tr("书籍已不存在，当前输入仍保留，可复制后使用。")
+    case .unsupportedField: L10n.tr("此字段不支持文本编辑。")
     }
   }
 }
@@ -112,7 +112,7 @@ struct BookMetadataCommands {
     }
     guard BookMetadataValue.read(field, from: changed) != expected else { return expected }
     changed = BookRecordMerge.markingManualChanges(changed, comparedTo: current)
-    try LibraryCommands(context: context, undoManager: undoManager).update([book], name: "编辑" + field.label) { $0 = changed }
+    try LibraryCommands(context: context, undoManager: undoManager).update([book], name: L10n.tr("编辑") + field.label) { $0 = changed }
     return BookMetadataValue.read(field, from: BookArchive(book: book))
   }
 }
@@ -176,10 +176,10 @@ final class BookMetadataEditingSession {
       let draft = BookMetadataDraft(bookID: snapshot.bookID, bookTitle: snapshot.bookTitle,
         field: field, baseline: snapshot.baseline, text: snapshot.text)
       if field == .authors || field == .translators { draft.contributorRows = snapshot.contributorRows }
-      draft.errorMessage = "已恢复未保存的输入，请核对后继续编辑或重试保存。"
+      draft.errorMessage = L10n.tr("已恢复未保存的输入，请核对后继续编辑或重试保存。")
       drafts[draft.id] = draft
     }
-    if !recovered.errors.isEmpty { recoveryIssue = "部分元信息草稿无法读取，原文件已保留。" }
+    if !recovered.errors.isEmpty { recoveryIssue = L10n.tr("部分元信息草稿无法读取，原文件已保留。") }
   }
   var pendingDrafts: [BookMetadataDraft] {
     drafts.values.filter { $0.isDirty && $0.errorMessage != nil }.sorted { $0.id < $1.id }
@@ -196,7 +196,7 @@ final class BookMetadataEditingSession {
     state.text = text
     if !state.isDirty { state.errorMessage = nil; clear(state.id); return }
     do { try store.save(state.snapshot) }
-    catch { recoveryIssue = "元信息草稿副本未能写入，请保留输入窗口：" + error.localizedDescription }
+    catch { recoveryIssue = L10n.tr("元信息草稿副本未能写入，请保留输入窗口：") + error.localizedDescription }
   }
   @discardableResult
   func commit(_ bookID: UUID, field: BookField, context: ModelContext, undoManager: UndoManager?) -> Bool {
@@ -224,9 +224,9 @@ final class BookMetadataEditingSession {
       clear(state.id)
       return true
     } catch {
-      state.errorMessage = "尚未保存：" + error.localizedDescription
+      state.errorMessage = L10n.tr("尚未保存：") + error.localizedDescription
       do { try store.save(state.snapshot) }
-      catch { state.errorMessage! += " 草稿副本也未能写入，请复制保留输入。" }
+      catch { state.errorMessage! += L10n.tr(" 草稿副本也未能写入，请复制保留输入。") }
       return false
     }
   }
@@ -239,7 +239,7 @@ final class BookMetadataEditingSession {
   }
   private func clear(_ key: String) {
     do { try store.remove(key) }
-    catch { recoveryIssue = "旧的元信息草稿副本未能清理：" + error.localizedDescription }
+    catch { recoveryIssue = L10n.tr("旧的元信息草稿副本未能清理：") + error.localizedDescription }
   }
 }
 
@@ -314,6 +314,6 @@ extension BookMetadataEditingSession {
     state.text = state.contributorRows?.map(\.name).joined(separator: "\n") ?? ""
     if !state.isDirty { state.errorMessage = nil; clear(state.id); return }
     do { try store.save(state.snapshot) }
-    catch { recoveryIssue = "元信息草稿副本未能写入，请保留输入窗口：" + error.localizedDescription }
+    catch { recoveryIssue = L10n.tr("元信息草稿副本未能写入，请保留输入窗口：") + error.localizedDescription }
   }
 }

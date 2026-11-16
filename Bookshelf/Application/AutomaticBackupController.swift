@@ -43,7 +43,7 @@ final class AutomaticBackupController: ObservableObject {
       _ = try store.create(kind: .beforeMigration, data: nil, storeURL: url, recoveryRoot: recoveryRoot, appVersion: appVersion)
       refresh()
     } catch {
-      lastError = "数据库升级前备份失败，已停止打开书库：" + error.localizedDescription
+      lastError = L10n.tr("数据库升级前备份失败，已停止打开书库：") + error.localizedDescription
       throw error
     }
   }
@@ -83,7 +83,7 @@ final class AutomaticBackupController: ObservableObject {
         appVersion: appVersion, now: now)
       lastError = nil; cleanupWarning = nil
       do { try store.prune(regularLimit: retentionCount) }
-      catch { cleanupWarning = "新备份已保存，但旧版本清理未完成：" + error.localizedDescription }
+      catch { cleanupWarning = L10n.tr("新备份已保存，但旧版本清理未完成：") + error.localizedDescription }
       refresh()
       return result
     } catch {
@@ -97,7 +97,7 @@ final class AutomaticBackupController: ObservableObject {
     do { _ = try create(kind: .beforeUpdate) }
     catch {
       throw NSError(domain: "Bookshelf.Backup", code: 1,
-        userInfo: [NSLocalizedDescriptionKey: "升级前备份失败，已暂停升级。请检查可用空间和备份目录后重试。\n" + error.localizedDescription])
+        userInfo: [NSLocalizedDescriptionKey: L10n.tr("升级前备份失败，已暂停升级。请检查可用空间和备份目录后重试。\n") + error.localizedDescription])
     }
   }
 
@@ -107,6 +107,6 @@ final class AutomaticBackupController: ObservableObject {
 
   func refresh() {
     do { entries = try store.entries() }
-    catch { lastError = "无法读取备份目录：" + error.localizedDescription }
+    catch { lastError = L10n.tr("无法读取备份目录：") + error.localizedDescription }
   }
 }

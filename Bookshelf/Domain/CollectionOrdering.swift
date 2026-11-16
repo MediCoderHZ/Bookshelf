@@ -174,9 +174,9 @@ enum CollectionMoveError: LocalizedError {
   case invalidTarget, smartHierarchy, staleDrag
   var errorDescription: String? {
     switch self {
-    case .invalidTarget: "无法移动到该位置：文件夹必须存在，且不能移入自己或自己的子文件夹。"
-    case .smartHierarchy: "智能文件夹只能在顶层调整顺序。"
-    case .staleDrag: "文件夹已发生变化，请重新拖动。"
+    case .invalidTarget: L10n.tr("无法移动到该位置：文件夹必须存在，且不能移入自己或自己的子文件夹。")
+    case .smartHierarchy: L10n.tr("智能文件夹只能在顶层调整顺序。")
+    case .staleDrag: L10n.tr("文件夹已发生变化，请重新拖动。")
     }
   }
 }

@@ -26,7 +26,7 @@ struct BookEditorDestination: Identifiable {
 
 enum AppReleaseInfo {
   static var displayName: String {
-    Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "书架"
+    L10n.tr("书架")
   }
   static var version: String {
     Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0"

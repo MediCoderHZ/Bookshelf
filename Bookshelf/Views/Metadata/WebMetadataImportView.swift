@@ -29,46 +29,46 @@ struct WebMetadataImportView: View {
   private var translatorStatus: String {
     if let extraction { return "\(extraction.translator.name) · v\(extraction.translator.version)" }
     let matches = (try? registry.matching(address)) ?? []
-    return matches.isEmpty ? "输入网址以匹配解析器" : "候选：" + matches.map(\.descriptor.name).joined(separator: "、")
+    return matches.isEmpty ? L10n.tr("输入网址以匹配解析器") : L10n.tr("候选：") + matches.map(\.descriptor.name).joined(separator: "、")
   }
 
   var body: some View {
     NavigationStack {
       VStack(alignment: .leading, spacing: 16) {
         HStack {
-          TextField("图书详情页或列表页链接", text: $address)
+          TextField(L10n.tr("图书详情页或列表页链接"), text: $address)
             .textFieldStyle(.roundedBorder)
             .onSubmit(extract)
             .disabled(isWorking)
-            .accessibilityLabel("网页链接")
-          Button("提取", action: extract)
+            .accessibilityLabel(L10n.tr("网页链接"))
+          Button(L10n.tr("提取"), action: extract)
             .disabled(isWorking || address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
-        Text("点击提取会向所填网址请求页面。网站会收到 IP 地址等网络信息，书库和笔记不会随请求发送。")
+        Text(L10n.tr("点击提取会向所填网址请求页面。网站会收到 IP 地址等网络信息，书库和笔记不会随请求发送。"))
           .font(.caption).foregroundStyle(.secondary)
         HStack {
           if let raw = URL(string: address), let url = WebURLPolicy.normalized(raw) {
-            Link("在浏览器查看此页", destination: url)
+            Link(L10n.tr("在浏览器查看此页"), destination: url)
           }
           Spacer()
           Text(translatorStatus)
             .foregroundStyle(.secondary)
         }.font(.caption)
         HStack(alignment: .top) {
-          Button("导入已保存网页…") { isChoosingHTML = true }
+          Button(L10n.tr("导入已保存网页…")) { isChoosingHTML = true }
             .disabled(isWorking || address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-          Text("直连失败时，可在浏览器将该页保存为 HTML，然后导入。上方填写该页的原始链接。")
+          Text(L10n.tr("直连失败时，可在浏览器将该页保存为 HTML，然后导入。上方填写该页的原始链接。"))
             .font(.caption).foregroundStyle(.secondary)
         }
         if testTranslatorID != nil {
-          Label("测试模式：只预览，不写入书库。", systemImage: "testtube.2").font(.caption)
+          Label(L10n.tr("测试模式：只预览，不写入书库。"), systemImage: "testtube.2").font(.caption)
         }
         if isWorking {
           HStack {
             ProgressView().controlSize(.small)
-            Text("正在读取…")
+            Text(L10n.tr("正在读取…"))
             Spacer()
-            Button("停止") { stop() }
+            Button(L10n.tr("停止")) { stop() }
           }
         }
         if let errorMessage {
@@ -77,7 +77,7 @@ struct WebMetadataImportView: View {
         Divider()
         switch extraction?.page {
         case .choices(let books):
-          Text("选择一本书，读取其详情（\(books.count) 本）").font(.headline)
+          Text(L10n.tr("选择一本书，读取其详情（\(books.count) 本）")).font(.headline)
           List(books) { book in
             Button {
               address = book.url.absoluteString
@@ -96,45 +96,45 @@ struct WebMetadataImportView: View {
             VStack(alignment: .leading, spacing: 14) {
               Text(result.title).font(.title2.bold()).textSelection(.enabled)
               Grid(alignment: .topLeading, horizontalSpacing: 20, verticalSpacing: 10) {
-                row("副标题", result.subtitle)
-                row("原书名", result.originalTitle)
-                row("作者", result.authors.joined(separator: "、"))
-                row("译者", result.translators.joined(separator: "、"))
-                row("出版社", result.publisher)
-                row("出版日期", result.publicationDate)
+                row(L10n.tr("副标题"), result.subtitle)
+                row(L10n.tr("原书名"), result.originalTitle)
+                row(L10n.tr("作者"), result.authors.joined(separator: "、"))
+                row(L10n.tr("译者"), result.translators.joined(separator: "、"))
+                row(L10n.tr("出版社"), result.publisher)
+                row(L10n.tr("出版日期"), result.publicationDate)
                 row("ISBN", result.preferredISBN)
-                row("页数", result.pageCount.map(String.init))
+                row(L10n.tr("页数"), result.pageCount.map(String.init))
               }
               if let description = result.bookDescription {
-                Text("简介").font(.headline)
+                Text(L10n.tr("简介")).font(.headline)
                 Text(description).textSelection(.enabled)
               }
-              if let source = result.sourceURL { Link("来源：\(result.sourceName)", destination: source) }
+              if let source = result.sourceURL { Link(L10n.tr("来源：\(result.sourceName)"), destination: source) }
 
               Text(testTranslatorID == nil
-                ? "仅填充网页提供的字段，缺失信息保留现有内容。请核对版本、作者与 ISBN，最后在编辑页点击保存。"
-                : "请对照网页检查字段是否正确。此测试只预览结果，不保存书籍。")
+                ? L10n.tr("仅填充网页提供的字段，缺失信息保留现有内容。请核对版本、作者与 ISBN，最后在编辑页点击保存。")
+                : L10n.tr("请对照网页检查字段是否正确。此测试只预览结果，不保存书籍。"))
                 .font(.caption).foregroundStyle(.secondary)
             }.frame(maxWidth: .infinity, alignment: .leading)
           }
         case nil:
           ContentUnavailableView(
-            "从网页添加书籍", systemImage: "link",
-            description: Text("粘贴网址后自动匹配解析器。更多网站可在设置 → 元信息解析器中导入规则。"))
+            L10n.tr("从网页添加书籍"), systemImage: "link",
+            description: Text(L10n.tr("粘贴网址后自动匹配解析器。更多网站可在设置 → 元信息解析器中导入规则。")))
         }
       }
       .padding(22)
-      .navigationTitle(testTranslatorID == nil ? "从网页提取" : "测试网页解析器")
+      .navigationTitle(testTranslatorID == nil ? L10n.tr("从网页提取") : L10n.tr("测试网页解析器"))
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("取消") { stop(); dismiss() }
+          Button(L10n.tr("取消")) { stop(); dismiss() }
         }
         ToolbarItem(placement: .confirmationAction) {
           if case .book(let result) = extraction?.page {
             if testTranslatorID != nil {
-              Button("完成预览") { stop(); dismiss() }.keyboardShortcut(.defaultAction)
+              Button(L10n.tr("完成预览")) { stop(); dismiss() }.keyboardShortcut(.defaultAction)
             } else {
-              Button("填入编辑页") { apply(result) }
+              Button(L10n.tr("填入编辑页")) { apply(result) }
                 .disabled(isWorking).keyboardShortcut(.defaultAction)
             }
           }

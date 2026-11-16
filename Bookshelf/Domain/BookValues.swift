@@ -6,6 +6,14 @@ enum BookType: String, Codable, CaseIterable, Identifiable {
   var id: String { rawValue }
   var title: String {
     switch self {
+    case .chineseOriginal: L10n.tr("中文原版书")
+    case .englishOriginal: L10n.tr("英文原版书")
+    case .chineseTranslation: L10n.tr("中文译本")
+    }
+  }
+  /// Names written by the retired preset installer; stable across interface languages.
+  var legacyPresetName: String {
+    switch self {
     case .chineseOriginal: "中文原版书"
     case .englishOriginal: "英文原版书"
     case .chineseTranslation: "中文译本"
@@ -36,11 +44,11 @@ enum ContributorRole: String, Codable, CaseIterable {
 
   var title: String {
     switch self {
-    case .author: "作者"
-    case .translator: "译者"
-    case .editor: "编辑"
-    case .illustrator: "绘者"
-    case .other: "其他"
+    case .author: L10n.tr("作者")
+    case .translator: L10n.tr("译者")
+    case .editor: L10n.tr("编者")
+    case .illustrator: L10n.tr("绘者")
+    case .other: L10n.tr("其他")
     }
   }
 }

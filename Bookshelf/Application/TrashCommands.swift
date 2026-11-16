@@ -10,14 +10,14 @@ struct TrashPlan: Equatable {
   let emptiesTrash: Bool
 
   var summary: String {
-    [books.isEmpty ? nil : "\(books.count) 本书", notes.isEmpty ? nil : "\(notes.count) 条笔记"]
+    [books.isEmpty ? nil : L10n.tr("\(books.count) 本书"), notes.isEmpty ? nil : L10n.tr("\(notes.count) 条笔记")]
       .compactMap { $0 }.joined(separator: "、")
   }
-  var confirmationTitle: String { emptiesTrash ? "清空回收站？" : "永久删除\(summary)？" }
+  var confirmationTitle: String { emptiesTrash ? L10n.tr("清空回收站？") : L10n.tr("永久删除\(summary)？") }
   var confirmationMessage: String {
-    let scope = emptiesTrash ? "将删除回收站中的全部 \(summary)，包括当前搜索或筛选未显示的条目。" : "将删除\(summary)。"
-    let children = books.isEmpty ? "" : "笔记数量包含所选书籍下的全部子笔记；书籍元信息也会删除。"
-    return scope + children + "此操作无法撤销，删除后无法从回收站恢复。"
+    let scope = emptiesTrash ? L10n.tr("将删除回收站中的全部 \(summary)，包括当前搜索或筛选未显示的条目。") : L10n.tr("将删除\(summary)。")
+    let children = books.isEmpty ? "" : L10n.tr("笔记数量包含所选书籍下的全部子笔记；书籍元信息也会删除。")
+    return scope + children + L10n.tr("此操作无法撤销，删除后无法从回收站恢复。")
   }
   var canRestore: Bool { !parents.values.contains { $0.deletedAt != nil } }
 }
@@ -52,7 +52,7 @@ struct TrashCommands {
       var record = original; record.deletedAt = nil; record.updatedAt = now; return record
     }
     try LibraryRepository.apply(restoredBooks, notes: restoredNotes, into: context)
-    LibraryServices.forContext(context).history.register("恢复回收站条目", before: plan.books,
+    LibraryServices.forContext(context).history.register(L10n.tr("恢复回收站条目"), before: plan.books,
       after: try LibraryRepository.snapshots(in: context, ids: Set(plan.books.keys)),
       beforeNotes: selectedNotes, afterNotes: try OrganizationStore.notes(in: context, ids: Set(selectedNotes.keys)),
       context: context, undoManager: undoManager)

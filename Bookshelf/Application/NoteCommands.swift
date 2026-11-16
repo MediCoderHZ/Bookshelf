@@ -65,8 +65,8 @@ enum NoteMoveError: LocalizedError {
   case invalidDrag, unsavedDraft
   var errorDescription: String? {
     switch self {
-    case .invalidDrag: "无法移动所选笔记，请在当前书库中重新拖动到有效的书籍或列表顶层。"
-    case .unsavedDraft: "所选笔记中有未保存的修改，请先重试保存或另存为新笔记。"
+    case .invalidDrag: L10n.tr("无法移动所选笔记，请在当前书库中重新拖动到有效的书籍或列表顶层。")
+    case .unsavedDraft: L10n.tr("所选笔记中有未保存的修改，请先重试保存或另存为新笔记。")
     }
   }
 }
@@ -153,7 +153,7 @@ struct NoteCommands {
     }
     if !after.isEmpty {
       try LibraryRepository.apply([], notes: Array(after.values), into: context)
-      LibraryServices.forContext(context).history.register(after.count == 1 ? "移动笔记" : "移动 \(after.count) 条笔记",
+      LibraryServices.forContext(context).history.register(after.count == 1 ? L10n.tr("移动笔记") : L10n.tr("移动 \(after.count) 条笔记"),
         before: [:], after: [:], beforeNotes: before, afterNotes: after, context: context, undoManager: undoManager)
     }
     return results
@@ -178,7 +178,7 @@ struct NoteCommands {
     else { throw LibraryOperationError.changedSincePreview }
     if record == expected { return record }
     record.updatedAt = Date()
-    try commit(record, expected: expected, name: expected == nil ? "新建笔记" : "编辑笔记")
+    try commit(record, expected: expected, name: expected == nil ? L10n.tr("新建笔记") : L10n.tr("编辑笔记"))
     return record
   }
 
@@ -188,7 +188,7 @@ struct NoteCommands {
       throw OrganizationError.noteInTrash
     }
     var record = expected; record.deletedAt = trashed ? Date() : nil; record.updatedAt = Date()
-    try commit(record, expected: expected, name: trashed ? "笔记移入回收站" : "恢复笔记")
+    try commit(record, expected: expected, name: trashed ? L10n.tr("笔记移入回收站") : L10n.tr("恢复笔记"))
   }
 
   func purge(_ expected: NoteRecord) throws {
@@ -204,9 +204,9 @@ struct NoteCommands {
       try LibraryRepository.snapshots(in: context, ids: [expected.id])[expected.id] == expected
     else { throw LibraryOperationError.changedSincePreview }
     var book = expected; book.notes = nil; book.updatedAt = Date()
-    var note = NoteRecord(title: "阅读笔记", parentBookID: expected.id); note.body = body
+    var note = NoteRecord(title: L10n.tr("阅读笔记"), parentBookID: expected.id); note.body = body
     try LibraryRepository.apply([book], notes: [note], into: context)
-    LibraryServices.forContext(context).history.register("备注转为书籍笔记", before: [expected.id: expected],
+    LibraryServices.forContext(context).history.register(L10n.tr("备注转为书籍笔记"), before: [expected.id: expected],
       after: try LibraryRepository.snapshots(in: context, ids: [expected.id]), afterNotes: [note.id: note],
       context: context, undoManager: undoManager)
     return note

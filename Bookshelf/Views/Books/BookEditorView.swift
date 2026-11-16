@@ -54,39 +54,39 @@ struct BookEditorView: View {
           Button {
             isShowingMetadataSearch = true
           } label: {
-            Label("按书名或 ISBN 搜索元信息…", systemImage: "magnifyingglass")
+            Label(L10n.tr("按书名或 ISBN 搜索元信息…"), systemImage: "magnifyingglass")
           }
 
           VStack(alignment: .leading, spacing: display.fieldSpacing) {
-            metadataRow("条目类型") {
+            metadataRow(L10n.tr("条目类型")) {
               BookTypePicker(selection: Binding(get: { bookType }, set: {
                 NSApp.keyWindow?.makeFirstResponder(nil)
                 bookType = $0; hasSelectedBookType = true
               }))
             }
-            metadataTextField("标题", text: $title)
-            metadataTextField("副标题", text: $subtitle)
+            metadataTextField(L10n.tr("标题"), text: $title)
+            metadataTextField(L10n.tr("副标题"), text: $subtitle)
             if BookMetadataLayout.allows(.originalTitle, type: bookType) {
-              metadataTextField("原书名", text: $originalTitle)
+              metadataTextField(L10n.tr("原书名"), text: $originalTitle)
             }
             if BookMetadataLayout.allows(.originalLanguage, type: bookType) {
-              metadataTextField("原作语言", text: $originalLanguageCode)
+              metadataTextField(L10n.tr("原作语言"), text: $originalLanguageCode)
             }
             DraftContributorListField(draft: $authors, field: .authors)
             if BookMetadataLayout.allows(.translators, type: bookType) {
               DraftContributorListField(draft: $translators, field: .translators)
             }
-            metadataRow("出版社") {
+            metadataRow(L10n.tr("出版社")) {
               DraftPublisherMetadataField(value: $publisher)
             }
-            metadataTextField("出版日期", text: $publicationDate)
+            metadataTextField(L10n.tr("出版日期"), text: $publicationDate)
             metadataTextField("ISBN", text: $isbn)
-            metadataTextField("版次", text: $edition)
-            metadataRow("页数") {
+            metadataTextField(L10n.tr("版次"), text: $edition)
+            metadataRow(L10n.tr("页数")) {
               TextField("", value: $pageCount, format: .number)
-                .accessibilityLabel("页数")
+                .accessibilityLabel(L10n.tr("页数"))
             }
-            metadataTextField("语言", text: $languageCode)
+            metadataTextField(L10n.tr("语言"), text: $languageCode)
           }
         }
         .font(display.font)
@@ -95,14 +95,14 @@ struct BookEditorView: View {
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
       }
-      .navigationTitle(book == nil ? "添加书籍" : "编辑书籍")
+      .navigationTitle(book == nil ? L10n.tr("添加书籍") : L10n.tr("编辑书籍"))
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("取消") { dismiss() }
+          Button(L10n.tr("取消")) { dismiss() }
         }
 
         ToolbarItem(placement: .confirmationAction) {
-          Button("保存") { attemptSave() }
+          Button(L10n.tr("保存")) { attemptSave() }
             .disabled(!canSave)
             .keyboardShortcut(.defaultAction)
         }
@@ -118,29 +118,29 @@ struct BookEditorView: View {
       MetadataUpdateView(proposal: proposal) { fields in applyMetadata(proposal, fields: fields) }
     }
     .alert(
-      "书籍信息",
+      L10n.tr("书籍信息"),
       isPresented: Binding(
         get: { errorMessage != nil },
         set: { if !$0 { errorMessage = nil } }
       )
     ) {
-      Button("好", role: .cancel) {}
+      Button(L10n.tr("好"), role: .cancel) {}
     } message: {
-      Text(errorMessage ?? "发生未知错误")
+      Text(errorMessage ?? L10n.tr("发生未知错误"))
     }
     .confirmationDialog(
-      "可能已经存在这本书",
+      L10n.tr("可能已经存在这本书"),
       isPresented: Binding(
         get: { duplicateMessage != nil },
         set: { if !$0 { duplicateMessage = nil } }
       ),
       titleVisibility: .visible
     ) {
-      Button("仍然保存") {
+      Button(L10n.tr("仍然保存")) {
         duplicateMessage = nil
         save()
       }
-      Button("返回修改", role: .cancel) {
+      Button(L10n.tr("返回修改"), role: .cancel) {
         duplicateMessage = nil
       }
     } message: {
@@ -271,7 +271,7 @@ struct BookEditorView: View {
       excluding: book?.id,
       in: allBooks
     ) {
-      duplicateMessage = "\(match.reason)。你可以返回修改，或确认仍然保存为另一条记录。"
+      duplicateMessage = L10n.tr("\(match.reason)。你可以返回修改，或确认仍然保存为另一条记录。")
       return
     }
 

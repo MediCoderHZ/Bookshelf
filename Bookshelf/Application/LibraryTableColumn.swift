@@ -5,13 +5,20 @@ enum LibraryTableColumn: String, CaseIterable, Identifiable {
   case title, subtitle, author, publisher, publicationDate
   case translator, bookType, publicationYear, isbn, language, pageCount, addedAt, updatedAt
   var id: String { rawValue }
-  var title: String {
+  var title: String { L10n.tr(titleKey) }
+  private var titleKey: InterfaceText {
     switch self {
     case .title: "标题"; case .subtitle: "副标题"; case .author: "作者"; case .translator: "译者"
     case .bookType: "条目类型"; case .publisher: "出版社"; case .publicationDate: "出版日期"
     case .publicationYear: "出版年份"; case .isbn: "ISBN"; case .language: "语言"
     case .pageCount: "页数"
     case .addedAt: "添加日期"; case .updatedAt: "修改日期"
+    }
+  }
+  /// SwiftUI may retain a native header in the previous interface language.
+  static func matchingHeaderTitle(_ title: String) -> Self? {
+    allCases.first { column in
+      InterfaceLanguage.allCases.contains { L10n.render(column.titleKey, language: $0) == title }
     }
   }
   var comparator: KeyPathComparator<Book> {
@@ -33,9 +40,9 @@ enum LibraryTableColumn: String, CaseIterable, Identifiable {
   }
   func text(for row: LibraryItemRow) -> String {
     if self == .title { return row.title }
-    if self == .addedAt { return (row.book?.addedAt ?? row.note?.createdAt)?.formatted(date: .numeric, time: .shortened) ?? "" }
-    if self == .updatedAt { return (row.book?.updatedAt ?? row.note?.updatedAt)?.formatted(date: .numeric, time: .shortened) ?? "" }
-    if self == .bookType, row.note != nil { return "笔记" }
+    if self == .addedAt { return (row.book?.addedAt ?? row.note?.createdAt)?.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)) ?? "" }
+    if self == .updatedAt { return (row.book?.updatedAt ?? row.note?.updatedAt)?.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)) ?? "" }
+    if self == .bookType, row.note != nil { return L10n.tr("笔记") }
     guard let book = row.book else { return "" }
     switch self {
     case .title: return book.title

@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "Bookshelf",
+    defaultLocalization: "zh-Hans",
     platforms: [.macOS(.v14)],
     products: [
         .executable(name: "Bookshelf", targets: ["Bookshelf"])
@@ -22,7 +23,8 @@ let package = Package(
                 "Support/Bookshelf.entitlements",
                 "Support/Info.plist"
             ],
-            resources: [.copy("Resources/ThirdPartyNotices.txt")]
+            resources: [.copy("Resources/ThirdPartyNotices.txt"),
+                        .process("Resources/zh-Hans.lproj"), .process("Resources/en.lproj")]
         ),
         .testTarget(
             name: "BookshelfTests",

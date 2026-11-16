@@ -37,7 +37,7 @@ final class RichNoteTextView: NSTextView {
     minSize = .zero; maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
     isVerticallyResizable = true; isHorizontallyResizable = false; autoresizingMask = [.width]
     self.textContainer?.widthTracksTextView = true
-    setAccessibilityLabel("笔记正文")
+    setAccessibilityLabel(L10n.tr("笔记正文"))
   }
   required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
@@ -93,7 +93,7 @@ final class RichNoteTextView: NSTextView {
   override func didChangeText() {
     notifyNativeChange()
     guard !restoring else { return }
-    if let before = beforeInput { remember(before, name: "输入笔记"); beforeInput = nil }
+    if let before = beforeInput { remember(before, name: L10n.tr("输入笔记")); beforeInput = nil }
     if !hasMarkedText() { convertMarkdownAtCaret() }
     publish()
   }
@@ -142,7 +142,7 @@ final class RichNoteTextView: NSTextView {
     } else if !value.contains("\n"), current.kind != "plain" || (line.length > 0 && range != line) {
       document = RichNoteCodec.Document(text: RichNoteCodec.inline(value, block: current), trailingAttributes: RichNoteCodec.attributes(current))
     } else { document = RichNoteCodec.decode(value) }
-    change("粘贴笔记") {
+    change(L10n.tr("粘贴笔记")) {
       self.textStorage?.replaceCharacters(in: range, with: document.text)
       self.setSelectedRange(NSRange(location: range.location + document.text.length, length: 0))
       self.typingAttributes = document.trailingAttributes
@@ -201,7 +201,7 @@ final class RichNoteTextView: NSTextView {
     copy.enumerateAttribute(key, in: NSRange(location: 0, length: copy.length)) { value, _, _ in
       if value as? Bool != true { enabled = true }
     }
-    change("笔记格式") {
+    change(L10n.tr("笔记格式")) {
       copy.enumerateAttributes(in: NSRange(location: 0, length: copy.length)) { attrs, part, _ in
         var semantic = attrs; semantic[key] = enabled
         self.textStorage?.setAttributes(RichNoteCodec.attributes(RichNoteBlock(attributes: attrs), inline: semantic),
@@ -214,10 +214,10 @@ final class RichNoteTextView: NSTextView {
   func setLink(_ destination: String?, range: NSRange, label: String) {
     guard range.location <= (textStorage?.length ?? 0), NSMaxRange(range) <= (textStorage?.length ?? 0) else { return }
     let link = destination.flatMap(RichNoteCodec.safeLink)
-    change("笔记链接") {
+    change(L10n.tr("笔记链接")) {
       let base = self.block(at: range.location)
       if range.length == 0 {
-        let text = label.isEmpty ? (destination ?? "链接") : label
+        let text = label.isEmpty ? (destination ?? L10n.tr("链接")) : label
         var attrs = RichNoteCodec.attributes(base); attrs[.link] = link
         if link != nil { attrs[.foregroundColor] = NSColor.linkColor }
         self.textStorage?.replaceCharacters(in: range, with: NSAttributedString(string: text, attributes: attrs))
@@ -240,7 +240,7 @@ final class RichNoteTextView: NSTextView {
     while NSMaxRange(current) < end && NSMaxRange(current) < text.length {
       current = paragraph(at: NSMaxRange(current) + 1); ranges.append(current)
     }
-    change("段落格式") {
+    change(L10n.tr("段落格式")) {
       var selectedStart = selection.location, selectedLength = selection.length
       for (offset, range) in ranges.enumerated().reversed() {
         var target = value
@@ -270,7 +270,7 @@ final class RichNoteTextView: NSTextView {
     let selection = selectedRange(), line = paragraph(at: selection.location)
     let current = block(at: selection.location), raw = (string as NSString).substring(with: line)
     if (current.isList || current.kind == "quote" || current.kind == "code"), raw == current.prefix {
-      change("结束段落格式") {
+      change(L10n.tr("结束段落格式")) {
         self.textStorage?.replaceCharacters(in: line, with: NSAttributedString(string: ""))
         self.setSelectedRange(NSRange(location: line.location, length: 0))
         self.typingAttributes = RichNoteCodec.attributes()
@@ -281,14 +281,14 @@ final class RichNoteTextView: NSTextView {
     if current.kind == "plain", RichNoteCodec.captures(#"^(`{3,}|~{3,})([^`~]*)$"#, raw) != nil {
       let match = RichNoteCodec.captures(#"^(`{3,}|~{3,})([^`~]*)$"#, raw)!
       var code = RichNoteBlock("code"); code.language = match[2]
-      change("Markdown 代码块") {
+      change(L10n.tr("Markdown 代码块")) {
         self.textStorage?.replaceCharacters(in: line, with: NSAttributedString(string: ""))
         self.setSelectedRange(NSRange(location: line.location, length: 0)); self.typingAttributes = RichNoteCodec.attributes(code)
       }
       return
     }
     if current.kind == "plain", RichNoteCodec.parseLine(raw).0.kind == "rule" {
-      change("Markdown 分隔线") {
+      change(L10n.tr("Markdown 分隔线")) {
         let rule = RichNoteBlock("rule")
         self.textStorage?.replaceCharacters(in: line, with: NSAttributedString(string: "────────\n", attributes: RichNoteCodec.attributes(rule)))
         self.setSelectedRange(NSRange(location: line.location + 9, length: 0))
@@ -300,7 +300,7 @@ final class RichNoteTextView: NSTextView {
     if current.kind == "heading" || current.kind == "rule" { next = RichNoteBlock() }
     if current.kind == "ordered" { next.ordinal += 1 }
     if current.kind == "task" { next.checked = false }
-    change("换行") {
+    change(L10n.tr("换行")) {
       let newline = NSMutableAttributedString(string: "\n", attributes: RichNoteCodec.attributes(current))
       newline.append(NSAttributedString(string: next.prefix, attributes: RichNoteCodec.attributes(next)))
       self.textStorage?.replaceCharacters(in: selection, with: newline)
@@ -346,7 +346,7 @@ final class RichNoteTextView: NSTextView {
         textStorage?.replaceCharacters(in: line, with: NSAttributedString(string: visible, attributes: RichNoteCodec.attributes(target)))
         setSelectedRange(NSRange(location: line.location + (visible as NSString).length, length: 0))
         typingAttributes = RichNoteCodec.attributes(target)
-        remember(previous, name: "Markdown 自动格式"); return
+        remember(previous, name: L10n.tr("Markdown 自动格式")); return
       }
     }
     let prefix = (raw as NSString).substring(to: min(caret, (raw as NSString).length))
@@ -369,7 +369,7 @@ final class RichNoteTextView: NSTextView {
       textStorage?.replaceCharacters(in: range, with: replacement)
       setSelectedRange(NSRange(location: range.location + replacement.length, length: 0))
       typingAttributes = RichNoteCodec.attributes(current)
-      remember(previous, name: "Markdown 自动格式"); return
+      remember(previous, name: L10n.tr("Markdown 自动格式")); return
     }
   }
 }

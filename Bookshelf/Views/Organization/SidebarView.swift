@@ -72,7 +72,7 @@ struct SidebarView: View {
         onRename: { prepareTag($0, removing: false) },
         onDelete: { prepareTag($0, removing: true) })
     }
-    .navigationTitle("书架")
+    .navigationTitle(L10n.tr("书架"))
     .onChange(of: selection) { _, _ in
       expandSelectedAncestors()
     }
@@ -89,9 +89,9 @@ struct SidebarView: View {
         if selectedTagIDs.remove(request.source.id) != nil { selectedTagIDs.insert(destinationID) }
       }
     }
-    .confirmationDialog("删除“\(removingTag?.name ?? "")”标签？",
+    .confirmationDialog(L10n.tr("删除“\(removingTag?.name ?? "")”标签？"),
       isPresented: Binding(get: { removingTag != nil }, set: { if !$0 { removingTag = nil } }), titleVisibility: .visible) {
-      Button("删除标签", role: .destructive) {
+      Button(L10n.tr("删除标签"), role: .destructive) {
         guard let record = removingTag else { return }
         do {
           try TagCommands(context: modelContext, undoManager: undoManager).remove(record)
@@ -101,26 +101,26 @@ struct SidebarView: View {
       }
     } message: {
       if let record = removingTag {
-        Text("从 \(record.bookIDs.count) 本书和 \(record.noteIDs.count) 条笔记中移除此标签，包括回收站中的条目。书籍与笔记会保留。此操作可以撤销。")
+        Text(L10n.tr("从 \(record.bookIDs.count) 本书和 \(record.noteIDs.count) 条笔记中移除此标签，包括回收站中的条目。书籍与笔记会保留。此操作可以撤销。"))
       }
     }
-    .confirmationDialog("移除文件夹及其所有子文件夹？", isPresented: Binding(get: { removingCollection != nil }, set: { if !$0 { removingCollection = nil } }), titleVisibility: .visible) {
-      Button("移除文件夹，保留内容", role: .destructive) {
+    .confirmationDialog(L10n.tr("移除文件夹及其所有子文件夹？"), isPresented: Binding(get: { removingCollection != nil }, set: { if !$0 { removingCollection = nil } }), titleVisibility: .visible) {
+      Button(L10n.tr("移除文件夹，保留内容"), role: .destructive) {
         guard let record = removingCollection else { return }
         do { try CollectionCommands(context: modelContext, undoManager: undoManager).remove(record) }
         catch { errorMessage = error.localizedDescription }
         removingCollection = nil
       }
     } message: {
-      Text("只移除文件夹层级和归属，书籍与笔记仍保留在书库中。此操作可以撤销。")
+      Text(L10n.tr("只移除文件夹层级和归属，书籍与笔记仍保留在书库中。此操作可以撤销。"))
     }
     .alert(
-      "无法保存更改",
+      L10n.tr("无法保存更改"),
       isPresented: Binding(
         get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } }
       )
     ) {
-      Button("好", role: .cancel) {}
+      Button(L10n.tr("好"), role: .cancel) {}
     } message: {
       Text(errorMessage ?? "")
     }
@@ -130,19 +130,19 @@ struct SidebarView: View {
     ScrollViewReader { proxy in
       List(selection: navigationListSelection) {
         Group {
-          SidebarNavigationRow(title: "全部书籍", systemImage: "books.vertical", count: activeBooks.count)
+          SidebarNavigationRow(title: L10n.tr("全部书籍"), systemImage: "books.vertical", count: activeBooks.count)
             // List does not write its selection when the selected row is clicked again.
             // Re-selecting the library should still clear item details and show its count.
             .simultaneousGesture(TapGesture().onEnded { navigationListSelection.wrappedValue = .all })
             .modifier(SidebarCollectionDropTarget(rowID: nil, canMove: canMoveCollection,
               onMove: moveCollection, onError: { errorMessage = $0.localizedDescription }))
-            .help("全部书籍；将文件夹拖到这里可移回顶层")
+            .help(L10n.tr("全部书籍；将文件夹拖到这里可移回顶层"))
             .tag(LibrarySelection.all).id(LibrarySelection.all)
-          SidebarNavigationRow(title: "重复书目", systemImage: "doc.on.doc", count: duplicateCount)
+          SidebarNavigationRow(title: L10n.tr("重复书目"), systemImage: "doc.on.doc", count: duplicateCount)
             .tag(LibrarySelection.duplicates).id(LibrarySelection.duplicates)
-          SidebarNavigationRow(title: "回收站", systemImage: "trash", count: trashItemCount)
+          SidebarNavigationRow(title: L10n.tr("回收站"), systemImage: "trash", count: trashItemCount)
             .tag(LibrarySelection.trash).id(LibrarySelection.trash)
-            .help("查看已删除的书籍和笔记；右键可清空回收站")
+            .help(L10n.tr("查看已删除的书籍和笔记；右键可清空回收站"))
             .overlay(alignment: .bottom) {
               if !collections.isEmpty || folderDraft != nil {
                 // Draw in the existing row inset instead of allocating a full
@@ -161,13 +161,13 @@ struct SidebarView: View {
             onMove: moveCollection, onBooks: addDroppedBooks, onError: { errorMessage = $0.localizedDescription })
         }
         if isFilteringCollections && collectionSearchTree.items.isEmpty {
-          Text("没有匹配的文件夹").font(display.font).foregroundStyle(.secondary)
+          Text(L10n.tr("没有匹配的文件夹")).font(display.font).foregroundStyle(.secondary)
             .padding(.vertical, 8).selectionDisabled()
         }
       }
       .modifier(SidebarNavigationListStyle())
       .frame(maxHeight: .infinity)
-      .accessibilityLabel("书库导航")
+      .accessibilityLabel(L10n.tr("书库导航"))
       .contextMenu(forSelectionType: LibrarySelection.self) { targets in
         navigationContextMenu(for: targets.first)
       }
@@ -197,7 +197,7 @@ struct SidebarView: View {
   @ViewBuilder
   private func navigationContextMenu(for target: LibrarySelection?) -> some View {
     if target == .trash || target == .noteTrash {
-      Button("清空回收站…", systemImage: "trash", role: .destructive, action: onEmptyTrash)
+      Button(L10n.tr("清空回收站…"), systemImage: "trash", role: .destructive, action: onEmptyTrash)
         .disabled(trashItemCount == 0)
     } else {
       collectionContextMenu(for: target)
@@ -207,22 +207,22 @@ struct SidebarView: View {
   @ViewBuilder
   private func collectionContextMenu(for target: LibrarySelection?) -> some View {
     if case .collection(let id) = target, let record = records.first(where: { $0.id == id }) {
-      Button("新建子文件夹", systemImage: "folder.badge.plus") { beginFolderDraft(parentID: id) }
-      Button("重命名", systemImage: "pencil") { beginFolderRename(id) }
-      Button("移动文件夹…", systemImage: "folder") {
+      Button(L10n.tr("新建子文件夹"), systemImage: "folder.badge.plus") { beginFolderDraft(parentID: id) }
+      Button(L10n.tr("重命名"), systemImage: "pencil") { beginFolderRename(id) }
+      Button(L10n.tr("移动文件夹…"), systemImage: "folder") {
         if let draft = folderDraft, !commitFolderDraft(draft.id, false) { return }
         guard let current = records.first(where: { $0.id == id }) else { return }
         collectionMoveRequest = CollectionMoveRequest(existing: current)
       }
-      Button("移除文件夹及子文件夹…", systemImage: "trash", role: .destructive) { removingCollection = record }
+      Button(L10n.tr("移除文件夹及子文件夹…"), systemImage: "trash", role: .destructive) { removingCollection = record }
       Divider()
     } else if case .smart(let id) = target, let collection = collections.first(where: { $0.id == id && $0.isSmart }) {
-      Button("重命名", systemImage: "pencil") { beginFolderRename(id) }
-      Button("编辑规则", systemImage: "slider.horizontal.3") {
+      Button(L10n.tr("重命名"), systemImage: "pencil") { beginFolderRename(id) }
+      Button(L10n.tr("编辑规则"), systemImage: "slider.horizontal.3") {
         if let draft = folderDraft, !commitFolderDraft(draft.id, false) { return }
         onEditSmart(collection)
       }
-      Button("移除智能文件夹", systemImage: "trash", role: .destructive) {
+      Button(L10n.tr("移除智能文件夹"), systemImage: "trash", role: .destructive) {
         do { try SmartCollectionService.remove(collection, context: modelContext, undoManager: undoManager) }
         catch { errorMessage = error.localizedDescription }
       }
@@ -230,24 +230,24 @@ struct SidebarView: View {
     }
     newCollectionActions
     Divider()
-    Button("查找文件夹…", systemImage: "magnifyingglass") { showsCollectionFinder = true }
+    Button(L10n.tr("查找文件夹…"), systemImage: "magnifyingglass") { showsCollectionFinder = true }
       .disabled(collections.isEmpty)
-    Button("展开全部文件夹", systemImage: "chevron.down") { expandedCollectionIDs = expandableCollectionIDs }
+    Button(L10n.tr("展开全部文件夹"), systemImage: "chevron.down") { expandedCollectionIDs = expandableCollectionIDs }
       .disabled(isFilteringCollections || expandableCollectionIDs.isEmpty || expandableCollectionIDs.isSubset(of: expandedCollectionIDs))
-    Button("折叠全部文件夹", systemImage: "chevron.right") { expandedCollectionIDs.removeAll() }
+    Button(L10n.tr("折叠全部文件夹"), systemImage: "chevron.right") { expandedCollectionIDs.removeAll() }
       .disabled(isFilteringCollections || expandedCollectionIDs.isDisjoint(with: expandableCollectionIDs))
     Divider()
-    Toggle("显示条目数量", isOn: $showsItemCounts)
-    Toggle("包含子文件夹", isOn: $includeSubcollections)
+    Toggle(L10n.tr("显示条目数量"), isOn: $showsItemCounts)
+    Toggle(L10n.tr("包含子文件夹"), isOn: $includeSubcollections)
   }
 
   @ViewBuilder
   private var newCollectionActions: some View {
-    Button("新建文件夹", systemImage: "folder.badge.plus") { beginFolderDraft() }
+    Button(L10n.tr("新建文件夹"), systemImage: "folder.badge.plus") { beginFolderDraft() }
     Button {
       if let id = folderDraft?.id, !commitFolderDraft(id, false) { return }
       onNewSmart()
-    } label: { Label("新建智能文件夹", systemImage: "folder.badge.gearshape") }
+    } label: { Label(L10n.tr("新建智能文件夹"), systemImage: "folder.badge.gearshape") }
   }
 
   private func beginFolderDraft(parentID: UUID? = nil) {
@@ -285,7 +285,7 @@ struct SidebarView: View {
   private func commitFolderDraft(_ id: UUID, _ selectCreated: Bool) -> Bool {
     guard let draft = folderDraft, draft.id == id else { return true }
     if draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-      if selectCreated { folderDraft?.errorMessage = "请输入文件夹名称"; return false }
+      if selectCreated { folderDraft?.errorMessage = L10n.tr("请输入文件夹名称"); return false }
       cancelFolderDraft(id); return true
     }
     let name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -309,7 +309,7 @@ struct SidebarView: View {
       return true
     } catch {
       if error is CollectionCommandError || (error as? SmartCollectionError) == .duplicateName {
-        folderDraft?.errorMessage = "已有同名文件夹"
+        folderDraft?.errorMessage = L10n.tr("已有同名文件夹")
       } else { folderDraft?.errorMessage = error.localizedDescription }
       return false
     }
@@ -332,17 +332,17 @@ struct SidebarView: View {
       Menu {
         newCollectionActions
       } label: {
-        LibraryToolbarLabel("新建文件夹菜单", systemImage: "folder.badge.plus")
+        LibraryToolbarLabel(L10n.tr("新建文件夹菜单"), systemImage: "folder.badge.plus")
       }
       .menuStyle(.button).menuIndicator(.hidden).buttonStyle(.plain).fixedSize()
-      .help("新建文件夹或智能文件夹").accessibilityLabel("新建文件夹菜单")
+      .help(L10n.tr("新建文件夹或智能文件夹")).accessibilityLabel(L10n.tr("新建文件夹菜单"))
       if showsCollectionFinder {
         collectionSearchBar.padding(.leading, 8)
       } else {
         Spacer(minLength: 8)
         Button { showsCollectionFinder = true } label: {
-          LibraryToolbarLabel("查找文件夹", systemImage: "magnifyingglass")
-        }.buttonStyle(.plain).help("查找文件夹").accessibilityLabel("查找文件夹")
+          LibraryToolbarLabel(L10n.tr("查找文件夹"), systemImage: "magnifyingglass")
+        }.buttonStyle(.plain).help(L10n.tr("查找文件夹")).accessibilityLabel(L10n.tr("查找文件夹"))
       }
     }
     .foregroundStyle(.secondary)
@@ -352,7 +352,7 @@ struct SidebarView: View {
     HStack(spacing: 6) {
       Button(action: closeCollectionSearch) {
         LibraryIcon(systemName: "magnifyingglass")
-      }.buttonStyle(.plain).help("收起文件夹搜索（Esc）").accessibilityLabel("收起文件夹搜索")
+      }.buttonStyle(.plain).help(L10n.tr("收起文件夹搜索（Esc）")).accessibilityLabel(L10n.tr("收起文件夹搜索"))
       SidebarCollectionSearchField(text: $collectionSearchText, fontSize: display.fontSize,
         onMove: moveCollectionSearchSelection, onSubmit: openCollectionSearchSelection,
         onClose: closeCollectionSearch, onFocusChange: { collectionSearchFocused = $0 })
@@ -360,7 +360,7 @@ struct SidebarView: View {
       if !collectionSearchText.isEmpty {
         Button { collectionSearchText = "" } label: {
           Image(systemName: "xmark.circle.fill")
-        }.buttonStyle(.plain).help("清除文件夹搜索").accessibilityLabel("清除文件夹搜索")
+        }.buttonStyle(.plain).help(L10n.tr("清除文件夹搜索")).accessibilityLabel(L10n.tr("清除文件夹搜索"))
       }
     }
     .font(display.font).padding(.horizontal, 7)
@@ -615,6 +615,7 @@ private struct SidebarCollectionRows: View {
 
 /// Native editing preserves input-method composition while arrow keys navigate results.
 private struct SidebarCollectionSearchField: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   @Binding var text: String
   let fontSize: CGFloat
   let onMove: (Int) -> Void
@@ -630,9 +631,9 @@ private struct SidebarCollectionSearchField: NSViewRepresentable {
     field.focusRingType = .none
     field.usesSingleLineMode = true
     field.cell?.isScrollable = true
-    field.placeholderString = "筛选文件夹"
-    field.setAccessibilityLabel("文件夹搜索")
-    field.toolTip = "按文件夹名称或层级路径查找；↑/↓ 选择，回车定位，Esc 关闭"
+    field.placeholderString = L10n.tr("筛选文件夹")
+    field.setAccessibilityLabel(L10n.tr("文件夹搜索"))
+    field.toolTip = L10n.tr("按文件夹名称或层级路径查找；↑/↓ 选择，回车定位，Esc 关闭")
     field.font = .systemFont(ofSize: fontSize)
     field.delegate = context.coordinator
     field.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -643,6 +644,10 @@ private struct SidebarCollectionSearchField: NSViewRepresentable {
     return field
   }
   func updateNSView(_ field: MetadataTextField, context: Context) {
+    let _ = locale
+    field.placeholderString = L10n.tr("筛选文件夹")
+    field.setAccessibilityLabel(L10n.tr("文件夹搜索"))
+    field.toolTip = L10n.tr("按文件夹名称或层级路径查找；↑/↓ 选择，回车定位，Esc 关闭")
     context.coordinator.parent = self
     if field.stringValue != text, (field.currentEditor() as? NSTextView)?.hasMarkedText() != true {
       field.stringValue = text

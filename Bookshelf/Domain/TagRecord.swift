@@ -33,8 +33,8 @@ enum TagCommandError: LocalizedError {
   case invalidName, mergeRequired
   var errorDescription: String? {
     switch self {
-    case .invalidName: "标签名称不能为空，也不能产生重复标签。"
-    case .mergeRequired: "已有同名标签，请重新打开重命名窗口，确认合并后再保存。"
+    case .invalidName: L10n.tr("标签名称不能为空，也不能产生重复标签。")
+    case .mergeRequired: L10n.tr("已有同名标签，请重新打开重命名窗口，确认合并后再保存。")
     }
   }
 }

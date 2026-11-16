@@ -103,12 +103,12 @@ struct BookInspectorView: View {
       readingPositions.flush()
     }
     .alert(
-      "无法保存更改",
+      L10n.tr("无法保存更改"),
       isPresented: Binding(
         get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } }
       )
     ) {
-      Button("好", role: .cancel) {}
+      Button(L10n.tr("好"), role: .cancel) {}
     } message: {
       Text(errorMessage ?? "")
     }
@@ -188,9 +188,9 @@ struct BookInspectorView: View {
         InlineBookMetadataField(book: book, field: .title, isInspectorTitle: true)
       }
       if isReadOnly {
-        Label("回收站 · 只读", systemImage: "trash").font(display.font).foregroundStyle(.secondary)
+        Label(L10n.tr("回收站 · 只读"), systemImage: "trash").font(display.font).foregroundStyle(.secondary)
         if book.mergedIntoID != nil {
-          Text("合并时保留的原记录。恢复副本不会回退主记录；回退整次合并请使用撤销。")
+          Text(L10n.tr("合并时保留的原记录。恢复副本不会回退主记录；回退整次合并请使用撤销。"))
             .font(display.font).foregroundStyle(.secondary)
         }
       }
@@ -211,17 +211,17 @@ struct BookInspectorView: View {
         Button { togglePanel(section) } label: {
           HStack(alignment: .center, spacing: display.inspectorHeaderLabelSpacing) {
             inspectorHeaderIcon(section.systemImage)
-            Text(section.rawValue).font(display.font).lineLimit(1)
+            Text(section.title).font(display.font).lineLimit(1)
             if let count {
               Text(count, format: .number).font(display.font).lineLimit(1).fixedSize()
             }
             Spacer(minLength: 0)
           }.foregroundStyle(.secondary).contentShape(Rectangle())
         }
-        .buttonStyle(.plain).accessibilityLabel(section.rawValue)
-        .accessibilityValue((expanded ? "已展开" : "已折叠") +
-          (count.map { "，\($0) " + (section == .notes ? "条笔记" : "个标签") } ?? ""))
-        .help(expanded ? "折叠" + section.rawValue : "展开" + section.rawValue)
+        .buttonStyle(.plain).accessibilityLabel(section.title)
+        .accessibilityValue((expanded ? L10n.tr("已展开") : L10n.tr("已折叠")) +
+          (count.map { "，\($0) " + (section == .notes ? L10n.tr("条笔记") : L10n.tr("个标签")) } ?? ""))
+        .help(expanded ? L10n.tr("折叠") + section.title : L10n.tr("展开") + section.title)
         Group {
           if section == .collections && !isReadOnly { membershipMenu }
           else if section == .notes && !isReadOnly {
@@ -233,7 +233,7 @@ struct BookInspectorView: View {
             } label: {
               inspectorHeaderIcon("plus")
             }.buttonStyle(.plain).foregroundStyle(.secondary)
-              .accessibilityLabel("新建书籍笔记").help("新建笔记")
+              .accessibilityLabel(L10n.tr("新建书籍笔记")).help(L10n.tr("新建笔记"))
           } else if section == .tags && !isReadOnly {
             Button {
               cancelPositionRestoration()
@@ -244,7 +244,7 @@ struct BookInspectorView: View {
             } label: {
               inspectorHeaderIcon("plus")
             }.buttonStyle(.plain).foregroundStyle(.secondary)
-              .accessibilityLabel("添加标签").help("添加标签")
+              .accessibilityLabel(L10n.tr("添加标签")).help(L10n.tr("添加标签"))
           } else {
             Color.clear.allowsHitTesting(false).accessibilityHidden(true)
           }
@@ -253,7 +253,7 @@ struct BookInspectorView: View {
         Button { togglePanel(section) } label: {
           inspectorHeaderIcon(expanded ? "chevron.up" : "chevron.down")
         }.buttonStyle(.plain).foregroundStyle(.secondary)
-          .accessibilityLabel((expanded ? "折叠" : "展开") + section.rawValue)
+          .accessibilityLabel((expanded ? L10n.tr("折叠") : L10n.tr("展开")) + section.title)
       }.frame(minHeight: display.inspectorRowHeight)
       if expanded && (section != .notes || noteCount > 0) &&
         (section != .collections || !membershipIDs.isEmpty) &&
@@ -287,7 +287,7 @@ struct BookInspectorView: View {
   private var information: some View {
     VStack(alignment: .leading, spacing: display.inspectorRowSpacing) {
       HStack(alignment: .top, spacing: 10) {
-        fieldLabel("条目类型")
+        fieldLabel(L10n.tr("条目类型"))
         if isReadOnly {
           Text(book.bookType?.title ?? "").frame(maxWidth: .infinity, alignment: .leading)
         } else {
@@ -303,8 +303,8 @@ struct BookInspectorView: View {
         }
       }.font(display.font).frame(minHeight: display.inspectorRowHeight, alignment: .top)
       ForEach(informationFields) { field in metadataRow(field) }
-      detailRow("添加日期", book.addedAt.formatted(date: .numeric, time: .standard))
-      detailRow("修改日期", book.updatedAt.formatted(date: .numeric, time: .standard))
+      detailRow(L10n.tr("添加日期"), book.addedAt.formatted(Date.FormatStyle(date: .numeric, time: .standard).locale(L10n.locale)))
+      detailRow(L10n.tr("修改日期"), book.updatedAt.formatted(Date.FormatStyle(date: .numeric, time: .standard).locale(L10n.locale)))
     }
   }
 
@@ -319,16 +319,16 @@ struct BookInspectorView: View {
       if !childNotes.isEmpty { ChildNotesView(notes: childNotes, isReadOnly: isReadOnly) }
       if let legacy = legacyNote {
         if !childNotes.isEmpty { Divider() }
-        sectionTitle("书籍备注")
+        sectionTitle(L10n.tr("书籍备注"))
         Text(legacy).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled)
         if !isReadOnly {
-          Button("转为书籍笔记并编辑") {
+          Button(L10n.tr("转为书籍笔记并编辑")) {
             do {
               let note = try NoteCommands(context: modelContext, undoManager: undoManager).convertLegacyNote(BookArchive(book: book))
               noteNavigation.open(note.id)
             }
             catch { errorMessage = error.localizedDescription }
-          }.help("将原有备注移到一条子笔记中，内容完整保留，可以撤销。")
+          }.help(L10n.tr("将原有备注移到一条子笔记中，内容完整保留，可以撤销。"))
         }
       }
     }
@@ -346,14 +346,14 @@ struct BookInspectorView: View {
           if location.isDirectMember {
             HStack(spacing: 8) {
               locationLink(location.record.name, systemImage: "folder", collectionID: location.id)
-                .help("在左侧定位：" + CollectionTree.path(location.id, in: records))
+                .help(L10n.tr("在左侧定位：") + CollectionTree.path(location.id, in: records))
               if !isReadOnly, let collection = collections.first(where: { $0.id == location.id }) {
                 Button { setMembership(collection, included: false) } label: {
                   Image(systemName: "minus.circle").font(.system(size: 13))
                     .frame(width: 20, height: 20)
                 }.buttonStyle(.plain).foregroundStyle(.secondary)
-                  .accessibilityLabel("从文件夹移除：" + CollectionTree.path(location.id, in: records))
-                  .help("从“\(location.record.name)”移除，书籍仍保留在书库中")
+                  .accessibilityLabel(L10n.tr("从文件夹移除：") + CollectionTree.path(location.id, in: records))
+                  .help(L10n.tr("从“\(location.record.name)”移除，书籍仍保留在书库中"))
               }
             }
           } else {
@@ -376,14 +376,14 @@ struct BookInspectorView: View {
         Label(title, systemImage: systemImage).lineLimit(2)
           .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
       }.buttonStyle(.plain)
-        .accessibilityLabel("在左侧定位：" + title)
+        .accessibilityLabel(L10n.tr("在左侧定位：") + title)
     }
   }
 
   private var membershipMenu: some View {
     Menu {
       if collections.isEmpty {
-        Text("暂无普通文件夹，请先在左侧新建")
+        Text(L10n.tr("暂无普通文件夹，请先在左侧新建"))
       }
       CollectionHierarchyMenuItems(nodes: CollectionTree.nodes(collectionRecords)) { record in
         Toggle(isOn: Binding(
@@ -398,7 +398,7 @@ struct BookInspectorView: View {
       inspectorHeaderIcon("plus")
     }.menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
       .foregroundStyle(.secondary)
-      .accessibilityLabel("添加到文件夹").help("选择文件夹加入；取消勾选可移除归属")
+      .accessibilityLabel(L10n.tr("添加到文件夹")).help(L10n.tr("选择文件夹加入；取消勾选可移除归属"))
   }
 
   private func setMembership(_ collection: BookCollection, included: Bool) {
@@ -422,7 +422,7 @@ struct BookInspectorView: View {
               do { try commands.setTag(tag.name, included: false, book: book) }
               catch { errorMessage = error.localizedDescription }
             } label: { Image(systemName: "minus.circle") }
-              .buttonStyle(.plain).foregroundStyle(.secondary).help("移除标签 \(tag.name)")
+              .buttonStyle(.plain).foregroundStyle(.secondary).help(L10n.tr("移除标签 \(tag.name)"))
           }
         }.frame(minHeight: display.inspectorRowHeight, alignment: .top)
       }
@@ -529,6 +529,14 @@ enum InspectorPanel: String, CaseIterable, Identifiable, Codable {
     self = panel
   }
   var id: String { rawValue }
+  var title: String {
+    switch self {
+    case .info: L10n.tr("信息")
+    case .notes: L10n.tr("笔记")
+    case .collections: L10n.tr("文件夹")
+    case .tags: L10n.tr("标签")
+    }
+  }
   var systemImage: String {
     switch self {
     case .info: "info.circle"
@@ -649,8 +657,8 @@ struct InspectorNavigationRail: View {
         LibraryIcon(systemName: "sidebar.right")
       }
       .buttonStyle(InspectorNavigationButtonStyle())
-      .accessibilityLabel(isPresented ? "隐藏详情面板" : "显示详情面板")
-      .help(isPresented ? "隐藏详情面板（⌥⌘I）" : "显示详情面板（⌥⌘I）")
+      .accessibilityLabel(isPresented ? L10n.tr("隐藏详情面板") : L10n.tr("显示详情面板"))
+      .help(isPresented ? L10n.tr("隐藏详情面板（⌥⌘I）") : L10n.tr("显示详情面板（⌥⌘I）"))
       .keyboardShortcut("i", modifiers: [.command, .option])
       Divider().padding(.horizontal, 8)
       ForEach(InspectorPanel.allCases) { section in
@@ -660,8 +668,8 @@ struct InspectorNavigationRail: View {
           LibraryIcon(systemName: section.systemImage)
         }
         .buttonStyle(InspectorNavigationButtonStyle(isSelected: selected))
-        .disabled(!enabled).help(section.rawValue)
-        .accessibilityLabel("前往" + section.rawValue)
+        .disabled(!enabled).help(section.title)
+        .accessibilityLabel(L10n.tr("前往") + section.title)
         .accessibilityAddTraits(selected ? .isSelected : [])
       }
       Spacer(minLength: 0)
@@ -669,7 +677,7 @@ struct InspectorNavigationRail: View {
     .padding(.top, display.inspectorSectionPadding).frame(width: Self.width)
     .frame(maxHeight: .infinity)
     .background(Color(nsColor: .windowBackgroundColor))
-    .accessibilityElement(children: .contain).accessibilityLabel("详情导航")
+    .accessibilityElement(children: .contain).accessibilityLabel(L10n.tr("详情导航"))
   }
 }
 

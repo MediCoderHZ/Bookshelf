@@ -30,18 +30,18 @@ struct BookMetadataSearchView: View {
     NavigationStack {
       VStack(alignment: .leading, spacing: 12) {
         HStack {
-          TextField("输入书名或 ISBN", text: $query)
+          TextField(L10n.tr("输入书名或 ISBN"), text: $query)
             .textFieldStyle(.roundedBorder).onSubmit(startSearch)
-            .accessibilityLabel("书名或 ISBN")
-          Picker("来源", selection: $sourceID) {
-            Text("全部已启用来源").tag("all")
+            .accessibilityLabel(L10n.tr("书名或 ISBN"))
+          Picker(L10n.tr("来源"), selection: $sourceID) {
+            Text(L10n.tr("全部已启用来源")).tag("all")
             ForEach(service.sources) { Text($0.name).tag($0.id) }
           }.frame(width: 240)
-          Button("搜索", action: startSearch)
+          Button(L10n.tr("搜索"), action: startSearch)
             .disabled(isSearching || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-          if isSearching { Button("停止") { reset() } }
+          if isSearching { Button(L10n.tr("停止")) { reset() } }
         }
-        Text("点击搜索会将书名或 ISBN 发送至所选来源。选择候选后读取详情，核对版本再填入。停用的解析器不参与搜索。")
+        Text(L10n.tr("点击搜索会将书名或 ISBN 发送至所选来源。选择候选后读取详情，核对版本再填入。停用的解析器不参与搜索。"))
           .font(.caption).foregroundStyle(.secondary)
         Divider()
         HStack(spacing: 0) {
@@ -51,13 +51,13 @@ struct BookMetadataSearchView: View {
         }
       }
       .padding(18)
-      .navigationTitle("搜索书籍元信息")
+      .navigationTitle(L10n.tr("搜索书籍元信息"))
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("取消") { reset(); dismiss() }
+          Button(L10n.tr("取消")) { reset(); dismiss() }
         }
         ToolbarItem(placement: .confirmationAction) {
-          Button("填入编辑页", action: apply)
+          Button(L10n.tr("填入编辑页"), action: apply)
             .disabled(preview == nil || isResolving).keyboardShortcut(.defaultAction)
         }
       }
@@ -74,21 +74,21 @@ struct BookMetadataSearchView: View {
 
   @ViewBuilder private var resultList: some View {
     if batches.isEmpty {
-      ContentUnavailableView("按书名或 ISBN 搜索", systemImage: "magnifyingglass",
-        description: Text("可选择豆瓣、Goodreads、Open Library，或同时查询全部已启用来源。"))
+      ContentUnavailableView(L10n.tr("按书名或 ISBN 搜索"), systemImage: "magnifyingglass",
+        description: Text(L10n.tr("可选择豆瓣、Goodreads、Open Library，或同时查询全部已启用来源。")))
     } else {
       List {
         ForEach(batches) { batch in
           Section {
             if batch.isLoading {
-              HStack { ProgressView().controlSize(.small); Text("正在搜索…") }
+              HStack { ProgressView().controlSize(.small); Text(L10n.tr("正在搜索…")) }
             } else if let error = batch.error {
               Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(.secondary)
               if let query = submittedQuery, let url = service.searchURL(for: query, source: batch.source) {
-                Link("在浏览器查看搜索结果", destination: url).font(.caption)
+                Link(L10n.tr("在浏览器查看搜索结果"), destination: url).font(.caption)
               }
             } else if batch.hits.isEmpty {
-              Text("未找到结果，可尝试其他书名或 ISBN。").font(.caption).foregroundStyle(.secondary)
+              Text(L10n.tr("未找到结果，可尝试其他书名或 ISBN。")).font(.caption).foregroundStyle(.secondary)
             }
             ForEach(batch.hits) { hit in
               Button { select(hit) } label: {
@@ -107,7 +107,7 @@ struct BookMetadataSearchView: View {
               }.buttonStyle(.plain)
             }
           } header: {
-            Text(batch.isLoading ? batch.source.name : "\(batch.source.name) · \(batch.hits.count) 项")
+            Text(batch.isLoading ? batch.source.name : L10n.tr("\(batch.source.name) · \(batch.hits.count) 项"))
           }
         }
       }.listStyle(.inset)
@@ -118,43 +118,43 @@ struct BookMetadataSearchView: View {
     if isResolving {
       VStack(spacing: 14) {
         ProgressView()
-        Text("正在读取图书详情…")
-        Button("停止读取") { cancelSelection() }
+        Text(L10n.tr("正在读取图书详情…"))
+        Button(L10n.tr("停止读取")) { cancelSelection() }
       }
     } else if let book = preview {
       ScrollView {
         VStack(alignment: .leading, spacing: 14) {
           Text(book.title).font(.title2.bold()).textSelection(.enabled)
-          Text("来源：\(book.sourceName)").font(.caption).foregroundStyle(.secondary)
+          Text(L10n.tr("来源：\(book.sourceName)")).font(.caption).foregroundStyle(.secondary)
           if let warning = MetadataSearchService.isbnNotice(query: submittedQuery, book: book) {
             Label(warning, systemImage: "exclamationmark.triangle").font(.callout).foregroundStyle(.orange)
           }
           Grid(alignment: .topLeading, horizontalSpacing: 18, verticalSpacing: 10) {
-            row("作者", book.authors.joined(separator: "、"))
-            row("译者", book.translators.joined(separator: "、"))
-            row("出版社", book.publisher)
-            row("出版日期", book.publicationDate)
+            row(L10n.tr("作者"), book.authors.joined(separator: "、"))
+            row(L10n.tr("译者"), book.translators.joined(separator: "、"))
+            row(L10n.tr("出版社"), book.publisher)
+            row(L10n.tr("出版日期"), book.publicationDate)
             row("ISBN", book.preferredISBN)
-            row("页数", book.pageCount.map(String.init))
-            row("语言", book.languageCode)
-            row("原书名", book.originalTitle)
+            row(L10n.tr("页数"), book.pageCount.map(String.init))
+            row(L10n.tr("语言"), book.languageCode)
+            row(L10n.tr("原书名"), book.originalTitle)
           }
           if let description = book.bookDescription { Text(description).textSelection(.enabled) }
-          if let url = book.sourceURL { Link("查看来源网页", destination: url) }
+          if let url = book.sourceURL { Link(L10n.tr("查看来源网页"), destination: url) }
           if let detailError { Text(detailError).foregroundStyle(.red) }
-          Text("仅填充来源提供的字段，缺失信息保留现有内容。请核对版本，最后在编辑页保存。")
+          Text(L10n.tr("仅填充来源提供的字段，缺失信息保留现有内容。请核对版本，最后在编辑页保存。"))
             .font(.caption).foregroundStyle(.secondary)
         }.frame(maxWidth: .infinity, alignment: .leading)
       }
     } else if let detailError {
       VStack(spacing: 12) {
-        ContentUnavailableView("暂时无法读取详情", systemImage: "wifi.exclamationmark", description: Text(detailError))
-        if let selected { Button("重试读取") { select(selected) } }
-        if let url = selected?.candidate?.url { Link("在浏览器查看此版本", destination: url) }
+        ContentUnavailableView(L10n.tr("暂时无法读取详情"), systemImage: "wifi.exclamationmark", description: Text(detailError))
+        if let selected { Button(L10n.tr("重试读取")) { select(selected) } }
+        if let url = selected?.candidate?.url { Link(L10n.tr("在浏览器查看此版本"), destination: url) }
       }
     } else {
-      ContentUnavailableView("选择一本书", systemImage: "book.pages",
-        description: Text("各来源独立显示结果。选择候选，预览作者和出版信息后填入。"))
+      ContentUnavailableView(L10n.tr("选择一本书"), systemImage: "book.pages",
+        description: Text(L10n.tr("各来源独立显示结果。选择候选，预览作者和出版信息后填入。")))
     }
   }
 

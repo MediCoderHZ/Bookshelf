@@ -52,9 +52,9 @@ struct MetadataSearchService: Sendable {
   static func isbnNotice(query: BookMetadataQuery?, book: BookMetadataSearchResult) -> String? {
     guard case .isbn(let requested) = query else { return nil }
     let returned = [book.isbn10, book.isbn13].compactMap { $0 }.compactMap(comparisonISBN)
-    guard !returned.isEmpty else { return "该页面未提供 ISBN，无法确认与查询号码一致，请核对版本。" }
+    guard !returned.isEmpty else { return L10n.tr("该页面未提供 ISBN，无法确认与查询号码一致，请核对版本。") }
     guard let wanted = comparisonISBN(requested), returned.contains(wanted) else {
-      return "此版本的 ISBN 与查询号码不同，请核对后再填入。"
+      return L10n.tr("此版本的 ISBN 与查询号码不同，请核对后再填入。")
     }
     return nil
   }

@@ -192,5 +192,5 @@ enum LibraryRepository {
 
 enum CollectionCommandError: LocalizedError {
   case invalidName
-  var errorDescription: String? { "文件夹名称不能为空，也不能与已有普通文件夹重名。" }
+  var errorDescription: String? { L10n.tr("文件夹名称不能为空，也不能与已有普通文件夹重名。") }
 }

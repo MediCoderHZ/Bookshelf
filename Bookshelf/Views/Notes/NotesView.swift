@@ -41,16 +41,16 @@ struct NoteDetailView: View {
         MarkdownNotePreview(source: note.body)
         Divider()
         VStack(alignment: .leading, spacing: 10) {
-          Text(parent?.deletedAt != nil ? "所属书籍在回收站中，请先恢复书籍。" : "笔记在回收站中，恢复后可编辑。")
+          Text(parent?.deletedAt != nil ? L10n.tr("所属书籍在回收站中，请先恢复书籍。") : L10n.tr("笔记在回收站中，恢复后可编辑。"))
             .font(display.font).foregroundStyle(.secondary)
           HStack {
-            Button("恢复笔记") {
+            Button(L10n.tr("恢复笔记")) {
               if let onRestore { onRestore() }
               else { perform { try commands.setTrashed(false, expected: note) } }
             }
               .disabled(note.deletedAt == nil || parent?.deletedAt != nil)
             Spacer()
-            Button("永久删除…", role: .destructive) {
+            Button(L10n.tr("永久删除…"), role: .destructive) {
               if let onPurge { onPurge() }
               else { perform {
                 purgePlan = try TrashCommands(context: context, undoManager: undoManager).preview([.note(note.id)])
@@ -68,8 +68,8 @@ struct NoteDetailView: View {
           VStack(alignment: .leading, spacing: 8) {
             Text(message).font(display.font).foregroundStyle(.red).textSelection(.enabled)
             HStack {
-              Button("重试保存") { editing.save(state, context: context, undoManager: undoManager) }
-              Button("另存为新笔记") { perform {
+              Button(L10n.tr("重试保存")) { editing.save(state, context: context, undoManager: undoManager) }
+              Button(L10n.tr("另存为新笔记")) { perform {
                 let copy = try editing.saveCopy(state, context: context, undoManager: undoManager)
                 navigation.open(copy.id)
               } }
@@ -85,13 +85,13 @@ struct NoteDetailView: View {
       .background(Color(nsColor: .textBackgroundColor))
       .onAppear { state = editing.open(note) }
       .onChange(of: note) { _, value in state?.reconcile(value) }
-      .confirmationDialog(purgePlan?.confirmationTitle ?? "永久删除这条笔记？", isPresented: $confirmingPurge, titleVisibility: .visible) {
-        Button("永久删除", role: .destructive) { perform {
+      .confirmationDialog(purgePlan?.confirmationTitle ?? L10n.tr("永久删除这条笔记？"), isPresented: $confirmingPurge, titleVisibility: .visible) {
+        Button(L10n.tr("永久删除"), role: .destructive) { perform {
           guard let plan = purgePlan else { return }
           defer { purgePlan = nil }
           try TrashCommands(context: context, undoManager: undoManager).purge(plan)
         } }
-        Button("取消", role: .cancel) { purgePlan = nil }
+        Button(L10n.tr("取消"), role: .cancel) { purgePlan = nil }
       } message: { Text(purgePlan?.confirmationMessage ?? "") }
   }
   private func textBinding(_ state: InlineNoteDraft, _ key: WritableKeyPath<NoteRecord, String>) -> Binding<String> {
@@ -132,17 +132,17 @@ private struct NoteRowActions: ViewModifier {
 
   func body(content: Content) -> some View {
     content.contextMenu {
-      Button(isTrashed ? "查看笔记" : "编辑笔记") { navigation.open(note.id) }
+      Button(isTrashed ? L10n.tr("查看笔记") : L10n.tr("编辑笔记")) { navigation.open(note.id) }
       if !isTrashed {
         Divider()
-        Button("移入回收站", role: .destructive) {
+        Button(L10n.tr("移入回收站"), role: .destructive) {
           do { try NoteCommands(context: context, undoManager: undoManager).setTrashed(true, expected: note) }
           catch { errorMessage = error.localizedDescription }
         }.disabled(editing.drafts[note.id]?.hasUnsavedChanges == true)
       }
     }
-    .alert("无法修改笔记", isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
-      Button("好", role: .cancel) { errorMessage = nil }
+    .alert(L10n.tr("无法修改笔记"), isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
+      Button(L10n.tr("好"), role: .cancel) { errorMessage = nil }
     } message: { Text(errorMessage ?? "") }
   }
 }

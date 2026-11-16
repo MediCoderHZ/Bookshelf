@@ -46,14 +46,14 @@ struct InlineBookMetadataField: View {
       if let draft = editing.draft(book.id, field), let message = draft.errorMessage, draft.isDirty {
         Text(message).font(display.font).foregroundStyle(.red).textSelection(.enabled)
         HStack {
-          Button("重试") { editing.commit(book.id, field: field, context: context, undoManager: undoManager) }
-          Button("放弃修改") { editing.discard(book.id, field: field) }
+          Button(L10n.tr("重试")) { editing.commit(book.id, field: field, context: context, undoManager: undoManager) }
+          Button(L10n.tr("放弃修改")) { editing.discard(book.id, field: field) }
         }.font(display.font).buttonStyle(.borderless)
       }
     }.frame(maxWidth: .infinity, alignment: .leading)
   }
   private var nativeInput: NativeBookMetadataField {
-    NativeBookMetadataField(value: value, label: isInspectorTitle ? "顶部标题" : field.label,
+    NativeBookMetadataField(value: value, label: isInspectorTitle ? L10n.tr("顶部标题") : field.label,
         multiline: field == .description,
         focusToken: focusToken,
         onFocus: {
@@ -71,11 +71,11 @@ struct InlineBookMetadataField: View {
   private var editingHelp: String {
     switch field {
     case .authors, .translators:
-      "点击编辑；多位作者或译者用顿号、分号或换行分隔，姓名中的逗号保留。回车或离开字段自动保存。"
+      L10n.tr("点击编辑；多位作者或译者用顿号、分号或换行分隔，姓名中的逗号保留。回车或离开字段自动保存。")
     case .description:
-      "点击编辑，回车换行，Tab 或离开字段自动保存；Esc 取消当前修改。"
+      L10n.tr("点击编辑，回车换行，Tab 或离开字段自动保存；Esc 取消当前修改。")
     default:
-      "点击编辑，回车、Tab 或离开字段自动保存；Esc 取消当前修改。"
+      L10n.tr("点击编辑，回车、Tab 或离开字段自动保存；Esc 取消当前修改。")
     }
   }
 }
@@ -83,6 +83,7 @@ struct InlineBookMetadataField: View {
 /// Native field-editor lifecycle: Chinese composition remains inside AppKit;
 /// Return/Tab/blur commit once, Escape cancels, row changes and window close flush.
 struct NativeBookMetadataField: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   @Environment(\.libraryDisplay) private var display
   let value: String
   let label: String
@@ -122,6 +123,8 @@ struct NativeBookMetadataField: NSViewRepresentable {
     return field
   }
   func updateNSView(_ field: MetadataTextField, context: Context) {
+    let _ = locale
+    field.setAccessibilityLabel(label)
     let coordinator = context.coordinator
     coordinator.parent = self
     if field.font != resolvedFont {

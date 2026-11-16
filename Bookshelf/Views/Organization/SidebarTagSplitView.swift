@@ -26,9 +26,9 @@ struct SidebarTagSplitView<Navigation: View, Tags: View>: View {
               }
           )
           .accessibilityElement()
-          .accessibilityLabel("标签面板高度")
-          .accessibilityValue("\(Int(tagHeight)) 点")
-          .accessibilityHint("上下拖动调整高度")
+          .accessibilityLabel(L10n.tr("标签面板高度"))
+          .accessibilityValue(L10n.tr("\(Int(tagHeight)) 点"))
+          .accessibilityHint(L10n.tr("上下拖动调整高度"))
           .accessibilityAdjustableAction { direction in
             switch direction {
             case .increment:
@@ -65,7 +65,7 @@ private struct TagPanelResizeHandle: View {
       .frame(height: SidebarTagPanelLayout.dividerHeight)
       .overlay { Divider() }
       .contentShape(Rectangle())
-      .help("上下拖动调整标签面板高度")
+      .help(L10n.tr("上下拖动调整标签面板高度"))
       .onHover { hovering in isHovering = hovering; updateCursor() }
       .onChange(of: isDragging) { _, _ in updateCursor() }
       .onDisappear {

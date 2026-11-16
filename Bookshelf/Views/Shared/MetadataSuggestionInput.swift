@@ -39,7 +39,7 @@ struct MetadataSuggestionInput: View {
           if !active { selection.dismiss() }
         },
         onCompositionChange: { isComposing = $0 }, replacement: replacement)
-        .help("输入" + noun + "匹配书库；↑/↓ 选择，回车填入并保存。Esc 关闭候选，再按一次取消当前修改。")
+        .help(L10n.tr("输入") + noun + L10n.tr("匹配书库；↑/↓ 选择，回车填入并保存。Esc 关闭候选，再按一次取消当前修改。"))
       if isShowingSuggestions {
         ScrollViewReader { proxy in
           ScrollView {
@@ -62,7 +62,7 @@ struct MetadataSuggestionInput: View {
         .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 5))
         .clipShape(RoundedRectangle(cornerRadius: 5))
         .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
-        .accessibilityLabel("已有" + noun + "候选")
+        .accessibilityLabel(L10n.tr("已有") + noun + L10n.tr("候选"))
       }
     }
   }
@@ -82,8 +82,8 @@ struct MetadataSuggestionInput: View {
         .foregroundStyle(selected ? Color(nsColor: .alternateSelectedControlTextColor) : .primary)
         .background(selected ? Color(nsColor: .selectedContentBackgroundColor) : .clear)
         .contentShape(Rectangle())
-    }.buttonStyle(.plain).help("填入已有" + noun + "：" + suggestion.name)
-      .accessibilityLabel("填入" + noun + " " + suggestion.name)
+    }.buttonStyle(.plain).help(L10n.tr("填入已有") + noun + "：" + suggestion.name)
+      .accessibilityLabel(L10n.tr("填入") + noun + " " + suggestion.name)
       .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }

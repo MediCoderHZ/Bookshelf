@@ -1,11 +1,11 @@
 import Foundation
 
 struct RISTranslator: FileImportTranslator, FileExportTranslator {
-  let descriptor = TranslatorDescriptor(id: "ris", name: "RIS 书目", version: "1.0.0", author: "Bookshelf",
-    targetDescription: "本地 RIS 图书元信息", priority: 100)
+  var descriptor: TranslatorDescriptor { TranslatorDescriptor(id: "ris", name: L10n.tr("RIS 书目"), version: "1.0.0", author: "Bookshelf",
+    targetDescription: L10n.tr("本地 RIS 图书元信息"), priority: 100) }
   let fileExtensions = ["ris"]
   let fileExtension = "ris"
-  let exportSummary = "用于交换整本图书的出版信息、作者、译者、编辑、标签、简介及首个丛书。条目类型和原作语言供本应用往返保存，其他工具可能不保留；副标题合并到书名；普通文件夹、原书名和其他贡献者不会导出。"
+  var exportSummary: String { L10n.tr("用于交换整本图书的出版信息、作者、译者、编辑、标签、简介及首个丛书。条目类型和原作语言供本应用往返保存，其他工具可能不保留；副标题合并到书名；普通文件夹、原书名和其他贡献者不会导出。") }
   @MainActor func detectImport(_ data: Data) -> Bool {
     let prefix = data.prefix(4096)
     let encoding: String.Encoding = prefix.starts(with: [0xFF, 0xFE]) || prefix.starts(with: [0xFE, 0xFF]) ? .utf16 : .utf8
@@ -21,18 +21,18 @@ struct RISTranslator: FileImportTranslator, FileExportTranslator {
 }
 
 struct CSVTranslator: FileExportTranslator {
-  let descriptor = TranslatorDescriptor(id: "csv", name: "CSV 清单", version: "1.0.0", author: "Bookshelf",
-    targetDescription: "本地 CSV 书籍清单（仅导出）", priority: 100)
+  var descriptor: TranslatorDescriptor { TranslatorDescriptor(id: "csv", name: L10n.tr("CSV 清单"), version: "1.0.0", author: "Bookshelf",
+    targetDescription: L10n.tr("本地 CSV 书籍清单（仅导出）"), priority: 100) }
   let fileExtension = "csv"
-  let exportSummary = "用于表格查看书籍清单，包含条目类型、原作语言、出版信息、作者、译者、标签、普通文件夹和来源网址。CSV 使用 UTF-8；ISBN 和可能被识别为公式的文本带文本前缀。"
+  var exportSummary: String { L10n.tr("用于表格查看书籍清单，包含条目类型、原作语言、出版信息、作者、译者、标签、普通文件夹和来源网址。CSV 使用 UTF-8；ISBN 和可能被识别为公式的文本带文本前缀。") }
   @MainActor func doExport(_ records: [BookArchive], includeNotes: Bool) throws -> Data {
     BibliographicExchange.export(records, format: .csv, includeNotes: includeNotes)
   }
 }
 
 struct OpenLibraryTranslator: SearchMetadataTranslator {
-  let descriptor = TranslatorDescriptor(id: "open-library", name: "Open Library", version: "1.0.0", author: "Bookshelf",
-    targetDescription: "书名或 ISBN 检索 · openlibrary.org", priority: 200)
+  var descriptor: TranslatorDescriptor { TranslatorDescriptor(id: "open-library", name: "Open Library", version: "1.0.0", author: "Bookshelf",
+    targetDescription: L10n.tr("书名或 ISBN 检索 · openlibrary.org"), priority: 200) }
   func searchURL(for query: BookMetadataQuery) -> URL {
     var parts = URLComponents(string: "https://openlibrary.org/search")!
     parts.queryItems = [URLQueryItem(name: "q", value: query.text)]

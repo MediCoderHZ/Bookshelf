@@ -3,7 +3,7 @@ import Foundation
 enum SearchMatchMode: String, Codable, CaseIterable, Identifiable {
   case all, any
   var id: String { rawValue }
-  var title: String { self == .all ? "满足全部条件" : "满足任一条件" }
+  var title: String { self == .all ? L10n.tr("满足全部条件") : L10n.tr("满足任一条件") }
 }
 
 enum SearchComparison: String, Codable, CaseIterable, Identifiable {
@@ -11,10 +11,10 @@ enum SearchComparison: String, Codable, CaseIterable, Identifiable {
   var id: String { rawValue }
   var title: String {
     switch self {
-    case .contains: "包含"; case .notContains: "不包含"
-    case .equals: "等于"; case .notEquals: "不等于"
-    case .atLeast: "不低于"; case .atMost: "不高于"
-    case .isEmpty: "为空"; case .isNotEmpty: "不为空"
+    case .contains: L10n.tr("包含"); case .notContains: L10n.tr("不包含")
+    case .equals: L10n.tr("等于"); case .notEquals: L10n.tr("不等于")
+    case .atLeast: L10n.tr("不低于"); case .atMost: L10n.tr("不高于")
+    case .isEmpty: L10n.tr("为空"); case .isNotEmpty: L10n.tr("不为空")
     }
   }
   var needsValue: Bool { self != .isEmpty && self != .isNotEmpty }
@@ -27,12 +27,12 @@ enum SearchBookField: String, Codable, CaseIterable, Identifiable {
   var id: String { rawValue }
   var title: String {
     switch self {
-    case .bookType: "条目类型"
-    case .title: "书名（含副标题与原书名）"; case .author: "作者"; case .translator: "译者"
-    case .publisher: "出版社"; case .publicationYear: "出版年份"; case .isbn: "ISBN"
-    case .language: "语言"; case .tag: "标签"; case .collection: "普通文件夹"
-    case .pageCount: "页数"
-    case .notes: "个人笔记"; case .source: "元信息来源"
+    case .bookType: L10n.tr("条目类型")
+    case .title: L10n.tr("书名（含副标题与原书名）"); case .author: L10n.tr("作者"); case .translator: L10n.tr("译者")
+    case .publisher: L10n.tr("出版社"); case .publicationYear: L10n.tr("出版年份"); case .isbn: "ISBN"
+    case .language: L10n.tr("语言"); case .tag: L10n.tr("标签"); case .collection: L10n.tr("普通文件夹")
+    case .pageCount: L10n.tr("页数")
+    case .notes: L10n.tr("个人笔记"); case .source: L10n.tr("元信息来源")
     }
   }
   var isNumber: Bool { [.publicationYear, .pageCount].contains(self) }
@@ -50,8 +50,8 @@ enum SearchBookField: String, Codable, CaseIterable, Identifiable {
   }
   var placeholder: String {
     switch self {
-    case .publicationYear: "例如 2020"; case .pageCount: "例如 300"
-    default: "输入条件值"
+    case .publicationYear: L10n.tr("例如 2020"); case .pageCount: L10n.tr("例如 300")
+    default: L10n.tr("输入条件值")
     }
   }
 }
@@ -68,18 +68,18 @@ struct BookSearchRule: Codable, Equatable, Identifiable {
   }
 
   var validationMessage: String? {
-    guard field.comparisons.contains(comparison) else { return "不支持的筛选方式。" }
+    guard field.comparisons.contains(comparison) else { return L10n.tr("不支持的筛选方式。") }
     guard comparison.needsValue else { return nil }
     let text = value.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !text.isEmpty else { return "请填写\(field.title)的条件值。" }
-    if !field.choices.isEmpty && !field.choices.contains(where: { $0.value == text }) { return "请选择有效的\(field.title)。" }
+    guard !text.isEmpty else { return L10n.tr("请填写\(field.title)的条件值。") }
+    if !field.choices.isEmpty && !field.choices.contains(where: { $0.value == text }) { return L10n.tr("请选择有效的\(field.title)。") }
     if field.isNumber {
-      guard let number = Double(text), number.isFinite else { return "\(field.title)需要数字。" }
+      guard let number = Double(text), number.isFinite else { return L10n.tr("\(field.title)需要数字。") }
       switch field {
       case .publicationYear:
-        if !(1...9999).contains(number) || number.rounded() != number { return "出版年份需为 1–9999 的整数。" }
+        if !(1...9999).contains(number) || number.rounded() != number { return L10n.tr("出版年份需为 1–9999 的整数。") }
       case .pageCount:
-        if number < 0 || number > 1_000_000 || number.rounded() != number { return "页数需为 0–1000000 的整数。" }
+        if number < 0 || number > 1_000_000 || number.rounded() != number { return L10n.tr("页数需为 0–1000000 的整数。") }
       default: break
       }
     }
@@ -162,7 +162,7 @@ struct AdvancedBookQuery: Codable, Equatable {
   var savedSearch: SavedLibrarySearch?
   var hasConditions: Bool { !rules.isEmpty || savedSearch != nil }
   var summary: String {
-    let rulesSummary = "\(mode.title) · \(rules.count) 条条件"
+    let rulesSummary = L10n.tr("\(mode.title) · \(rules.count) 条条件")
     guard let savedSearch else { return rulesSummary }
     return savedSearch.summary + (rules.isEmpty ? "" : " · " + rulesSummary)
   }
@@ -172,10 +172,10 @@ struct AdvancedBookQuery: Codable, Equatable {
   var validationMessage: String? {
     // Version 1 remains byte-compatible with existing rule-only collections.
     // Older readers reject version 2 instead of silently dropping its search.
-    if version != (savedSearch == nil ? 1 : 2) { return "不支持此版本的筛选规则。" }
+    if version != (savedSearch == nil ? 1 : 2) { return L10n.tr("不支持此版本的筛选规则。") }
     if let message = savedSearch?.validationMessage { return message }
-    if rules.count > 50 { return "每个筛选最多支持 50 条条件。" }
-    if Set(rules.map(\.id)).count != rules.count { return "筛选条件标识重复。" }
+    if rules.count > 50 { return L10n.tr("每个筛选最多支持 50 条条件。") }
+    if Set(rules.map(\.id)).count != rules.count { return L10n.tr("筛选条件标识重复。") }
     return rules.compactMap(\.validationMessage).first
   }
   func matches(_ book: Book, notes: [NoteRecord] = []) -> Bool {
@@ -239,8 +239,8 @@ enum SmartCollectionError: LocalizedError {
   case invalidRules, duplicateName
   var errorDescription: String? {
     switch self {
-    case .invalidRules: "智能文件夹规则不可用，请检查条件或从备份恢复。"
-    case .duplicateName: "已有同名智能文件夹，请使用不同的名称。"
+    case .invalidRules: L10n.tr("智能文件夹规则不可用，请检查条件或从备份恢复。")
+    case .duplicateName: L10n.tr("已有同名智能文件夹，请使用不同的名称。")
     }
   }
 }

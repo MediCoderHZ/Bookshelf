@@ -7,14 +7,14 @@ struct LibraryUndoButtons: View {
   private var history: LibraryHistory { LibraryServices.forContext(context).history }
   var body: some View {
     HStack(spacing: 6) {
-      Button("撤销", systemImage: "arrow.uturn.backward") { manager?.undo() }
+      Button(L10n.tr("撤销"), systemImage: "arrow.uturn.backward") { manager?.undo() }
         .disabled(!(manager?.canUndo ?? false))
-        .help(manager?.undoMenuItemTitle ?? "撤销")
-        .accessibilityLabel(manager?.undoMenuItemTitle ?? "撤销")
-      Button("重做", systemImage: "arrow.uturn.forward") { manager?.redo() }
+        .help(manager?.undoMenuItemTitle ?? L10n.tr("撤销"))
+        .accessibilityLabel(manager?.undoMenuItemTitle ?? L10n.tr("撤销"))
+      Button(L10n.tr("重做"), systemImage: "arrow.uturn.forward") { manager?.redo() }
         .disabled(!(manager?.canRedo ?? false))
-        .help(manager?.redoMenuItemTitle ?? "重做")
-        .accessibilityLabel(manager?.redoMenuItemTitle ?? "重做")
+        .help(manager?.redoMenuItemTitle ?? L10n.tr("重做"))
+        .accessibilityLabel(manager?.redoMenuItemTitle ?? L10n.tr("重做"))
     }.id(history.revision)
   }
 }
@@ -25,9 +25,9 @@ struct LibraryUndoMenuItems: View {
   private var history: LibraryHistory { LibraryServices.forContext(context).history }
   var body: some View {
     Group {
-      Button(manager?.undoMenuItemTitle ?? "撤销", systemImage: "arrow.uturn.backward") { manager?.undo() }
+      Button(manager?.undoMenuItemTitle ?? L10n.tr("撤销"), systemImage: "arrow.uturn.backward") { manager?.undo() }
         .disabled(!(manager?.canUndo ?? false))
-      Button(manager?.redoMenuItemTitle ?? "重做", systemImage: "arrow.uturn.forward") { manager?.redo() }
+      Button(manager?.redoMenuItemTitle ?? L10n.tr("重做"), systemImage: "arrow.uturn.forward") { manager?.redo() }
         .disabled(!(manager?.canRedo ?? false))
     }.id(history.revision)
   }
@@ -37,11 +37,11 @@ struct DuplicateReviewPanel: View {
   @Environment(\.libraryDisplay) private var display
   let hasDuplicates: Bool
   var body: some View {
-    Text(hasDuplicates ? "点击一本重复书籍，查看整组合并预览。" : "未发现重复书目")
+    Text(hasDuplicates ? L10n.tr("点击一本重复书籍，查看整组合并预览。") : L10n.tr("未发现重复书目"))
       .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
       .font(display.font).padding(12)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .accessibilityElement(children: .contain).accessibilityLabel("重复书目合并面板")
+      .accessibilityElement(children: .contain).accessibilityLabel(L10n.tr("重复书目合并面板"))
   }
 }
 
@@ -56,9 +56,9 @@ struct MetadataOriginView: View {
         if let value = origin.url, let url = URL(string: value), url.scheme == "https", url.host != nil {
           Link(origin.name, destination: url)
         } else { Text(origin.name) }
-        if legacy { Text("历史来源，未逐字段记录") }
-        if let date = origin.retrievedAt { Text(date.formatted(date: .abbreviated, time: .shortened)) }
-      } else { Text("手动录入或未记录来源") }
+        if legacy { Text(L10n.tr("历史来源，未逐字段记录")) }
+        if let date = origin.retrievedAt { Text(date.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(L10n.locale))) }
+      } else { Text(L10n.tr("手动录入或未记录来源")) }
     }.font(.caption).foregroundStyle(.secondary)
   }
 }
@@ -101,15 +101,15 @@ struct BookMergePanel: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      Text("合并 \(request.records.count) 本书")
+      Text(L10n.tr("合并 \(request.records.count) 本书"))
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
         .padding(.horizontal, 14)
       Divider()
       ScrollView {
         VStack(alignment: .leading, spacing: display.fieldSpacing) {
-          Text("保留主记录").foregroundStyle(.secondary)
+          Text(L10n.tr("保留主记录")).foregroundStyle(.secondary)
           Menu {
-            Picker("保留主记录", selection: $primaryID) {
+            Picker(L10n.tr("保留主记录"), selection: $primaryID) {
               ForEach(request.records, id: \.id) { record in
                 Text(recordLabel(record)).tag(record.id)
               }
@@ -117,11 +117,11 @@ struct BookMergePanel: View {
           } label: {
             valueLabel(recordLabel(primary))
           }.menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
-            .accessibilityLabel("保留主记录").accessibilityValue(recordLabel(primary))
-          Text("添加日期：\(primary.addedAt.formatted(date: .numeric, time: .shortened))")
+            .accessibilityLabel(L10n.tr("保留主记录")).accessibilityValue(recordLabel(primary))
+          Text(L10n.tr("添加日期：\(primary.addedAt.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)))"))
             .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
           if differentVersions {
-            Text("有效 ISBN 不同，这些记录应作为不同版本保留，不能合并。")
+            Text(L10n.tr("有效 ISBN 不同，这些记录应作为不同版本保留，不能合并。"))
               .foregroundStyle(.orange).fixedSize(horizontal: false, vertical: true)
           }
           Divider()
@@ -140,26 +140,26 @@ struct BookMergePanel: View {
           }
           if !combined.tags.isEmpty || !combined.collections.isEmpty {
             Divider()
-            if !combined.tags.isEmpty { summaryRow("标签", combined.tags.joined(separator: "、")) }
-            if !combined.collections.isEmpty { summaryRow("文件夹", combined.collections.joined(separator: "、")) }
+            if !combined.tags.isEmpty { summaryRow(L10n.tr("标签"), combined.tags.joined(separator: "、")) }
+            if !combined.collections.isEmpty { summaryRow(L10n.tr("文件夹"), combined.collections.joined(separator: "、")) }
           }
         }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
       }.frame(maxWidth: .infinity, maxHeight: .infinity)
       Divider()
       VStack(alignment: .leading, spacing: display.fieldSpacing) {
-        Text("标签、文件夹与笔记会汇总；其余记录移入回收站，合并后可撤销。")
+        Text(L10n.tr("标签、文件夹与笔记会汇总；其余记录移入回收站，合并后可撤销。"))
           .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
         if let errorMessage {
           Text(errorMessage).foregroundStyle(.red).fixedSize(horizontal: false, vertical: true)
         }
         HStack {
-          Button("取消", action: onCancel)
+          Button(L10n.tr("取消"), action: onCancel)
           Spacer(minLength: 8)
-          Button("确认合并", action: merge).buttonStyle(.borderedProminent).disabled(differentVersions)
+          Button(L10n.tr("确认合并"), action: merge).buttonStyle(.borderedProminent).disabled(differentVersions)
         }
       }.padding(12)
     }.font(display.font).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-      .accessibilityElement(children: .contain).accessibilityLabel("书籍合并预览")
+      .accessibilityElement(children: .contain).accessibilityLabel(L10n.tr("书籍合并预览"))
       .onChange(of: primaryID) { _, _ in errorMessage = nil }
   }
 
@@ -171,11 +171,11 @@ struct BookMergePanel: View {
   private func fieldMenu(_ field: BookField, candidates: [BookArchive]) -> some View {
     let value = field.value(in: combined)
     return Menu {
-      Section("保留\(field.label)") {
+      Section(L10n.tr("保留\(field.label)")) {
         ForEach(candidates, id: \.id) { record in
           // Every menu action is an explicit, exclusive choice, including a
           // click on the checked default. Keep the native menu checkmark.
-          Toggle("\(field.value(in: record)) · 记录 \(recordNumber(record))", isOn: Binding(
+          Toggle(L10n.tr("\(field.value(in: record)) · 记录 \(recordNumber(record))"), isOn: Binding(
             get: { record.id == (choices[field] ?? candidates[0].id) },
             set: { _ in choices[field] = record.id }
           ))
@@ -185,8 +185,8 @@ struct BookMergePanel: View {
       valueLabel(value)
     }.menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .accessibilityLabel("选择\(field.label)").accessibilityValue(value)
-      .help("选择要保留的\(field.label)")
+      .accessibilityLabel(L10n.tr("选择\(field.label)")).accessibilityValue(value)
+      .help(L10n.tr("选择要保留的\(field.label)"))
   }
 
   private func resultValue(_ value: String) -> some View {
@@ -229,7 +229,7 @@ struct BookMergePanel: View {
     (request.records.firstIndex(where: { $0.id == record.id }) ?? 0) + 1
   }
   private func recordLabel(_ record: BookArchive) -> String {
-    "\(recordNumber(record)). \(record.title) · \(record.publisher ?? "未知出版社")"
+    "\(recordNumber(record)). \(record.title) · \(record.publisher ?? L10n.tr("未知出版社"))"
   }
 }
 
@@ -250,31 +250,31 @@ struct MetadataUpdateView: View {
   var body: some View {
     NavigationStack {
       VStack(alignment: .leading, spacing: 14) {
-        Text("逐字段核对后填入，默认只补全空白。没有提供的新值不会清空已有内容。")
+        Text(L10n.tr("逐字段核对后填入，默认只补全空白。没有提供的新值不会清空已有内容。"))
           .foregroundStyle(.secondary)
         HStack {
-          Button("仅补全空白") { selectEmpty() }
-          Button("选择全部新值") {
+          Button(L10n.tr("仅补全空白")) { selectEmpty() }
+          Button(L10n.tr("选择全部新值")) {
             selected = Set(BookField.allCases.filter { !$0.value(in: proposal.incoming).isEmpty })
           }
-          Button("全部保留当前值") { selected = [] }
+          Button(L10n.tr("全部保留当前值")) { selected = [] }
           Spacer()
-          Text("来源：\(proposal.incoming.metadataSourceName ?? "导入")").font(.caption)
+          Text(L10n.tr("来源：\(proposal.incoming.metadataSourceName ?? L10n.tr("导入"))")).font(.caption)
         }
         if versionChanged {
-          Text("新旧 ISBN 不同。请特别核对作者、译者、出版社和出版日期，避免混合不同版本。").foregroundStyle(.orange)
-          Toggle("我已核对并确认要更新此版本", isOn: $versionConfirmed)
+          Text(L10n.tr("新旧 ISBN 不同。请特别核对作者、译者、出版社和出版日期，避免混合不同版本。")).foregroundStyle(.orange)
+          Toggle(L10n.tr("我已核对并确认要更新此版本"), isOn: $versionConfirmed)
         }
         ScrollView {
           Grid(alignment: .topLeading, horizontalSpacing: 16, verticalSpacing: 14) {
-            GridRow { Text("采用新值"); Text("字段"); Text("当前值").bold(); Text("新值").bold() }
+            GridRow { Text(L10n.tr("采用新值")); Text(L10n.tr("字段")); Text(L10n.tr("当前值")).bold(); Text(L10n.tr("新值")).bold() }
             Divider()
             ForEach(BookField.allCases) { field in
               GridRow {
                 Toggle(field.label, isOn: Binding(get: { selected.contains(field) }, set: {
                   if $0 { selected.insert(field) } else { selected.remove(field) }
                 })).labelsHidden().disabled(field.value(in: proposal.incoming).isEmpty)
-                  .accessibilityLabel("采用新\(field.label)")
+                  .accessibilityLabel(L10n.tr("采用新\(field.label)"))
                 Text(field.label).foregroundStyle(.secondary)
                 FieldValueView(field: field, record: proposal.current, showsOrigin: true)
                 FieldValueView(field: field, record: proposal.incoming, showsOrigin: true)
@@ -283,11 +283,11 @@ struct MetadataUpdateView: View {
           }.frame(maxWidth: .infinity, alignment: .leading)
         }
       }.padding(22)
-      .navigationTitle("确认元信息更新")
+      .navigationTitle(L10n.tr("确认元信息更新"))
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+        ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { dismiss() } }
         ToolbarItem(placement: .confirmationAction) {
-          Button("应用所选字段") { onApply(selected); dismiss() }
+          Button(L10n.tr("应用所选字段")) { onApply(selected); dismiss() }
             .disabled(selected.isEmpty || (versionChanged && !versionConfirmed)).keyboardShortcut(.defaultAction)
         }
       }
@@ -328,11 +328,11 @@ struct ImportPreviewView: View {
   var body: some View {
     NavigationStack {
       VStack(alignment: .leading, spacing: 12) {
-        Text("共 \(plan.items.count) 条。冲突默认跳过；“合并补全”保留已有值，“采用导入”替换提供的出版字段。两种更新均保留并汇总笔记、标签和文件夹。")
+        Text(L10n.tr("共 \(plan.items.count) 条。冲突默认跳过；“合并补全”保留已有值，“采用导入”替换提供的出版字段。两种更新均保留并汇总笔记、标签和文件夹。"))
           .font(.callout).foregroundStyle(.secondary)
         if let summary = plan.importSummary { Text(summary).font(.callout) }
         if !plan.importNotices.isEmpty {
-          DisclosureGroup("导入提示（\(plan.importNotices.count) 项）：部分条目或字段不会导入") {
+          DisclosureGroup(L10n.tr("导入提示（\(plan.importNotices.count) 项）：部分条目或字段不会导入")) {
             ScrollView {
               VStack(alignment: .leading, spacing: 6) {
                 ForEach(Array(plan.importNotices.enumerated()), id: \.offset) { Text($0.element) }
@@ -341,14 +341,14 @@ struct ImportPreviewView: View {
           }
         }
         if !plan.smartCollections.isEmpty {
-          Toggle("同时导入 \(plan.smartCollections.count) 个智能文件夹（同 ID 或同名保留本地）", isOn: $includeSmartCollections)
+          Toggle(L10n.tr("同时导入 \(plan.smartCollections.count) 个智能文件夹（同 ID 或同名保留本地）"), isOn: $includeSmartCollections)
             .toggleStyle(.checkbox)
-          DisclosureGroup("查看智能文件夹") {
+          DisclosureGroup(L10n.tr("查看智能文件夹")) {
             ScrollView {
               VStack(alignment: .leading, spacing: 6) {
                 ForEach(plan.smartCollections) { record in
                   VStack(alignment: .leading, spacing: 4) {
-                    Text("\(record.name) · \(record.query.mode.title) · \(plan.existingSmartIDs.contains(record.id) ? "已有或重复，跳过" : "新增")")
+                    Text("\(record.name) · \(record.query.mode.title) · \(plan.existingSmartIDs.contains(record.id) ? L10n.tr("已有或重复，跳过") : L10n.tr("新增"))")
                     Text(record.query.rules.map(\.summary).joined(separator: "；"))
                       .font(.caption).foregroundStyle(.secondary)
                   }
@@ -359,22 +359,22 @@ struct ImportPreviewView: View {
           }
         }
         if !plan.manualCollections.isEmpty || !plan.notes.isEmpty {
-          Toggle("导入文件夹层级（\(plan.manualCollections.count) 个）与笔记（\(plan.notes.count) 条）", isOn: $includeOrganization)
+          Toggle(L10n.tr("导入文件夹层级（\(plan.manualCollections.count) 个）与笔记（\(plan.notes.count) 条）"), isOn: $includeOrganization)
             .toggleStyle(.checkbox)
-          DisclosureGroup("查看文件夹与笔记处理方式") {
+          DisclosureGroup(L10n.tr("查看文件夹与笔记处理方式")) {
             ScrollView {
               VStack(alignment: .leading, spacing: 7) {
-                Text("同 ID 或同名文件夹沿用本地位置；同 ID 笔记保留本地。未导入且不在本地的所属书籍，其子笔记会跳过。取消勾选时，图书仍按原有名称恢复普通文件夹归属。")
+                Text(L10n.tr("同 ID 或同名文件夹沿用本地位置；同 ID 笔记保留本地。未导入且不在本地的所属书籍，其子笔记会跳过。取消勾选时，图书仍按原有名称恢复普通文件夹归属。"))
                   .foregroundStyle(.secondary)
                 ForEach(plan.manualCollections) { record in
                   let existing = plan.collectionBaseline[record.id] != nil || plan.collectionBaseline.values.contains {
                     MetadataNormalizer.normalizedName($0.name) == MetadataNormalizer.normalizedName(record.name)
                   }
-                  Text("\(CollectionTree.path(record.id, in: plan.manualCollections)) · \(!includeOrganization ? "未选择导入" : existing ? "沿用本地" : "新增")")
+                  Text("\(CollectionTree.path(record.id, in: plan.manualCollections)) · \(!includeOrganization ? L10n.tr("未选择导入") : existing ? L10n.tr("沿用本地") : L10n.tr("新增"))")
                 }
                 ForEach(plan.notes) { note in
                   VStack(alignment: .leading, spacing: 2) {
-                    Text("\(note.displayTitle) · \(note.parentBookID == nil ? "独立笔记" : "书籍子笔记") · \(willImport(note) ? "新增" : "跳过")")
+                    Text("\(note.displayTitle) · \(note.parentBookID == nil ? L10n.tr("独立笔记") : L10n.tr("书籍子笔记")) · \(willImport(note) ? L10n.tr("新增") : L10n.tr("跳过"))")
                     Text(note.body).foregroundStyle(.secondary).lineLimit(2)
                   }
                 }
@@ -394,18 +394,18 @@ struct ImportPreviewView: View {
             // Recreate the comparison when switching the incoming record.
             itemDetail(item).id(item.id).padding(.leading, 14).frame(minWidth: 540)
           } else {
-            ContentUnavailableView(plan.items.isEmpty ? "请核对上方文件夹与笔记" : "选择记录以核对", systemImage: "doc.text.magnifyingglass")
+            ContentUnavailableView(plan.items.isEmpty ? L10n.tr("请核对上方文件夹与笔记") : L10n.tr("选择记录以核对"), systemImage: "doc.text.magnifyingglass")
           }
         }
         if let errorMessage { Text(errorMessage).foregroundStyle(.red) }
-        Text(plan.isRIS ? "应用前不会改动书库，完成后可撤销。RIS 附件不会读取或下载；来源标记为文件导入。" : "应用前不会改动书库。完成后可撤销本次导入。备份中的回收站状态会保留。")
+        Text(plan.isRIS ? L10n.tr("应用前不会改动书库，完成后可撤销。RIS 附件不会读取或下载；来源标记为文件导入。") : L10n.tr("应用前不会改动书库。完成后可撤销本次导入。备份中的回收站状态会保留。"))
           .font(.caption).foregroundStyle(.secondary)
       }.padding(20)
-      .navigationTitle(plan.isRIS ? "RIS 导入冲突预览" : "导入冲突预览")
+      .navigationTitle(plan.isRIS ? L10n.tr("RIS 导入冲突预览") : L10n.tr("导入冲突预览"))
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+        ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { dismiss() } }
         ToolbarItem(placement: .confirmationAction) {
-          Button("执行所选操作") {
+          Button(L10n.tr("执行所选操作")) {
             do {
               let summary = try LibraryImportPlanner.apply(plan, choices: choices, context: context, undoManager: undoManager,
                 includeSmartCollections: includeSmartCollections, includeOrganization: includeOrganization)
@@ -426,16 +426,16 @@ struct ImportPreviewView: View {
     return VStack(alignment: .leading, spacing: 12) {
       Text(item.explanation).foregroundStyle(.secondary)
       if !item.matches.isEmpty {
-        Picker("对应的本地记录", selection: Binding(get: { choice.targetID ?? item.matches[0].id }, set: {
+        Picker(L10n.tr("对应的本地记录"), selection: Binding(get: { choice.targetID ?? item.matches[0].id }, set: {
           choices[item.id] = ImportChoice(action: .skip, targetID: $0)
         })) {
           ForEach(item.matches, id: \.id) { match in
-            Text("\((item.matches.firstIndex(where: { $0.id == match.id }) ?? 0) + 1). \(match.title) · \(match.publisher ?? "未知出版社") · \(match.isbn13 ?? match.isbn10 ?? "无 ISBN")\(match.deletedAt == nil ? "" : " · 回收站")")
+            Text("\((item.matches.firstIndex(where: { $0.id == match.id }) ?? 0) + 1). \(match.title) · \(match.publisher ?? L10n.tr("未知出版社")) · \(match.isbn13 ?? match.isbn10 ?? L10n.tr("无 ISBN"))\(match.deletedAt == nil ? "" : L10n.tr(" · 回收站"))")
               .tag(match.id)
           }
         }
       }
-      Picker("处理方式", selection: Binding(get: { choice.action }, set: {
+      Picker(L10n.tr("处理方式"), selection: Binding(get: { choice.action }, set: {
         choices[item.id] = ImportChoice(action: $0, targetID: choice.targetID)
       })) {
         Text(ImportAction.skip.title).tag(ImportAction.skip)
@@ -447,7 +447,7 @@ struct ImportPreviewView: View {
       }
       ScrollView {
         Grid(alignment: .topLeading, horizontalSpacing: 14, verticalSpacing: 12) {
-          GridRow { Text("字段"); Text("本地").bold(); Text(plan.isRIS ? "RIS 文件" : "备份").bold() }
+          GridRow { Text(L10n.tr("字段")); Text(L10n.tr("本地")).bold(); Text(plan.isRIS ? L10n.tr("RIS 文件") : L10n.tr("备份")).bold() }
           ForEach(BookField.allCases) { field in
             GridRow {
               Text(field.label).foregroundStyle(.secondary)
@@ -455,9 +455,9 @@ struct ImportPreviewView: View {
               FieldValueView(field: field, record: item.record)
             }
           }
-          GridRow { Text("笔记"); Text(target?.notes ?? "—"); Text(item.record.notes ?? "—") }
-          GridRow { Text("标签"); Text(target?.tags.joined(separator: "、") ?? "—"); Text(item.record.tags.joined(separator: "、")) }
-          GridRow { Text("文件夹"); Text(target?.collections.joined(separator: "、") ?? "—"); Text(item.record.collections.joined(separator: "、")) }
+          GridRow { Text(L10n.tr("笔记")); Text(target?.notes ?? "—"); Text(item.record.notes ?? "—") }
+          GridRow { Text(L10n.tr("标签")); Text(target?.tags.joined(separator: "、") ?? "—"); Text(item.record.tags.joined(separator: "、")) }
+          GridRow { Text(L10n.tr("文件夹")); Text(target?.collections.joined(separator: "、") ?? "—"); Text(item.record.collections.joined(separator: "、")) }
         }.textSelection(.enabled).id(choice.targetID)
       }
     }

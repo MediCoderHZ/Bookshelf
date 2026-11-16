@@ -34,8 +34,8 @@ final class LibraryTableColumnTests: XCTestCase {
     note.createdAt = Date(timeIntervalSince1970: 12345); note.updatedAt = Date(timeIntervalSince1970: 45678)
     let row = LibraryItemRow(id: .note(note.id), book: nil, note: note)
     XCTAssertEqual(LibraryTableColumn.bookType.text(for: row), "笔记")
-    XCTAssertEqual(LibraryTableColumn.addedAt.text(for: row), note.createdAt.formatted(date: .numeric, time: .shortened))
-    XCTAssertEqual(LibraryTableColumn.updatedAt.text(for: row), note.updatedAt.formatted(date: .numeric, time: .shortened))
+    XCTAssertEqual(LibraryTableColumn.addedAt.text(for: row), note.createdAt.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)))
+    XCTAssertEqual(LibraryTableColumn.updatedAt.text(for: row), note.updatedAt.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)))
     for column in [LibraryTableColumn.subtitle, .author, .translator, .publisher, .isbn, .publicationYear, .pageCount] {
       XCTAssertEqual(column.text(for: row), "")
     }

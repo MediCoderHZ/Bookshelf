@@ -3,7 +3,7 @@ import SwiftUI
 enum LibraryDisplayDensity: String, CaseIterable, Identifiable {
   case compact, comfortable
   var id: Self { self }
-  var title: String { self == .compact ? "紧凑" : "舒适" }
+  var title: String { self == .compact ? L10n.tr("紧凑") : L10n.tr("舒适") }
 }
 
 /// Shared measurements for navigation, table cells, tags and editable metadata.
@@ -28,7 +28,9 @@ struct LibraryDisplayMetrics: Equatable {
   var inspectorHeaderSpacing: CGFloat { 4 }
   var inspectorHeaderLabelSpacing: CGFloat { 6 }
   var inspectorNavigationRowHeight: CGFloat { inspectorRowHeight + 2 * inspectorSectionPadding }
-  var metadataLabelWidth: CGFloat { max(58, fontSize * 4.5) }
+  var metadataLabelWidth: CGFloat {
+    InterfaceLanguagePreferences.shared.language == .english ? max(108, fontSize * 8.3) : max(58, fontSize * 4.5)
+  }
   var rowInsets: EdgeInsets { EdgeInsets(top: rowPadding, leading: 8, bottom: rowPadding, trailing: 8) }
 
   init(density: LibraryDisplayDensity = .compact, fontSize: Double = 13) {

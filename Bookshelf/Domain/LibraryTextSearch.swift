@@ -10,24 +10,24 @@ enum LibrarySearchScope: String, Codable, CaseIterable, Identifiable {
   var id: String { rawValue }
   var title: String {
     switch self {
-    case .titleCreatorYear: "标题、作者、年份"
-    case .fieldsAndTags: "全部字段与标签"
-    case .everything: "所有内容"
-    case .allFields: "全部字段"
-    case .title: "标题"
-    case .author: "作者"
+    case .titleCreatorYear: L10n.tr("标题、作者、年份")
+    case .fieldsAndTags: L10n.tr("全部字段与标签")
+    case .everything: L10n.tr("所有内容")
+    case .allFields: L10n.tr("全部字段")
+    case .title: L10n.tr("标题")
+    case .author: L10n.tr("作者")
     case .isbn: "ISBN"
-    case .tags: "标签"
+    case .tags: L10n.tr("标签")
     }
   }
   var includesNotes: Bool { self != .author && self != .isbn }
   var usesSearchTerms: Bool { Self.quickSearchScopes.contains(self) }
   var help: String {
     switch self {
-    case .titleCreatorYear: "搜索标题、副标题、原书名、作者、译者及出版年份，也匹配笔记标题。"
-    case .fieldsAndTags: "搜索书籍元信息、标签和笔记标题，不搜索笔记正文。"
-    case .everything: "搜索书籍元信息、标签及笔记全文。"
-    default: "保留已保存搜索的原有范围。"
+    case .titleCreatorYear: L10n.tr("搜索标题、副标题、原书名、作者、译者及出版年份，也匹配笔记标题。")
+    case .fieldsAndTags: L10n.tr("搜索书籍元信息、标签和笔记标题，不搜索笔记正文。")
+    case .everything: L10n.tr("搜索书籍元信息、标签及笔记全文。")
+    default: L10n.tr("保留已保存搜索的原有范围。")
     }
   }
 
@@ -97,7 +97,7 @@ struct LibrarySearchTerms {
 
     mutating func parse() -> Expression? {
       let result = parseOR(depth: 0)
-      if index < tokens.count { invalidGrouping("存在没有对应左括号的右括号。") }
+      if index < tokens.count { invalidGrouping(L10n.tr("存在没有对应左括号的右括号。")) }
       return result
     }
 
@@ -124,17 +124,17 @@ struct LibrarySearchTerms {
         case .open(let closing, let excluded):
           index += 1
           guard depth < 64 else {
-            invalidGrouping("括号嵌套过深，请简化搜索条件。")
+            invalidGrouping(L10n.tr("括号嵌套过深，请简化搜索条件。"))
             index = tokens.count
             return nil
           }
           let child = parseOR(depth: depth + 1)
           if index < tokens.count, case .close(let actual) = tokens[index] {
             index += 1
-            if actual != closing { invalidGrouping("请使用成对的括号。") }
-          } else if groupingMessage == nil { groupingMessage = "请补全搜索条件中的右括号。" }
+            if actual != closing { invalidGrouping(L10n.tr("请使用成对的括号。")) }
+          } else if groupingMessage == nil { groupingMessage = L10n.tr("请补全搜索条件中的右括号。") }
           if let child { required.append(excluded ? .not(child) : child) }
-          else { invalidGrouping("括号内请填写搜索条件。") }
+          else { invalidGrouping(L10n.tr("括号内请填写搜索条件。")) }
         }
       }
       return combined(required)
@@ -159,8 +159,8 @@ struct LibrarySearchTerms {
   var isEmpty: Bool { expression == nil }
   var validationMessage: String? {
     if let groupingMessage { return groupingMessage }
-    if hasIncompleteOR { return "请在 OR 两侧填写搜索条件。" }
-    return isEmpty ? "请填写搜索关键词。" : nil
+    if hasIncompleteOR { return L10n.tr("请在 OR 两侧填写搜索条件。") }
+    return isEmpty ? L10n.tr("请填写搜索关键词。") : nil
   }
 
   init(_ query: String, preserveISBN: Bool = false) {
@@ -343,7 +343,7 @@ struct SavedLibrarySearch: Codable, Equatable {
     if scope.usesSearchTerms {
       return LibrarySearchTerms(text).validationMessage
     }
-    return text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "请填写搜索关键词。" : nil
+    return text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? L10n.tr("请填写搜索关键词。") : nil
   }
   var summary: String { scope.title + "：" + text.trimmingCharacters(in: .whitespacesAndNewlines) }
   var suggestedName: String { scope.title + "：" + String(text.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40)) }

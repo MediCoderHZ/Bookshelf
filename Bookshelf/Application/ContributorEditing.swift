@@ -16,8 +16,8 @@ enum ContributorEditError: LocalizedError {
   case emptyName, multilineName
   var errorDescription: String? {
     switch self {
-    case .emptyName: "姓名不能为空。如需删除此人，请使用减号按钮。"
-    case .multilineName: "请在每行填写一位作者或译者的姓名，使用加号添加其他人。"
+    case .emptyName: L10n.tr("姓名不能为空。如需删除此人，请使用减号按钮。")
+    case .multilineName: L10n.tr("请在每行填写一位作者或译者的姓名，使用加号添加其他人。")
     }
   }
 }
@@ -115,7 +115,7 @@ extension BookMetadataCommands {
     changed.contributors.sort { ($0.roleRaw, $0.displayOrder, $0.name) < ($1.roleRaw, $1.displayOrder, $1.name) }
     guard BookMetadataValue.read(field, from: changed) != expected else { return expected }
     changed = BookRecordMerge.markingManualChanges(changed, comparedTo: current)
-    try LibraryCommands(context: context, undoManager: undoManager).update([book], name: "编辑" + field.label) { $0 = changed }
+    try LibraryCommands(context: context, undoManager: undoManager).update([book], name: L10n.tr("编辑") + field.label) { $0 = changed }
     return BookMetadataValue.read(field, from: BookArchive(book: book))
   }
 }

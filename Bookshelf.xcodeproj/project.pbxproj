@@ -111,6 +111,8 @@
 		DE87F7B37B07426DA2179D0A /* AutomaticBackupStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B8630EC935472480697C5B /* AutomaticBackupStore.swift */; };
 		A1A04E326BCF4F019002EBD7 /* AutomaticBackupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822377FBF88E48388FAA2BAD /* AutomaticBackupController.swift */; };
 		BB8BB3A2640443829B4F325B /* AutomaticBackupSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */; };
+		0723B8730DF74EDA94D2E22B /* InterfaceLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04B29EEB7C3489E8D983814 /* InterfaceLanguage.swift */; };
+		7F2E47B9205A4D4999BE207A /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CFF08C97208C4F0DA40916F2 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -221,6 +223,9 @@
 		34B8630EC935472480697C5B /* AutomaticBackupStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticBackupStore.swift; sourceTree = "<group>"; };
 		822377FBF88E48388FAA2BAD /* AutomaticBackupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticBackupController.swift; sourceTree = "<group>"; };
 		FFAE2516376C44B0942AFB33 /* AutomaticBackupSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticBackupSettings.swift; sourceTree = "<group>"; };
+		F04B29EEB7C3489E8D983814 /* InterfaceLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceLanguage.swift; sourceTree = "<group>"; };
+		EE55D81D76E0440495E494E2 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		253C4AE3C4B345738D12FCBF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = "en.lproj/Localizable.strings"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -397,6 +402,7 @@
 				B1000000000000000000000B /* Assets.xcassets */,
 				B10000000000000000000014 /* PrivacyInfo.xcprivacy */,
 				BB2000000000000000000002 /* ThirdPartyNotices.txt */,
+				CFF08C97208C4F0DA40916F2 /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -453,6 +459,7 @@
 				B10000000000000000000043 /* LibraryQuery.swift */,
 				B10000000000000000000044 /* SmartCollectionService.swift */,
 				822377FBF88E48388FAA2BAD /* AutomaticBackupController.swift */,
+				F04B29EEB7C3489E8D983814 /* InterfaceLanguage.swift */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -516,6 +523,10 @@
 		};
 /* End PBXNativeTarget section */
 
+/* Begin PBXVariantGroup section */
+		CFF08C97208C4F0DA40916F2 /* Localizable.strings */ = {isa = PBXVariantGroup; children = (EE55D81D76E0440495E494E2 /* zh-Hans */, 253C4AE3C4B345738D12FCBF /* en */,); name = Localizable.strings; sourceTree = "<group>"; };
+/* End PBXVariantGroup section */
+
 /* Begin PBXProject section */
 		E10000000000000000000002 /* Project object */ = {
 			isa = PBXProject;
@@ -557,6 +568,7 @@
 				A1000000000000000000000B /* Assets.xcassets in Resources */,
 				A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
 				AA2000000000000000000004 /* ThirdPartyNotices.txt in Resources */,
+				7F2E47B9205A4D4999BE207A /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -666,6 +678,7 @@
 				A1000000000000000000001A /* GoodreadsBookTranslator.swift in Sources */,
 				DE87F7B37B07426DA2179D0A /* AutomaticBackupStore.swift in Sources */,
 				A1A04E326BCF4F019002EBD7 /* AutomaticBackupController.swift in Sources */,
+				0723B8730DF74EDA94D2E22B /* InterfaceLanguage.swift in Sources */,
 				BB8BB3A2640443829B4F325B /* AutomaticBackupSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

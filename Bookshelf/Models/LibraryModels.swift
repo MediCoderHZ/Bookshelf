@@ -62,7 +62,7 @@ final class Book {
 
   var authorDisplayName: String {
     let names = authors.map(\.name)
-    return names.isEmpty ? "未知作者" : names.joined(separator: "、")
+    return names.isEmpty ? L10n.tr("未知作者") : names.joined(separator: "、")
   }
 
   var tagDisplayName: String {

@@ -13,7 +13,7 @@ enum NoteMarkdown {
       let plain = (parsed.map { String($0.characters) } ?? line).trimmingCharacters(in: .whitespacesAndNewlines)
       if !plain.isEmpty { return String(plain.prefix(80)) }
     }
-    return "新笔记"
+    return L10n.tr("新笔记")
   }
 
   struct Block: Identifiable {

@@ -44,7 +44,7 @@ final class TranslatorStore {
 
   func install(_ rule: TranslatorRule) throws {
     try rule.validate()
-    guard !isBuiltin(rule.id) else { throw WebMetadataError.invalidConfiguration("内置解析器 ID 不可覆盖，请使用新的 ID") }
+    guard !isBuiltin(rule.id) else { throw WebMetadataError.invalidConfiguration(L10n.tr("内置解析器 ID 不可覆盖，请使用新的 ID")) }
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     try rule.encoded().write(to: directory.appendingPathComponent(rule.id + ".json"), options: .atomic)
     reload()
@@ -67,17 +67,17 @@ final class TranslatorStore {
         for url in urls.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
           do {
             guard (try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0) <= 256 * 1_024 else {
-              throw WebMetadataError.invalidConfiguration("文件超过 256 KB")
+              throw WebMetadataError.invalidConfiguration(L10n.tr("文件超过 256 KB"))
             }
             let rule = try TranslatorRule.decode(Data(contentsOf: url))
             guard url.lastPathComponent == rule.id + ".json", !isBuiltin(rule.id),
               !loaded.contains(where: { $0.id == rule.id }) else {
-              throw WebMetadataError.invalidConfiguration("文件名与 ID 不一致或 ID 已占用")
+              throw WebMetadataError.invalidConfiguration(L10n.tr("文件名与 ID 不一致或 ID 已占用"))
             }
             loaded.append(rule)
           } catch { problems.append("\(url.lastPathComponent)：\(error.localizedDescription)") }
         }
-      } catch { problems.append("无法读取解析器目录：\(error.localizedDescription)") }
+      } catch { problems.append(L10n.tr("无法读取解析器目录：\(error.localizedDescription)")) }
     }
     rules = loaded
     customTranslators = loaded.compactMap { try? RuleBasedWebTranslator(rule: $0) }

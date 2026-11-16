@@ -9,9 +9,9 @@ enum DuplicateReason: Int, Hashable {
   case isbn, titleAndAuthor, titleOnly
   var title: String {
     switch self {
-    case .isbn: "ISBN 相同（含 ISBN-10/13 对应号码）"
-    case .titleAndAuthor: "书名相同且作者有交集，部分记录缺少有效 ISBN"
-    case .titleOnly: "仅书名相同，作者与版本需要核对"
+    case .isbn: L10n.tr("ISBN 相同（含 ISBN-10/13 对应号码）")
+    case .titleAndAuthor: L10n.tr("书名相同且作者有交集，部分记录缺少有效 ISBN")
+    case .titleOnly: L10n.tr("仅书名相同，作者与版本需要核对")
     }
   }
 }
@@ -60,7 +60,7 @@ enum DuplicateDetector {
       if let normalizedISBN,
         normalizedISBN == candidateISBN
       {
-        return DuplicateMatch(book: book, reason: "ISBN 与《\(book.title)》相同")
+        return DuplicateMatch(book: book, reason: L10n.tr("ISBN 与《\(book.title)》相同"))
       }
 
       guard !normalizedTitle.isEmpty,
@@ -69,11 +69,11 @@ enum DuplicateDetector {
 
       let candidateAuthors = Set(book.authors.map { MetadataNormalizer.normalizedName($0.name) })
       if normalizedAuthors.isEmpty && candidateAuthors.isEmpty {
-        return DuplicateMatch(book: book, reason: "书名与《\(book.title)》相同")
+        return DuplicateMatch(book: book, reason: L10n.tr("书名与《\(book.title)》相同"))
       }
 
       if !normalizedAuthors.isDisjoint(with: candidateAuthors) {
-        return DuplicateMatch(book: book, reason: "书名和作者与《\(book.title)》相同")
+        return DuplicateMatch(book: book, reason: L10n.tr("书名和作者与《\(book.title)》相同"))
       }
     }
 

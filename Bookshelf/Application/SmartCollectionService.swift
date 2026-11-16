@@ -21,8 +21,8 @@ enum SmartCollectionService {
           rule.field == .bookType, rule.comparison == .equals,
           let type = BookType(rawValue: rule.value) else { return false }
         let name = collection.name
-        return name == type.title || name == type.title + "（类型）" ||
-          name.range(of: "^" + NSRegularExpression.escapedPattern(for: type.title) + "（类型 (?:[2-9]|[1-9][0-9]+)）$",
+        return name == type.legacyPresetName || name == type.legacyPresetName + "（类型）" ||
+          name.range(of: "^" + NSRegularExpression.escapedPattern(for: type.legacyPresetName) + "（类型 (?:[2-9]|[1-9][0-9]+)）$",
             options: .regularExpression) != nil
       }
       if !presets.isEmpty {
@@ -55,7 +55,7 @@ enum SmartCollectionService {
       record.sortOrder = CollectionOrdering.nextOrder(in: try context.fetch(FetchDescriptor<BookCollection>()).map(CollectionOrderingItem.init), parentID: nil)
     }
     try LibraryRepository.apply([], smartCollections: [record], into: context)
-    LibraryServices.forContext(context).history.register(expected == nil ? "新建智能文件夹" : "编辑智能文件夹", before: [:], after: [:],
+    LibraryServices.forContext(context).history.register(expected == nil ? L10n.tr("新建智能文件夹") : L10n.tr("编辑智能文件夹"), before: [:], after: [:],
       beforeSmart: before, afterSmart: try snapshots(in: context, ids: [record.id]), context: context, undoManager: undoManager)
     return record.id
   }
@@ -63,7 +63,7 @@ enum SmartCollectionService {
     guard collection.isSmart else { throw LibraryOperationError.invalidSelection }
     let before = try snapshots(in: context, ids: [collection.id])
     try LibraryRepository.apply([], removingSmartIDs: [collection.id], into: context)
-    LibraryServices.forContext(context).history.register("移除智能文件夹", before: [:], after: [:], beforeSmart: before, afterSmart: [:], context: context, undoManager: undoManager)
+    LibraryServices.forContext(context).history.register(L10n.tr("移除智能文件夹"), before: [:], after: [:], beforeSmart: before, afterSmart: [:], context: context, undoManager: undoManager)
   }
 
 }

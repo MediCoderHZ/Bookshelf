@@ -22,7 +22,7 @@ struct DraftPublisherMetadataField: View {
   var body: some View {
     let usages = books.compactMap(PublisherUsage.init)
     MetadataSuggestionInput(
-      input: NativeBookMetadataField(value: value, label: "出版社", multiline: false,
+      input: NativeBookMetadataField(value: value, label: L10n.tr("出版社"), multiline: false,
         focusToken: nil, onFocus: {},
         onBegin: { editingBaseline = value },
         onChange: { value = $0 },
@@ -34,6 +34,6 @@ struct DraftPublisherMetadataField: View {
         onCancel: { value = editingBaseline; return value },
         currentValue: { value }),
       suggestions: PublisherSuggestions.matches(value, usages: usages),
-      noun: "出版社", systemImage: "building.2")
+      noun: L10n.tr("出版社"), systemImage: "building.2")
   }
 }

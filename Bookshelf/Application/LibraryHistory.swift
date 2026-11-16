@@ -71,9 +71,9 @@ enum LibraryOperationError: LocalizedError {
   case changedSincePreview, differentEditions, invalidSelection
   var errorDescription: String? {
     switch self {
-    case .changedSincePreview: "记录在预览或操作后发生了变化，已停止以免覆盖新修改。请重新打开预览。"
-    case .differentEditions: "所选记录的有效 ISBN 不同，属于不同版本，请分别保留。"
-    case .invalidSelection: "请重新选择有效的书籍和处理方式。"
+    case .changedSincePreview: L10n.tr("记录在预览或操作后发生了变化，已停止以免覆盖新修改。请重新打开预览。")
+    case .differentEditions: L10n.tr("所选记录的有效 ISBN 不同，属于不同版本，请分别保留。")
+    case .invalidSelection: L10n.tr("请重新选择有效的书籍和处理方式。")
     }
   }
 }
@@ -91,7 +91,7 @@ enum LibraryOperations {
       return record
     }
     try LibraryRepository.apply(records, into: context)
-    LibraryServices.forContext(context).history.register(trashed ? "移入回收站" : "恢复书籍", before: before,
+    LibraryServices.forContext(context).history.register(trashed ? L10n.tr("移入回收站") : L10n.tr("恢复书籍"), before: before,
       after: LibraryHistory.snapshots(books), context: context, undoManager: undoManager)
   }
 
@@ -128,7 +128,7 @@ enum LibraryOperations {
       var moved = note; moved.parentBookID = primaryID; moved.updatedAt = Date(); return moved
     }
     try LibraryRepository.apply(records, notes: movedNotes, into: context)
-    LibraryServices.forContext(context).history.register("合并书籍", before: before, after: LibraryHistory.snapshots(books),
+    LibraryServices.forContext(context).history.register(L10n.tr("合并书籍"), before: before, after: LibraryHistory.snapshots(books),
       beforeNotes: attachedNotes, afterNotes: try OrganizationStore.notes(in: context, ids: Set(attachedNotes.keys)),
       context: context, undoManager: undoManager)
     return primaryID

@@ -81,7 +81,7 @@ struct ContributorArchive: Codable, Equatable {
   var displayOrder: Int
 
   init(contribution: Contribution) {
-    name = contribution.person?.name ?? "未知"
+    name = contribution.person?.name ?? L10n.tr("未知")
     roleRaw = contribution.roleRaw
     displayOrder = contribution.displayOrder
   }

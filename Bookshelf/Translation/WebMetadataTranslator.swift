@@ -67,7 +67,7 @@ struct WebTranslatorRegistry: Sendable {
 
   func matching(_ input: String, includingDisabled: Bool = false) throws -> [any WebMetadataTranslator] {
     guard Set(translators.map(\.descriptor.id)).count == translators.count else {
-      throw WebMetadataError.invalidConfiguration("解析器 ID 重复")
+      throw WebMetadataError.invalidConfiguration(L10n.tr("解析器 ID 重复"))
     }
     guard let raw = URL(string: input.trimmingCharacters(in: .whitespacesAndNewlines)),
       let url = WebURLPolicy.normalized(raw) else { throw WebMetadataError.unsupportedURL }
@@ -156,15 +156,15 @@ enum WebMetadataError: LocalizedError {
   case invalidConfiguration(String)
   var errorDescription: String? {
     switch self {
-    case .unsupportedURL: "没有可用的解析器匹配此链接。请检查网址，或在设置中导入对应网站的解析规则。"
-    case .disabled: "此元信息解析器已停用，请在设置的“元信息解析器”中启用。"
-    case .accessRestricted: "网站返回了访问限制或验证页面。可在浏览器保存为 HTML 后导入，也可以手动录入。"
-    case .noBook: "匹配的解析器没有识别到书籍。请核对页面、来源链接和解析规则；页面也可能需要验证。"
-    case .noBooks: "没有识别到可用的图书链接，请使用图书详情页或检查列表解析规则。"
-    case .tooLarge: "页面超出大小限制，已停止读取。"
-    case .unexpectedContent: "网站返回的内容格式不符合预期，请在浏览器查看。"
-    case .httpStatus(let status): "网站暂时无法返回页面（HTTP \(status)），请稍后再试。"
-    case .invalidConfiguration(let reason): "解析规则无效：\(reason)"
+    case .unsupportedURL: L10n.tr("没有可用的解析器匹配此链接。请检查网址，或在设置中导入对应网站的解析规则。")
+    case .disabled: L10n.tr("此元信息解析器已停用，请在设置的“元信息解析器”中启用。")
+    case .accessRestricted: L10n.tr("网站返回了访问限制或验证页面。可在浏览器保存为 HTML 后导入，也可以手动录入。")
+    case .noBook: L10n.tr("匹配的解析器没有识别到书籍。请核对页面、来源链接和解析规则；页面也可能需要验证。")
+    case .noBooks: L10n.tr("没有识别到可用的图书链接，请使用图书详情页或检查列表解析规则。")
+    case .tooLarge: L10n.tr("页面超出大小限制，已停止读取。")
+    case .unexpectedContent: L10n.tr("网站返回的内容格式不符合预期，请在浏览器查看。")
+    case .httpStatus(let status): L10n.tr("网站暂时无法返回页面（HTTP \(status)），请稍后再试。")
+    case .invalidConfiguration(let reason): L10n.tr("解析规则无效：\(reason)")
     }
   }
 }

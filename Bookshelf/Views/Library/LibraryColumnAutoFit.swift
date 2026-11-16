@@ -4,6 +4,16 @@ import SwiftUI
 /// Measure the current result set, not just the cells AppKit has instantiated.
 @MainActor
 enum LibraryColumnAutoFit {
+  static func localizeHeaders(in table: NSTableView) {
+    for column in table.tableColumns {
+      if let field = LibraryTableColumn.matchingHeaderTitle(column.title), column.title != field.title {
+        column.title = field.title
+      }
+    }
+    for item in table.headerView?.menu?.items ?? [] {
+      if let field = LibraryTableColumn.matchingHeaderTitle(item.title) { item.title = field.title }
+    }
+  }
   static func width(for column: LibraryTableColumn, rows: [LibraryItemRow],
     expandedBookIDs: Set<UUID>, fontSize: CGFloat, indentation: CGFloat) -> CGFloat {
     let font = NSFont.systemFont(ofSize: fontSize)
@@ -46,6 +56,7 @@ enum LibraryColumnAutoFit {
 /// Normalize native header typography and handle double clicks on resize boundaries;
 /// all other mouse events, including column resizing and sorting, pass through.
 struct LibraryColumnAutoFitBridge: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   var fontSize: CGFloat = 13
   var primarySort: KeyPathComparator<Book>?
   let fittingWidth: (LibraryTableColumn, CGFloat) -> CGFloat
@@ -58,6 +69,7 @@ struct LibraryColumnAutoFitBridge: NSViewRepresentable {
     return view
   }
   func updateNSView(_ view: Observer, context: Context) {
+    let _ = locale
     view.fittingWidth = fittingWidth
     view.fontSize = fontSize
     view.primarySort = primarySort
@@ -84,6 +96,7 @@ struct LibraryColumnAutoFitBridge: NSViewRepresentable {
 
     private func applyHeaderStyle() {
       guard window != nil, let table = enclosingTable() else { return }
+      LibraryColumnAutoFit.localizeHeaders(in: table)
       let font = NSFont.systemFont(ofSize: fontSize, weight: .regular)
       let sortColumn = primarySort.flatMap { sort in
         LibraryTableColumn.allCases.first { $0.comparator.keyPath == sort.keyPath }
@@ -129,7 +142,7 @@ struct LibraryColumnAutoFitBridge: NSViewRepresentable {
       let nativeColumn = table.tableColumns[index]
       // Header titles come from the same enum. Native UUID identifiers belong
       // to SwiftUI and change when columns are recreated, so do not persist them.
-      guard let column = LibraryTableColumn.allCases.first(where: { $0.title == nativeColumn.title }) else { return false }
+      guard let column = LibraryTableColumn.matchingHeaderTitle(nativeColumn.title) else { return false }
       let indentation = (table as? NSOutlineView)?.indentationPerLevel ?? 16
       let width = max(fittingWidth(column, indentation), nativeColumn.headerCell.cellSize.width + 20)
       guard width.isFinite, width > 0 else { return false }
@@ -154,7 +167,7 @@ struct LibraryColumnAutoFitBridge: NSViewRepresentable {
     }
     private func findTable(in view: NSView) -> NSTableView? {
       if let table = view as? NSTableView, table.headerView != nil,
-        table.tableColumns.contains(where: { $0.title == LibraryTableColumn.title.title }) { return table }
+        table.tableColumns.contains(where: { LibraryTableColumn.matchingHeaderTitle($0.title) == .title }) { return table }
       for child in view.subviews {
         if let table = findTable(in: child) { return table }
       }

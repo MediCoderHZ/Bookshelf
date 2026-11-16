@@ -1,9 +1,9 @@
 import Foundation
 
 struct DoubanBookTranslator: BookSearchTranslator {
-  let descriptor = TranslatorDescriptor(
-    id: "douban-books", name: "豆瓣图书", version: "1.2.0", author: "Bookshelf",
-    targetDescription: "book.douban.com 图书页面与 www.douban.com/search 图书搜索", priority: 100)
+  var descriptor: TranslatorDescriptor { TranslatorDescriptor(
+    id: "douban-books", name: L10n.tr("豆瓣图书"), version: "1.2.0", author: "Bookshelf",
+    targetDescription: L10n.tr("book.douban.com 图书页面与 www.douban.com/search 图书搜索"), priority: 100) }
 
   func canonicalURL(for url: URL) -> URL? {
     if let safe = WebURLPolicy.normalized(url), safe.host == "www.douban.com", safe.path == "/search",

@@ -73,16 +73,16 @@ enum LibrarySelection: Hashable, Codable {
 
   func title(collections: [BookCollection]) -> String {
     switch self {
-    case .all: "全部书籍"
-    case .recent: "最近添加"
-    case .unfiled: "未加入文件夹"
-    case .trash: "回收站"
-    case .duplicates: "重复书目"
-    case .notes: "全部笔记"
-    case .standaloneNotes: "独立笔记"
-    case .noteTrash: "笔记回收站"
-    case .collection(let id): collections.first { $0.id == id }?.name ?? "文件夹"
-    case .smart(let id): collections.first { $0.id == id }?.name ?? "智能文件夹"
+    case .all: L10n.tr("全部书籍")
+    case .recent: L10n.tr("最近添加")
+    case .unfiled: L10n.tr("未加入文件夹")
+    case .trash: L10n.tr("回收站")
+    case .duplicates: L10n.tr("重复书目")
+    case .notes: L10n.tr("全部笔记")
+    case .standaloneNotes: L10n.tr("独立笔记")
+    case .noteTrash: L10n.tr("笔记回收站")
+    case .collection(let id): collections.first { $0.id == id }?.name ?? L10n.tr("文件夹")
+    case .smart(let id): collections.first { $0.id == id }?.name ?? L10n.tr("智能文件夹")
     }
   }
 }

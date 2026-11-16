@@ -25,7 +25,7 @@ struct TagCommands {
       throw LibraryOperationError.changedSincePreview
     }
     if let target {
-      try commit("合并标签", source: expected, destination: target.name,
+      try commit(L10n.tr("合并标签"), source: expected, destination: target.name,
         beforeTags: [expected.id: expected, target.id: target], afterTags: [target], removing: [expected.id])
       return target.id
     }
@@ -35,14 +35,14 @@ struct TagCommands {
     let existingNotes = try OrganizationStore.notes(in: context).values
       .filter { $0.tags.contains { MetadataNormalizer.normalizedName($0) == key } }
     renamed.noteIDs.formUnion(existingNotes.map(\.id))
-    try commit("重命名标签", source: expected, destination: name,
+    try commit(L10n.tr("重命名标签"), source: expected, destination: name,
       beforeTags: [expected.id: expected], afterTags: [renamed], removing: [])
     return expected.id
   }
 
   func remove(_ expected: TagRecord) throws {
     guard try record(expected.id) == expected else { throw LibraryOperationError.changedSincePreview }
-    try commit("删除标签", source: expected, destination: nil,
+    try commit(L10n.tr("删除标签"), source: expected, destination: nil,
       beforeTags: [expected.id: expected], afterTags: [], removing: [expected.id])
   }
 

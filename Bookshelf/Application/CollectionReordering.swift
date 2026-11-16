@@ -27,7 +27,7 @@ extension CollectionCommands {
     }
     let manualIDs = Set(updatedManual.map(\.id)), smartIDs = Set(updatedSmart.map(\.id))
     try LibraryRepository.apply([], smartCollections: updatedSmart, manualCollections: updatedManual, into: context)
-    LibraryServices.forContext(context).history.register("移动文件夹", before: [:], after: [:],
+    LibraryServices.forContext(context).history.register(L10n.tr("移动文件夹"), before: [:], after: [:],
       beforeSmart: smart.filter { smartIDs.contains($0.key) },
       afterSmart: try SmartCollectionService.snapshots(in: context, ids: smartIDs),
       beforeCollections: manual.filter { manualIDs.contains($0.key) },

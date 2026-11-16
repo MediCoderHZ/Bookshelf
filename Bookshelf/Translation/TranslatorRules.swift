@@ -20,13 +20,13 @@ struct TranslatorRule: Codable, Sendable, Identifiable {
   }
 
   static func decode(_ data: Data) throws -> TranslatorRule {
-    guard data.count <= 256 * 1_024 else { throw WebMetadataError.invalidConfiguration("规则文件不能超过 256 KB") }
+    guard data.count <= 256 * 1_024 else { throw WebMetadataError.invalidConfiguration(L10n.tr("规则文件不能超过 256 KB")) }
     let rule: TranslatorRule
     do {
       // Old rule packages may contain image mappings. Discard them before decoding
       // so unrelated metadata rules still work, even if the retired mapping is invalid.
       guard var object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-        throw WebMetadataError.invalidConfiguration("规则须为 JSON 对象")
+        throw WebMetadataError.invalidConfiguration(L10n.tr("规则须为 JSON 对象"))
       }
       object.removeValue(forKey: "coverHosts")
       if var book = object["book"] as? [String: Any], var fields = book["fields"] as? [String: Any] {
@@ -34,7 +34,7 @@ struct TranslatorRule: Codable, Sendable, Identifiable {
       }
       rule = try JSONDecoder().decode(TranslatorRule.self, from: JSONSerialization.data(withJSONObject: object))
     }
-    catch { throw WebMetadataError.invalidConfiguration("JSON 格式或字段类型不正确：\(error.localizedDescription)") }
+    catch { throw WebMetadataError.invalidConfiguration(L10n.tr("JSON 格式或字段类型不正确：\(error.localizedDescription)")) }
     try rule.validate()
     return rule
   }
@@ -46,8 +46,8 @@ struct TranslatorRule: Codable, Sendable, Identifiable {
   }
 
   static var example: TranslatorRule {
-    TranslatorRule(schemaVersion: 1, id: "example.publisher", name: "示例出版社", version: "1.0.0",
-      author: "请替换为规则作者", priority: 100,
+    TranslatorRule(schemaVersion: 1, id: "example.publisher", name: L10n.tr("示例出版社"), version: "1.0.0",
+      author: L10n.tr("请替换为规则作者"), priority: 100,
       targets: [TranslatorURLTarget(host: "books.example.org", pathPrefix: "/book/"),
         TranslatorURLTarget(host: "books.example.org", pathPrefix: "/catalog")],
       book: BookExtractionRule(detect: "//*[@class='book-detail']", fields: [
@@ -67,29 +67,29 @@ struct TranslatorRule: Codable, Sendable, Identifiable {
     func require(_ condition: Bool, _ message: String) throws {
       if !condition { throw WebMetadataError.invalidConfiguration(message) }
     }
-    try require(schemaVersion == 1, "不支持规则格式版本 \(schemaVersion)")
-    try require(id.range(of: #"^[a-z][a-z0-9.-]{2,63}$"#, options: .regularExpression) != nil, "ID 须为 3–64 位小写字母、数字、点或连字符，并以字母开头")
-    try require(!name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && name.count <= 100, "名称不能为空或超过 100 字")
-    try require(version.range(of: #"^[0-9]+\.[0-9]+\.[0-9]+$"#, options: .regularExpression) != nil && version.count <= 30, "版本须采用 1.0.0 格式")
-    try require(!author.isEmpty && author.count <= 100, "请填写作者，最多 100 字")
-    try require((1...10_000).contains(priority), "优先级须为 1–10000，数字越小越优先")
-    try require(!targets.isEmpty && targets.count <= 20, "请声明 1–20 个目标网址规则")
+    try require(schemaVersion == 1, L10n.tr("不支持规则格式版本 \(schemaVersion)"))
+    try require(id.range(of: #"^[a-z][a-z0-9.-]{2,63}$"#, options: .regularExpression) != nil, L10n.tr("ID 须为 3–64 位小写字母、数字、点或连字符，并以字母开头"))
+    try require(!name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && name.count <= 100, L10n.tr("名称不能为空或超过 100 字"))
+    try require(version.range(of: #"^[0-9]+\.[0-9]+\.[0-9]+$"#, options: .regularExpression) != nil && version.count <= 30, L10n.tr("版本须采用 1.0.0 格式"))
+    try require(!author.isEmpty && author.count <= 100, L10n.tr("请填写作者，最多 100 字"))
+    try require((1...10_000).contains(priority), L10n.tr("优先级须为 1–10000，数字越小越优先"))
+    try require(!targets.isEmpty && targets.count <= 20, L10n.tr("请声明 1–20 个目标网址规则"))
     for target in targets {
-      try require(WebURLPolicy.validHost(target.host), "目标域名必须为小写 DNS 域名：\(target.host)")
+      try require(WebURLPolicy.validHost(target.host), L10n.tr("目标域名必须为小写 DNS 域名：\(target.host)"))
       try require(target.pathPrefix.hasPrefix("/") && target.pathPrefix.count <= 256
-        && !target.pathPrefix.contains("?") && !target.pathPrefix.contains("#"), "路径前缀必须以 / 开头，不含查询或片段")
+        && !target.pathPrefix.contains("?") && !target.pathPrefix.contains("#"), L10n.tr("路径前缀必须以 / 开头，不含查询或片段"))
     }
     let fieldNames: Set<String> = ["title", "subtitle", "originalTitle", "authors", "translators", "publisher", "publicationDate", "isbn", "pageCount", "languageCode", "description"]
-    try require(book.fields["title"] != nil, "必须声明 title 提取规则")
-    try require(Set(book.fields.keys).isSubset(of: fieldNames), "存在未知的书籍字段")
+    try require(book.fields["title"] != nil, L10n.tr("必须声明 title 提取规则"))
+    try require(Set(book.fields.keys).isSubset(of: fieldNames), L10n.tr("存在未知的书籍字段"))
     var expressions = [book.detect]
     for field in book.fields.values {
       expressions.append(field.xpath)
       try require((field.splitBy?.count ?? 0) <= 8
-        && (field.splitBy ?? []).allSatisfy { !$0.isEmpty && $0.count <= 16 }, "splitBy 分隔符无效")
+        && (field.splitBy ?? []).allSatisfy { !$0.isEmpty && $0.count <= 16 }, L10n.tr("splitBy 分隔符无效"))
     }
     if let list { expressions += [list.detect, list.items, list.title, list.url] }
-    try require(expressions.allSatisfy(HTMLMetadataDocument.validateXPath), "XPath 表达式无效或超过 2048 字符")
+    try require(expressions.allSatisfy(HTMLMetadataDocument.validateXPath), L10n.tr("XPath 表达式无效或超过 2048 字符"))
   }
 }
 

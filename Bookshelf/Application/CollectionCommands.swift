@@ -20,7 +20,7 @@ struct CollectionCommands {
     record.parentID = parentID; record.updatedAt = Date()
     try LibraryRepository.writeCollection(record, expected: expected, id: record.id, context: context)
     LibraryServices.forContext(context).history.register(
-      expected == nil ? "新建文件夹" : "编辑文件夹", before: [:], after: [:],
+      expected == nil ? L10n.tr("新建文件夹") : L10n.tr("编辑文件夹"), before: [:], after: [:],
       beforeCollections: expected.map { [$0.id: $0] } ?? [:],
       afterCollections: try OrganizationStore.collections(in: context, ids: [record.id]), context: context, undoManager: undoManager)
     return record.id
@@ -43,7 +43,7 @@ struct CollectionCommands {
       var record = original; record.collectionIDs.removeAll { ids.contains($0) }; return record
     }
     try LibraryRepository.apply(updatedBooks, removingCollectionIDs: ids, notes: updatedNotes, into: context)
-    LibraryServices.forContext(context).history.register("移除文件夹及子文件夹", before: beforeBooks, after: LibraryHistory.snapshots(books),
+    LibraryServices.forContext(context).history.register(L10n.tr("移除文件夹及子文件夹"), before: beforeBooks, after: LibraryHistory.snapshots(books),
       beforeCollections: removed, beforeNotes: beforeNotes,
       afterNotes: try OrganizationStore.notes(in: context, ids: Set(beforeNotes.keys)), context: context, undoManager: undoManager)
   }

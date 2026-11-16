@@ -1,9 +1,9 @@
 import Foundation
 
 struct GoodreadsBookTranslator: BookSearchTranslator {
-  let descriptor = TranslatorDescriptor(
+  var descriptor: TranslatorDescriptor { TranslatorDescriptor(
     id: "goodreads-books", name: "Goodreads", version: "1.1.0", author: "Bookshelf",
-    targetDescription: "goodreads.com 图书详情、首页、搜索、公开图书列表与书架分类页", priority: 100)
+    targetDescription: L10n.tr("goodreads.com 图书详情、首页、搜索、公开图书列表与书架分类页"), priority: 100) }
 
   func canonicalURL(for url: URL) -> URL? {
     guard let safe = WebURLPolicy.normalized(url), ["www.goodreads.com", "goodreads.com"].contains(safe.host),
@@ -275,6 +275,6 @@ private struct GoodreadsApolloState: Decodable {
 private enum GoodreadsError: LocalizedError {
   case editionMismatch
   var errorDescription: String? {
-    "Goodreads 页面数据与链接中的图书 ID 不一致。请核对版本，并使用该页面原始链接重新提取。"
+    L10n.tr("Goodreads 页面数据与链接中的图书 ID 不一致。请核对版本，并使用该页面原始链接重新提取。")
   }
 }

@@ -10,7 +10,7 @@ struct BibliographicImportResult {
   let totalCount: Int
   let notices: [String]
   var formatName = "RIS"
-  var summary: String { "\(formatName) 共 \(totalCount) 条，可导入 \(records.count) 本，跳过 \(totalCount - records.count) 条。" }
+  var summary: String { L10n.tr("\(formatName) 共 \(totalCount) 条，可导入 \(records.count) 本，跳过 \(totalCount - records.count) 条。") }
 }
 
 typealias RISImportResult = BibliographicImportResult
@@ -18,7 +18,7 @@ typealias RISImportResult = BibliographicImportResult
 enum BibliographicFormat: String, CaseIterable, Identifiable {
   case ris, csv
   var id: String { rawValue }
-  var title: String { self == .ris ? "RIS 书目" : "CSV 清单" }
+  var title: String { self == .ris ? L10n.tr("RIS 书目") : L10n.tr("CSV 清单") }
 }
 
 /// Independently implemented interchange subset. No translator scripts or network requests.
@@ -32,11 +32,11 @@ enum BibliographicExchange {
   private static let supportedTags: Set<String> = ["TY", "TI", "T1", "AU", "A1", "A2", "A3", "A4", "PB", "DA", "Y1", "PY", "SN", "ET", "SP", "LA", "AB", "N2", "N1", "RN", "KW", "UR", "T2", "T3", "VL", "C1", "C2"]
 
   static func decodeRIS(_ data: Data) throws -> RISImportResult {
-    guard data.count <= maximumImportBytes else { throw BibliographicExchangeError.invalid("RIS 文件不能超过 10 MB，请分批导出。") }
+    guard data.count <= maximumImportBytes else { throw BibliographicExchangeError.invalid(L10n.tr("RIS 文件不能超过 10 MB，请分批导出。")) }
     let text: String?
     if data.starts(with: [0xFF, 0xFE]) || data.starts(with: [0xFE, 0xFF]) { text = String(data: data, encoding: .utf16) }
     else { text = String(data: data, encoding: .utf8) }
-    guard var text, !text.contains("\0") else { throw BibliographicExchangeError.invalid("无法读取文件编码。请使用 UTF-8，或带 BOM 的 UTF-16 RIS 文件。") }
+    guard var text, !text.contains("\0") else { throw BibliographicExchangeError.invalid(L10n.tr("无法读取文件编码。请使用 UTF-8，或带 BOM 的 UTF-16 RIS 文件。")) }
     if text.hasPrefix("\u{FEFF}") { text.removeFirst() }
     text = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
     let pattern = try NSRegularExpression(pattern: "^([A-Za-z][A-Za-z0-9])[ \\t]{1,2}-(?:[ \\t](.*))?$")
@@ -49,14 +49,14 @@ enum BibliographicExchange {
         let tag = String(line[Range(match.range(at: 1), in: line)!]).uppercased()
         let value = Range(match.range(at: 2), in: line).map { String(line[$0]) } ?? ""
         if tag == "TY" {
-          guard current == nil else { throw malformed(number, "上一条记录缺少 ER 结束标记") }
+          guard current == nil else { throw malformed(number, L10n.tr("上一条记录缺少 ER 结束标记")) }
           current = RISEntry(line: number, fields: [RISField(tag: tag, value: value)])
         } else if tag == "ER" {
-          guard let entry = current else { throw malformed(number, "ER 前没有 TY 开始标记") }
+          guard let entry = current else { throw malformed(number, L10n.tr("ER 前没有 TY 开始标记")) }
           entries.append(entry); current = nil
-          guard entries.count <= maximumImportRecords else { throw BibliographicExchangeError.invalid("单次最多导入 5000 条 RIS 记录，请分批导出。") }
+          guard entries.count <= maximumImportRecords else { throw BibliographicExchangeError.invalid(L10n.tr("单次最多导入 5000 条 RIS 记录，请分批导出。")) }
         } else {
-          guard current != nil else { throw malformed(number, "字段位于 TY / ER 记录之外") }
+          guard current != nil else { throw malformed(number, L10n.tr("字段位于 TY / ER 记录之外")) }
           current?.fields.append(RISField(tag: tag, value: value))
         }
       } else if current != nil {
@@ -65,15 +65,15 @@ enum BibliographicExchange {
         let index = current!.fields.count - 1
         current!.fields[index].value += "\n" + continuation
       } else if !line.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-        throw malformed(number, "不是有效的 RIS 记录")
+        throw malformed(number, L10n.tr("不是有效的 RIS 记录"))
       }
     }
-    guard current == nil else { throw malformed(current!.line, "记录缺少 ER 结束标记") }
+    guard current == nil else { throw malformed(current!.line, L10n.tr("记录缺少 ER 结束标记")) }
     var records: [BookArchive] = [], notices: [String] = []
     var noticeCount = 0
     func notice(_ message: String) { noticeCount += 1; if notices.count < 100 { notices.append(message) } }
     for (index, entry) in entries.enumerated() {
-      let prefix = "第 \(index + 1) 条（行 \(entry.line)）"
+      let prefix = L10n.tr("第 \(index + 1) 条（行 \(entry.line)）")
       func values(_ tags: [String]) -> [String] {
         entry.fields.filter { tags.contains($0.tag) }.map { $0.value.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
       }
@@ -82,10 +82,10 @@ enum BibliographicExchange {
         return nil
       }
       let type = first(["TY"])?.uppercased() ?? ""
-      guard supportedTypes.contains(type) else { notice("\(prefix)：跳过类型 \(type)，目前仅导入整本图书。"); continue }
-      guard let title = first(["TI", "T1"]) else { notice("\(prefix)：缺少书名，已跳过。"); continue }
+      guard supportedTypes.contains(type) else { notice(L10n.tr("\(prefix)：跳过类型 \(type)，目前仅导入整本图书。")); continue }
+      guard let title = first(["TI", "T1"]) else { notice(L10n.tr("\(prefix)：缺少书名，已跳过。")); continue }
       for tag in ["TI", "T1", "PB", "ET", "LA", "DA", "Y1", "PY", "AB", "N2", "T2", "T3", "VL", "UR", "SP", "C1", "C2"] {
-        if Set(values([tag])).count > 1 { notice("\(prefix)：字段 \(tag) 有多个值，仅采用首个值。") }
+        if Set(values([tag])).count > 1 { notice(L10n.tr("\(prefix)：字段 \(tag) 有多个值，仅采用首个值。")) }
       }
       var book = BookArchive(book: Book(title: title))
       book.publisher = first(["PB"]); book.edition = first(["ET"]); book.languageCode = first(["LA"])
@@ -94,14 +94,14 @@ enum BibliographicExchange {
         let marker = "Bookshelf.BookType="
         if raw.hasPrefix(marker), let type = BookType(rawValue: String(raw.dropFirst(marker.count))) {
           book.bookTypeRaw = type.rawValue
-        } else { notice("\(prefix)：未识别 C1 条目类型扩展，请导入后手动选择。") }
+        } else { notice(L10n.tr("\(prefix)：未识别 C1 条目类型扩展，请导入后手动选择。")) }
       }
       if let raw = first(["C2"]) {
         let marker = "Bookshelf.OriginalLanguage="
         if raw.hasPrefix(marker) {
           let language = String(raw.dropFirst(marker.count)).trimmingCharacters(in: .whitespacesAndNewlines)
           book.originalLanguageCode = language.isEmpty ? nil : language
-        } else { notice("\(prefix)：未导入其他应用的 C2 扩展字段。") }
+        } else { notice(L10n.tr("\(prefix)：未导入其他应用的 C2 扩展字段。")) }
       }
       book.publicationDate = first(["DA", "Y1", "PY"]).map(normalizeRISDate)
       book.bookDescription = first(["AB", "N2"])
@@ -121,18 +121,18 @@ enum BibliographicExchange {
       var editionKey: String?
       for number in candidates {
         guard let key = ISBN.identity(number) else { continue }
-        if let editionKey, editionKey != key { notice("\(prefix)：有多个不同版本的 ISBN，仅采用首个版本。"); continue }
+        if let editionKey, editionKey != key { notice(L10n.tr("\(prefix)：有多个不同版本的 ISBN，仅采用首个版本。")); continue }
         editionKey = key
         if number.count == 10 { book.isbn10 = number } else { book.isbn13 = number }
       }
-      if !numbers.isEmpty && editionKey == nil { notice("\(prefix)：ISBN 无效或无法识别，已留空，请核对原文件。") }
+      if !numbers.isEmpty && editionKey == nil { notice(L10n.tr("\(prefix)：ISBN 无效或无法识别，已留空，请核对原文件。")) }
       if let pages = first(["SP"]) {
         if first(["EP"]) == nil, let count = Int(pages), (0...1_000_000).contains(count) { book.pageCount = count }
-        else { notice("\(prefix)：页数不是单一整数，已留空。") }
+        else { notice(L10n.tr("\(prefix)：页数不是单一整数，已留空。")) }
       }
       if let address = first(["UR"]) {
         if let url = publicWebURL(address) { book.metadataSourceURL = url.absoluteString }
-        else { notice("\(prefix)：网址不是普通 HTTP(S) 网址，未保存。") }
+        else { notice(L10n.tr("\(prefix)：网址不是普通 HTTP(S) 网址，未保存。")) }
       }
       book.metadataSourceName = "RIS 文件导入"
       book.metadataRetrievedAt = Date()
@@ -141,12 +141,12 @@ enum BibliographicExchange {
           ($0.rawValue, MetadataFieldOrigin(name: "RIS 文件导入", url: book.metadataSourceURL, retrievedAt: book.metadataRetrievedAt))
         }))
       let ignored = Set(entry.fields.map(\.tag)).subtracting(supportedTags)
-      if !ignored.isEmpty { notice("\(prefix)：未导入字段 \(ignored.sorted().joined(separator: "、"))。附件不会读取或下载。") }
+      if !ignored.isEmpty { notice(L10n.tr("\(prefix)：未导入字段 \(ignored.sorted().joined(separator: "、"))。附件不会读取或下载。")) }
       records.append(book)
     }
-    if noticeCount > notices.count { notices.append("另有 \(noticeCount - notices.count) 条字段或条目提示；请分批导入以逐一核对。") }
+    if noticeCount > notices.count { notices.append(L10n.tr("另有 \(noticeCount - notices.count) 条字段或条目提示；请分批导入以逐一核对。")) }
     guard !records.isEmpty else {
-      throw BibliographicExchangeError.invalid("未找到可导入的图书。仅支持 BOOK、EBOOK、EDBOOK、CLSWK、SER，且必须有书名。" + (notices.first.map { "\n" + $0 } ?? ""))
+      throw BibliographicExchangeError.invalid(L10n.tr("未找到可导入的图书。仅支持 BOOK、EBOOK、EDBOOK、CLSWK、SER，且必须有书名。") + (notices.first.map { "\n" + $0 } ?? ""))
     }
     return RISImportResult(records: records, totalCount: entries.count, notices: notices)
   }
@@ -215,7 +215,7 @@ enum BibliographicExchange {
   }
 
   private static func malformed(_ line: Int, _ message: String) -> BibliographicExchangeError {
-    .invalid("RIS 第 \(line) 行：\(message)。请修正文件后重新导入；本次未写入书库。")
+    .invalid(L10n.tr("RIS 第 \(line) 行：\(message)。请修正文件后重新导入；本次未写入书库。"))
   }
   private static func uniqueNames(_ values: [String]) -> [String] {
     var seen = Set<String>()

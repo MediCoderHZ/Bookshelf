@@ -13,10 +13,10 @@ struct LibraryImportSummary {
   var skippedNoteCount: Int = 0
 
   var message: String {
-    "已新增 \(createdCount) 本，更新 \(updatedCount) 本，跳过 \(skippedCount) 本。"
-      + (createdSmartCount + skippedSmartCount > 0 ? "智能文件夹新增 \(createdSmartCount) 个，跳过 \(skippedSmartCount) 个。" : "")
-      + (createdCollectionCount + keptCollectionCount > 0 ? "普通文件夹新增 \(createdCollectionCount) 个，沿用本地 \(keptCollectionCount) 个。" : "")
-      + (createdNoteCount + skippedNoteCount > 0 ? "笔记新增 \(createdNoteCount) 条，跳过 \(skippedNoteCount) 条（已存在或所属书籍未导入）。" : "")
+    L10n.tr("已新增 \(createdCount) 本，更新 \(updatedCount) 本，跳过 \(skippedCount) 本。")
+      + (createdSmartCount + skippedSmartCount > 0 ? L10n.tr("智能文件夹新增 \(createdSmartCount) 个，跳过 \(skippedSmartCount) 个。") : "")
+      + (createdCollectionCount + keptCollectionCount > 0 ? L10n.tr("普通文件夹新增 \(createdCollectionCount) 个，沿用本地 \(keptCollectionCount) 个。") : "")
+      + (createdNoteCount + skippedNoteCount > 0 ? L10n.tr("笔记新增 \(createdNoteCount) 条，跳过 \(skippedNoteCount) 条（已存在或所属书籍未导入）。") : "")
   }
 }
 
@@ -115,9 +115,9 @@ enum LibraryBackupError: LocalizedError {
   var errorDescription: String? {
     switch self {
     case .invalidDocument:
-      "无法读取这个备份文件。"
+      L10n.tr("无法读取这个备份文件。")
     case .unsupportedSchema(let version):
-      "暂不支持版本为 \(version) 的书架备份。"
+      L10n.tr("暂不支持版本为 \(version) 的书架备份。")
     }
   }
 }

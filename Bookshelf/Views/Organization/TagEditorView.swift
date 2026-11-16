@@ -25,24 +25,24 @@ struct TagEditorView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("重命名标签").font(.headline)
-      TextField("标签名称", text: $name).textFieldStyle(.roundedBorder).focused($focused)
-        .accessibilityLabel("标签名称")
+      Text(L10n.tr("重命名标签")).font(.headline)
+      TextField(L10n.tr("标签名称"), text: $name).textFieldStyle(.roundedBorder).focused($focused)
+        .accessibilityLabel(L10n.tr("标签名称"))
       if let target {
-        Label("合并到已有标签“\(target.name)”", systemImage: "arrow.triangle.merge").font(.callout.weight(.medium))
-        Text("合并后共关联 \(source.bookIDs.union(target.bookIDs).count) 本书和 \(source.noteIDs.union(target.noteIDs).count) 条笔记。重复关联只保留一次，原标签“\(source.name)”将移除。")
+        Label(L10n.tr("合并到已有标签“\(target.name)”"), systemImage: "arrow.triangle.merge").font(.callout.weight(.medium))
+        Text(L10n.tr("合并后共关联 \(source.bookIDs.union(target.bookIDs).count) 本书和 \(source.noteIDs.union(target.noteIDs).count) 条笔记。重复关联只保留一次，原标签“\(source.name)”将移除。"))
           .font(.callout).foregroundStyle(.secondary)
       } else {
-        Text("同步更新使用“\(source.name)”的 \(source.bookIDs.count) 本书和 \(source.noteIDs.count) 条笔记。")
+        Text(L10n.tr("同步更新使用“\(source.name)”的 \(source.bookIDs.count) 本书和 \(source.noteIDs.count) 条笔记。"))
           .font(.callout).foregroundStyle(.secondary)
       }
-      Text("范围包括回收站中的条目。此操作可以撤销。")
+      Text(L10n.tr("范围包括回收站中的条目。此操作可以撤销。"))
         .font(.caption).foregroundStyle(.secondary)
       if let errorMessage { Text(errorMessage).font(.callout).foregroundStyle(.red).textSelection(.enabled) }
       HStack {
         Spacer()
-        Button("取消") { dismiss() }.keyboardShortcut(.cancelAction)
-        Button(target == nil ? "重命名" : "合并标签") { save() }
+        Button(L10n.tr("取消")) { dismiss() }.keyboardShortcut(.cancelAction)
+        Button(target == nil ? L10n.tr("重命名") : L10n.tr("合并标签")) { save() }
           .keyboardShortcut(.defaultAction)
           .disabled(MetadataNormalizer.normalizedName(name).isEmpty || name.trimmingCharacters(in: .whitespacesAndNewlines) == source.name)
       }

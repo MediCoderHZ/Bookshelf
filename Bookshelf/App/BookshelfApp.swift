@@ -40,6 +40,7 @@ struct BookshelfApp: App {
           storageFailure(error)
         }
       }.frame(minWidth: 900, minHeight: 620)
+        .environment(\.locale, L10n.locale)
     }
     .defaultSize(width: 1380, height: 820)
     .windowToolbarStyle(.unifiedCompact(showsTitle: false))
@@ -56,6 +57,7 @@ struct BookshelfApp: App {
       case .success(let container):
         LibraryUndoScope {
           SettingsView().environmentObject(updater).environmentObject(backups)
+            .environment(\.locale, L10n.locale)
             .modelContainer(container).frame(width: 560, height: 760)
         }
       case .failure(let error):
@@ -67,11 +69,11 @@ struct BookshelfApp: App {
   private func storageFailure(_ error: Error) -> some View {
     VStack(spacing: 16) {
       Image(systemName: "externaldrive.badge.exclamationmark").font(.largeTitle)
-      Text("暂时无法打开本地书库").font(.title2)
-      Text("应用没有删除或重建你的书库。请先退出并重新打开应用；如果问题持续，请联系支持并提供以下错误信息。")
+      Text(L10n.tr("暂时无法打开本地书库")).font(.title2)
+      Text(L10n.tr("应用没有删除或重建你的书库。请先退出并重新打开应用；如果问题持续，请联系支持并提供以下错误信息。"))
         .multilineTextAlignment(.center)
       Text(error.localizedDescription).font(.caption).textSelection(.enabled)
-      if let url = AppReleaseInfo.supportURL { Link("联系支持", destination: url) }
+      if let url = AppReleaseInfo.supportURL { Link(L10n.tr("联系支持"), destination: url) }
     }.padding(32).frame(maxWidth: 560)
   }
 }
@@ -84,9 +86,9 @@ final class BookshelfLifecycleDelegate: NSObject, NSApplicationDelegate {
     do { try backups.prepareForTermination(); return .terminateNow }
     catch {
       let alert = NSAlert()
-      alert.messageText = "升级前备份未完成"
+      alert.messageText = L10n.tr("升级前备份未完成")
       alert.informativeText = error.localizedDescription
-      alert.addButton(withTitle: "返回书架")
+      alert.addButton(withTitle: L10n.tr("返回书架"))
       alert.runModal()
       return .terminateCancel
     }
@@ -116,7 +118,7 @@ private struct LibraryNewBookCommands: Commands {
   @FocusedValue(\.newBookAction) private var newBook
   var body: some Commands {
     CommandGroup(replacing: .newItem) {
-      Button("添加书籍") { newBook?() }.keyboardShortcut("n", modifiers: .command).disabled(newBook == nil)
+      Button(L10n.tr("添加书籍")) { newBook?() }.keyboardShortcut("n", modifiers: .command).disabled(newBook == nil)
     }
   }
 }
@@ -152,9 +154,9 @@ private struct LibraryUndoCommands: Commands {
   @FocusedValue(\.libraryUndoManager) private var manager
   var body: some Commands {
     CommandGroup(replacing: .undoRedo) {
-      Button("撤销") { perform(redo: false) }
+      Button(L10n.tr("撤销")) { perform(redo: false) }
         .keyboardShortcut("z", modifiers: .command).disabled(manager == nil)
-      Button("重做") { perform(redo: true) }
+      Button(L10n.tr("重做")) { perform(redo: true) }
         .keyboardShortcut("z", modifiers: [.command, .shift]).disabled(manager == nil)
     }
   }
@@ -179,7 +181,7 @@ private struct LibrarySearchCommands: Commands {
   @FocusedValue(\.librarySearchAction) private var search
   var body: some Commands {
     CommandGroup(after: .textEditing) {
-      Button("搜索书库") { search?() }
+      Button(L10n.tr("搜索书库")) { search?() }
         .keyboardShortcut("f", modifiers: .command).disabled(search == nil)
     }
   }
@@ -201,11 +203,11 @@ private struct LibraryToolbarCommands: Commands {
   @FocusedValue(\.libraryToolbarActions) private var actions
   var body: some Commands {
     CommandGroup(after: .newItem) {
-      Button("按书名或 ISBN 添加…") { actions?.lookupBook() }
+      Button(L10n.tr("按书名或 ISBN 添加…")) { actions?.lookupBook() }
         .keyboardShortcut("i", modifiers: [.command, .shift]).disabled(actions == nil)
     }
     CommandGroup(after: .textEditing) {
-      Button("高级筛选") { actions?.advancedSearch?() }
+      Button(L10n.tr("高级筛选")) { actions?.advancedSearch?() }
         .keyboardShortcut("f", modifiers: [.command, .option]).disabled(actions?.advancedSearch == nil)
     }
   }

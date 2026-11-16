@@ -204,11 +204,11 @@ enum BookMetadataError: LocalizedError {
   var errorDescription: String? {
     switch self {
     case .invalidURL:
-      "无法创建检索地址。"
+      L10n.tr("无法创建检索地址。")
     case .invalidResponse:
-      "书籍数据服务返回了无效响应。"
+      L10n.tr("书籍数据服务返回了无效响应。")
     case .httpStatus(let statusCode):
-      statusCode == 429 ? "搜索过于频繁，请稍后再试。你仍可手动添加书籍。" : "书籍数据服务暂时不可用（HTTP \(statusCode)）。"
+      statusCode == 429 ? L10n.tr("搜索过于频繁，请稍后再试。你仍可手动添加书籍。") : L10n.tr("书籍数据服务暂时不可用（HTTP \(statusCode)）。")
     }
   }
 }

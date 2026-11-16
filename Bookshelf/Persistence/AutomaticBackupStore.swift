@@ -7,10 +7,10 @@ enum AutomaticBackupKind: String, Codable {
   var isUpgrade: Bool { self == .beforeUpdate || self == .beforeMigration }
   var title: String {
     switch self {
-    case .scheduled: "定时备份"
-    case .manual: "手动备份"
-    case .beforeUpdate: "升级前备份"
-    case .beforeMigration: "数据库升级前快照"
+    case .scheduled: L10n.tr("定时备份")
+    case .manual: L10n.tr("手动备份")
+    case .beforeUpdate: L10n.tr("升级前备份")
+    case .beforeMigration: L10n.tr("数据库升级前快照")
     }
   }
 }
@@ -33,10 +33,10 @@ enum AutomaticBackupError: LocalizedError {
   case invalidBackup, pendingChanges, unavailable, sqlite(String)
   var errorDescription: String? {
     switch self {
-    case .invalidBackup: "备份内容或校验值不完整，原文件已保留。"
-    case .pendingChanges: "书库还有未提交的修改，请完成保存后再备份。"
-    case .unavailable: "书库尚未正常打开，无法创建升级前备份。"
-    case .sqlite(let detail): "无法创建完整的数据库快照：\(detail)"
+    case .invalidBackup: L10n.tr("备份内容或校验值不完整，原文件已保留。")
+    case .pendingChanges: L10n.tr("书库还有未提交的修改，请完成保存后再备份。")
+    case .unavailable: L10n.tr("书库尚未正常打开，无法创建升级前备份。")
+    case .sqlite(let detail): L10n.tr("无法创建完整的数据库快照：\(detail)")
     }
   }
 }
@@ -172,7 +172,7 @@ struct AutomaticBackupStore {
     defer { if let output { sqlite3_close(output) }; if let input { sqlite3_close(input) } }
     guard sqlite3_open_v2(source.path, &input, SQLITE_OPEN_READONLY, nil) == SQLITE_OK,
       sqlite3_open_v2(destination.path, &output, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK,
-      let input, let output else { throw AutomaticBackupError.sqlite("无法打开源文件或备份目录") }
+      let input, let output else { throw AutomaticBackupError.sqlite(L10n.tr("无法打开源文件或备份目录")) }
     sqlite3_busy_timeout(input, 1500); sqlite3_busy_timeout(output, 1500)
     guard let backup = sqlite3_backup_init(output, "main", input, "main") else {
       throw AutomaticBackupError.sqlite(String(cString: sqlite3_errmsg(output)))
@@ -184,11 +184,11 @@ struct AutomaticBackupStore {
     defer { sqlite3_finalize(statement) }
     guard sqlite3_prepare_v2(output, "PRAGMA integrity_check", -1, &statement, nil) == SQLITE_OK,
       sqlite3_step(statement) == SQLITE_ROW, let text = sqlite3_column_text(statement, 0),
-      String(cString: text) == "ok" else { throw AutomaticBackupError.sqlite("完整性检查未通过") }
+      String(cString: text) == "ok" else { throw AutomaticBackupError.sqlite(L10n.tr("完整性检查未通过")) }
     sqlite3_finalize(statement); statement = nil
     // The backup must be standalone after the connection closes.
     guard sqlite3_exec(output, "PRAGMA journal_mode=DELETE", nil, nil, nil) == SQLITE_OK else {
-      throw AutomaticBackupError.sqlite("无法完成独立快照")
+      throw AutomaticBackupError.sqlite(L10n.tr("无法完成独立快照"))
     }
   }
 }

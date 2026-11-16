@@ -18,25 +18,25 @@ struct MarkdownNoteEditor: View {
     VStack(spacing: 0) {
       HStack(spacing: display.toolbarSpacing) {
         Menu {
-          Button("正文") { controller.apply(.heading(0)) }
-          ForEach(1...6, id: \.self) { level in Button("\(level) 级标题") { controller.apply(.heading(level)) } }
+          Button(L10n.tr("正文")) { controller.apply(.heading(0)) }
+          ForEach(1...6, id: \.self) { level in Button(L10n.tr("\(level) 级标题")) { controller.apply(.heading(level)) } }
         } label: {
           Text("Aa").font(.system(size: display.iconSize, weight: .regular))
             .frame(width: toolbarItemSize, height: toolbarItemSize)
-        }.help("段落格式")
-          .accessibilityLabel("段落格式").menuStyle(.button).buttonStyle(.plain)
+        }.help(L10n.tr("段落格式"))
+          .accessibilityLabel(L10n.tr("段落格式")).menuStyle(.button).buttonStyle(.plain)
           .menuIndicator(.hidden).frame(width: toolbarItemSize, height: toolbarItemSize)
-        formatButton("加粗（⌘B）", "bold", .bold)
-        formatButton("斜体（⌘I）", "italic", .italic)
-        formatButton("删除线", "strikethrough", .strike)
+        formatButton(L10n.tr("加粗（⌘B）"), "bold", .bold)
+        formatButton(L10n.tr("斜体（⌘I）"), "italic", .italic)
+        formatButton(L10n.tr("删除线"), "strikethrough", .strike)
         Menu {
-          Button("无序列表") { controller.apply(.bullet) }
-          Button("有序列表") { controller.apply(.ordered) }
-          Button("任务列表") { controller.apply(.task) }
-        } label: { toolbarIcon("list.bullet") }.help("列表")
-          .accessibilityLabel("列表").menuStyle(.button).buttonStyle(.plain)
+          Button(L10n.tr("无序列表")) { controller.apply(.bullet) }
+          Button(L10n.tr("有序列表")) { controller.apply(.ordered) }
+          Button(L10n.tr("任务列表")) { controller.apply(.task) }
+        } label: { toolbarIcon("list.bullet") }.help(L10n.tr("列表"))
+          .accessibilityLabel(L10n.tr("列表")).menuStyle(.button).buttonStyle(.plain)
           .menuIndicator(.hidden).frame(width: toolbarItemSize, height: toolbarItemSize)
-        formatButton("引用", "text.quote", .quote)
+        formatButton(L10n.tr("引用"), "text.quote", .quote)
         Button {
           guard let view = controller.textView else { return }
           linkRange = view.selectedRange()
@@ -47,13 +47,13 @@ struct MarkdownNoteEditor: View {
           showingLink = true
         } label: { toolbarIcon("link") }
           .frame(width: toolbarItemSize, height: toolbarItemSize)
-          .help("编辑链接").accessibilityLabel("编辑链接")
+          .help(L10n.tr("编辑链接")).accessibilityLabel(L10n.tr("编辑链接"))
           .popover(isPresented: $showingLink) { linkEditor }
         Menu {
-          Button("行内代码") { controller.apply(.code) }
-          Button("代码块") { controller.apply(.codeBlock) }
-        } label: { toolbarIcon("chevron.left.forwardslash.chevron.right") }.help("代码")
-          .accessibilityLabel("代码").menuStyle(.button).buttonStyle(.plain)
+          Button(L10n.tr("行内代码")) { controller.apply(.code) }
+          Button(L10n.tr("代码块")) { controller.apply(.codeBlock) }
+        } label: { toolbarIcon("chevron.left.forwardslash.chevron.right") }.help(L10n.tr("代码"))
+          .accessibilityLabel(L10n.tr("代码")).menuStyle(.button).buttonStyle(.plain)
           .menuIndicator(.hidden).frame(width: toolbarItemSize, height: toolbarItemSize)
         Spacer(minLength: 0)
       }.buttonStyle(.plain).labelStyle(.iconOnly)
@@ -68,14 +68,14 @@ struct MarkdownNoteEditor: View {
   }
   private var linkEditor: some View {
     VStack(alignment: .leading, spacing: 10) {
-      Text("编辑链接").font(.headline)
-      TextField("显示文字", text: $linkLabel).disabled(linkRange.length > 0)
-      TextField("https://…", text: $linkURL).accessibilityLabel("链接网址")
+      Text(L10n.tr("编辑链接")).font(.headline)
+      TextField(L10n.tr("显示文字"), text: $linkLabel).disabled(linkRange.length > 0)
+      TextField("https://…", text: $linkURL).accessibilityLabel(L10n.tr("链接网址"))
       HStack {
-        Button("移除链接") { controller.textView?.setLink(nil, range: linkRange, label: linkLabel); showingLink = false }
+        Button(L10n.tr("移除链接")) { controller.textView?.setLink(nil, range: linkRange, label: linkLabel); showingLink = false }
           .disabled(linkRange.length == 0)
         Spacer()
-        Button("应用") {
+        Button(L10n.tr("应用")) {
           controller.textView?.setLink(linkURL, range: linkRange, label: linkLabel)
           showingLink = false
           if let view = controller.textView { view.window?.makeFirstResponder(view) }
@@ -103,6 +103,7 @@ final class RichNoteEditorController {
 }
 
 private struct NativeRichNoteEditor: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   @Binding var text: String
   let controller: RichNoteEditorController
   let focusToken: UUID?
@@ -121,6 +122,8 @@ private struct NativeRichNoteEditor: NSViewRepresentable {
     return scroll
   }
   func updateNSView(_ scroll: NoteEditorScrollView, context: Context) {
+    let _ = locale
+    scroll.documentView?.setAccessibilityLabel(L10n.tr("笔记正文"))
     context.coordinator.parent = self
     guard let view = scroll.documentView as? RichNoteTextView else { return }
     if view.source != text && !view.hasMarkedText() {
@@ -149,7 +152,7 @@ struct MarkdownNotePreview: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 12) {
         if source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-          Text("暂无正文").foregroundStyle(.secondary)
+          Text(L10n.tr("暂无正文")).foregroundStyle(.secondary)
         }
         ForEach(Array(NoteMarkdown.blocks(from: source).enumerated()), id: \.offset) { _, block in
           if block.rule { Divider() }
@@ -168,7 +171,7 @@ struct MarkdownNotePreview: View {
           }
         }
       }.textSelection(.enabled).padding(14).frame(maxWidth: .infinity, alignment: .leading)
-    }.background(Color(nsColor: .textBackgroundColor)).accessibilityLabel("Markdown 预览")
+    }.background(Color(nsColor: .textBackgroundColor)).accessibilityLabel(L10n.tr("Markdown 预览"))
   }
 }
 

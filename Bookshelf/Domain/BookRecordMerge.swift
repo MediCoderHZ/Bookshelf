@@ -7,11 +7,11 @@ enum BookField: String, CaseIterable, Identifiable {
   var id: String { rawValue }
   var label: String {
     switch self {
-    case .bookType: "条目类型"; case .originalLanguage: "原作语言"
-    case .title: "标题"; case .subtitle: "副标题"; case .originalTitle: "原书名"
-    case .authors: "作者"; case .translators: "译者"; case .publisher: "出版社"
-    case .publicationDate: "出版日期"; case .isbn: "ISBN"; case .edition: "版次"
-    case .pageCount: "页数"; case .language: "语言"; case .description: "简介"
+    case .bookType: L10n.tr("条目类型"); case .originalLanguage: L10n.tr("原作语言")
+    case .title: L10n.tr("标题"); case .subtitle: L10n.tr("副标题"); case .originalTitle: L10n.tr("原书名")
+    case .authors: L10n.tr("作者"); case .translators: L10n.tr("译者"); case .publisher: L10n.tr("出版社")
+    case .publicationDate: L10n.tr("出版日期"); case .isbn: "ISBN"; case .edition: L10n.tr("版次")
+    case .pageCount: L10n.tr("页数"); case .language: L10n.tr("语言"); case .description: L10n.tr("简介")
     }
   }
   func value(in record: BookArchive) -> String {

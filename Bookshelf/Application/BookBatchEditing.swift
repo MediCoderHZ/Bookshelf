@@ -6,7 +6,7 @@ enum BatchValueMode: String, CaseIterable, Identifiable {
   var id: String { rawValue }
   var title: String {
     switch self {
-    case .keep: "保持原样"; case .fill: "仅补空白"; case .replace: "替换为"; case .clear: "清空"
+    case .keep: L10n.tr("保持原样"); case .fill: L10n.tr("仅补空白"); case .replace: L10n.tr("替换为"); case .clear: L10n.tr("清空")
     }
   }
   var needsValue: Bool { self == .fill || self == .replace }
@@ -29,8 +29,8 @@ enum BatchMetadataField: String, CaseIterable, Identifiable {
   }
   var placeholder: String {
     switch self {
-    case .publicationDate: "例如 2024-03"; case .edition: "例如 第 2 版"
-    case .language: "例如 zh 或 en"; case .publisher: "输入出版社"
+    case .publicationDate: L10n.tr("例如 2024-03"); case .edition: L10n.tr("例如 第 2 版")
+    case .language: L10n.tr("例如 zh 或 en"); case .publisher: L10n.tr("输入出版社")
     }
   }
 }
@@ -65,14 +65,14 @@ struct BookBatchEditDraft: Equatable {
     for field in BatchMetadataField.allCases {
       let change = metadata[field] ?? BatchTextChange()
       if change.mode.needsValue && change.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-        return "请填写\(field.field.label)；需要删除内容时请选择“清空”。"
+        return L10n.tr("请填写\(field.field.label)；需要删除内容时请选择“清空”。")
       }
     }
     if !tagsToAdd.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && addedTags.isEmpty {
-      return "请填写有效的标签名称，用逗号或顿号分隔。"
+      return L10n.tr("请填写有效的标签名称，用逗号或顿号分隔。")
     }
     if !Set(addedTags.map(MetadataNormalizer.normalizedName)).isDisjoint(with: tagsToRemove) {
-      return "同一个标签不能同时添加和移除，请调整选择。"
+      return L10n.tr("同一个标签不能同时添加和移除，请调整选择。")
     }
     return nil
   }
@@ -135,7 +135,7 @@ enum BookBatchEditing {
       }
       if updatedTags != record.tags {
         result.tags = updatedTags.sorted()
-        differences.append(BatchFieldDifference(id: "tags", label: "标签",
+        differences.append(BatchFieldDifference(id: "tags", label: L10n.tr("标签"),
           oldValue: record.tags.joined(separator: "、"), newValue: result.tags.joined(separator: "、")))
       }
       return BookBatchEditItem(before: record, after: result, differences: differences)
@@ -158,7 +158,7 @@ enum BookBatchEditing {
     let records = changed.map { item in var record = item.after; record.updatedAt = now; return record }
     try LibraryRepository.apply(records, into: context)
     let changedIDs = Set(changed.map(\.id))
-    LibraryServices.forContext(context).history.register("批量编辑书籍", before: Dictionary(uniqueKeysWithValues: changed.map { ($0.id, $0.before) }),
+    LibraryServices.forContext(context).history.register(L10n.tr("批量编辑书籍"), before: Dictionary(uniqueKeysWithValues: changed.map { ($0.id, $0.before) }),
       after: LibraryHistory.snapshots(current.filter { changedIDs.contains($0.id) }), context: context, undoManager: undoManager)
     return changed.count
   }

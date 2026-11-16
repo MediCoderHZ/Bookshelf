@@ -69,7 +69,7 @@ struct TagInputView: View {
             if focused { selection.reset() } else { selection.dismiss() }
           }, focusToken: focusToken)
         Button { onAdd(text) } label: { Image(systemName: "plus.circle") }
-          .buttonStyle(.borderless).help(alreadyAssigned ? "此书已包含该标签" : "添加标签")
+          .buttonStyle(.borderless).help(alreadyAssigned ? L10n.tr("此书已包含该标签") : L10n.tr("添加标签"))
           .disabled(MetadataNormalizer.normalizedName(text).isEmpty || alreadyAssigned)
       }
       if isShowingSuggestions {
@@ -104,7 +104,7 @@ struct TagInputView: View {
         Image(systemName: "tag")
         Text(suggestion.name).lineLimit(1)
         Spacer(minLength: 4)
-        if suggestion.isAssigned { Text("已添加").font(display.font).foregroundStyle(.secondary) }
+        if suggestion.isAssigned { Text(L10n.tr("已添加")).font(display.font).foregroundStyle(.secondary) }
       }
       .padding(.horizontal, 8).frame(height: display.sidebarRowHeight)
       .foregroundStyle(selected ? Color(nsColor: .alternateSelectedControlTextColor) : .primary)
@@ -112,14 +112,15 @@ struct TagInputView: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain).disabled(suggestion.isAssigned)
-    .help(suggestion.isAssigned ? "此书已包含标签 \(suggestion.name)" : "添加已有标签 \(suggestion.name)")
-    .accessibilityLabel("\(suggestion.name)\(suggestion.isAssigned ? "，已添加" : "，添加已有标签")")
+    .help(suggestion.isAssigned ? L10n.tr("此书已包含标签 \(suggestion.name)") : L10n.tr("添加已有标签 \(suggestion.name)"))
+    .accessibilityLabel("\(suggestion.name)\(suggestion.isAssigned ? L10n.tr("，已添加") : L10n.tr("，添加已有标签"))")
     .accessibilityAddTraits(selected ? .isSelected : [])
   }
 }
 
 /// Handle field-editor commands after the input method has had a chance to consume the key.
 struct NativeTagTextField: NSViewRepresentable {
+  @Environment(\.locale) private var locale
   @Environment(\.libraryDisplay) private var display
   @Binding var text: String
   var onMove: (TagSuggestionSelection.Direction) -> Bool
@@ -132,8 +133,8 @@ struct NativeTagTextField: NSViewRepresentable {
 
   func makeNSView(context: Context) -> MetadataTextField {
     let field = MetadataTextField(string: text)
-    field.placeholderString = "添加标签"
-    field.setAccessibilityLabel("添加标签")
+    field.placeholderString = L10n.tr("添加标签")
+    field.setAccessibilityLabel(L10n.tr("添加标签"))
     field.bezelStyle = .roundedBezel
     field.font = .systemFont(ofSize: display.fontSize)
     field.usesSingleLineMode = true
@@ -145,6 +146,9 @@ struct NativeTagTextField: NSViewRepresentable {
   }
 
   func updateNSView(_ field: MetadataTextField, context: Context) {
+    let _ = locale
+    field.placeholderString = L10n.tr("添加标签")
+    field.setAccessibilityLabel(L10n.tr("添加标签"))
     context.coordinator.parent = self
     if field.font?.pointSize != display.fontSize {
       field.font = .systemFont(ofSize: display.fontSize)

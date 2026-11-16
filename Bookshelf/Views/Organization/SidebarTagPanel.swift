@@ -16,8 +16,8 @@ struct SidebarTagPanel: View {
   }
 
   private var emptyMessage: String {
-    if !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return "没有匹配的标签" }
-    return showsAllTags || tags.isEmpty ? "暂无标签" : "当前范围暂无标签"
+    if !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return L10n.tr("没有匹配的标签") }
+    return showsAllTags || tags.isEmpty ? L10n.tr("暂无标签") : L10n.tr("当前范围暂无标签")
   }
 
   var body: some View {
@@ -36,20 +36,20 @@ struct SidebarTagPanel: View {
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .accessibilityLabel("标签筛选")
+      .accessibilityLabel(L10n.tr("标签筛选"))
 
       Divider().padding(.horizontal, 10)
       HStack(spacing: 8) {
         HStack(spacing: 6) {
           LibraryIcon(systemName: "magnifyingglass").foregroundStyle(.secondary)
-          TextField("筛选标签", text: $query)
+          TextField(L10n.tr("筛选标签"), text: $query)
             .textFieldStyle(.plain).autocorrectionDisabled()
-            .accessibilityLabel("筛选标签")
+            .accessibilityLabel(L10n.tr("筛选标签"))
           if !query.isEmpty {
             Button { query = "" } label: {
               Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain).help("清除标签搜索").accessibilityLabel("清除标签搜索")
+            .buttonStyle(.plain).help(L10n.tr("清除标签搜索")).accessibilityLabel(L10n.tr("清除标签搜索"))
           }
         }
         .font(display.font).padding(7)
@@ -63,23 +63,23 @@ struct SidebarTagPanel: View {
               .contentShape(Rectangle())
           }
           .buttonStyle(.plain).fixedSize()
-          .help("清除标签筛选（已选 \(selectedIDs.count) 个标签）")
-          .accessibilityLabel("清除标签筛选")
+          .help(L10n.tr("清除标签筛选（已选 \(selectedIDs.count) 个标签）"))
+          .accessibilityLabel(L10n.tr("清除标签筛选"))
         }
 
         Menu {
-          Toggle("显示全部标签", isOn: $showsAllTags)
+          Toggle(L10n.tr("显示全部标签"), isOn: $showsAllTags)
           Divider()
-          Button("清除标签筛选") { selectedIDs.removeAll() }.disabled(selectedIDs.isEmpty)
-          Button("清除标签搜索") { query = "" }.disabled(query.isEmpty)
+          Button(L10n.tr("清除标签筛选")) { selectedIDs.removeAll() }.disabled(selectedIDs.isEmpty)
+          Button(L10n.tr("清除标签搜索")) { query = "" }.disabled(query.isEmpty)
         } label: {
           LibraryIcon(systemName: "line.3.horizontal.decrease")
             .foregroundStyle(selectedIDs.isEmpty ? Color.secondary : Color.accentColor)
             .frame(width: display.iconSlotSize, height: display.toolbarControlSize)
         }
         .menuStyle(.button).buttonStyle(.plain).fixedSize()
-        .help(selectedIDs.isEmpty ? "标签筛选选项" : "已选择 \(selectedIDs.count) 个标签")
-        .accessibilityLabel("标签筛选选项")
+        .help(selectedIDs.isEmpty ? L10n.tr("标签筛选选项") : L10n.tr("已选择 \(selectedIDs.count) 个标签"))
+        .accessibilityLabel(L10n.tr("标签筛选选项"))
       }
       .padding(10)
     }
@@ -99,13 +99,13 @@ struct SidebarTagPanel: View {
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .help("\(tag.name) · 当前范围 \(bookCount) 本书")
-    .accessibilityLabel(tag.name).accessibilityValue("当前范围 \(bookCount) 本书")
+    .help(L10n.tr("\(tag.name) · 当前范围 \(bookCount) 本书"))
+    .accessibilityLabel(tag.name).accessibilityValue(L10n.tr("当前范围 \(bookCount) 本书"))
     .accessibilityAddTraits(selected ? [.isSelected] : [])
     .contextMenu {
-      Button("重命名标签…") { onRename(tag.id) }
+      Button(L10n.tr("重命名标签…")) { onRename(tag.id) }
       Divider()
-      Button("删除标签…", role: .destructive) { onDelete(tag.id) }
+      Button(L10n.tr("删除标签…"), role: .destructive) { onDelete(tag.id) }
     }
   }
 }
