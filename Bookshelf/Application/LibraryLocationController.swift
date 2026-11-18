@@ -11,6 +11,7 @@ struct LibraryDirectoryReference: Codable, Equatable {
 struct LibraryLocationConfiguration: Codable {
   var formatVersion = 1
   var initialized: Bool?
+  var migratedTranslatorDirectory: Bool?
   var active: LibraryDirectoryReference?
   var pending: LibraryDirectoryReference?
 }
@@ -87,6 +88,7 @@ final class LibraryLocationController: ObservableObject {
     guard directory.resolvingSymlinksInPath().standardizedFileURL != currentStoreURL.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL else {
       throw LibraryStorageError.sameDirectory
     }
+    try LibraryTranslatorDirectory.requireOutside(directory, source: translatorDirectory)
     try requireEmptyDirectory(directory)
     var next = configuration
     next.pending = try reference(directory)
@@ -129,6 +131,17 @@ final class LibraryLocationController: ObservableObject {
     } catch { integrityMessage = error.localizedDescription }
   }
 
+  var translatorDirectory: URL { LibraryTranslatorDirectory.beside(currentStoreURL) }
+
+  func migrateLegacyTranslatorsIfNeeded() throws {
+    guard configuration.migratedTranslatorDirectory != true else { return }
+    try LibraryTranslatorDirectory.adoptLegacy(from: recoveryRoot.appendingPathComponent("Translators", isDirectory: true),
+      into: translatorDirectory)
+    var next = configuration
+    next.migratedTranslatorDirectory = true
+    try save(next)
+  }
+
   private func relocate(to target: LibraryDirectoryReference, backups: AutomaticBackupController) throws -> ModelContainer {
     let directory = try access(target)
     try requireEmptyDirectory(directory)
@@ -136,15 +149,25 @@ final class LibraryLocationController: ObservableObject {
     _ = try backups.store.create(kind: .beforeMigration, data: nil, storeURL: currentStoreURL,
       recoveryRoot: recoveryRoot, appVersion: "\(AppReleaseInfo.version) (\(AppReleaseInfo.build))")
     backups.refresh()
+    // A location change may already be pending when upgrading from the old shared directory.
+    try migrateLegacyTranslatorsIfNeeded()
+    try LibraryTranslatorDirectory.requireOutside(directory, source: translatorDirectory)
     let staging = directory.appendingPathComponent(".bookshelf-migration-" + UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: staging) }
-    try AutomaticBackupStore.snapshotSQLite(from: currentStoreURL, to: staging)
-    try LibraryIntegrity.checkSQLite(at: staging)
+    try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: false)
+    let stagedStore = staging.appendingPathComponent("default.store")
+    try AutomaticBackupStore.snapshotSQLite(from: currentStoreURL, to: stagedStore)
+    try LibraryIntegrity.checkSQLite(at: stagedStore)
+    let stagedTranslators = LibraryTranslatorDirectory.beside(stagedStore)
+    let hasTranslators = try LibraryTranslatorDirectory.snapshot(from: translatorDirectory, to: stagedTranslators)
     let destination = directory.appendingPathComponent("default.store")
     // moveItem never overwrites a destination that appeared after selection.
-    try FileManager.default.moveItem(at: staging, to: destination)
+    try FileManager.default.moveItem(at: stagedStore, to: destination)
     let container = try LibraryDatabase.open(at: destination)
     _ = try LibraryIntegrity.checkRecords(in: container.mainContext)
+    if hasTranslators {
+      try FileManager.default.moveItem(at: stagedTranslators, to: LibraryTranslatorDirectory.beside(destination))
+    }
     var next = configuration; next.active = try reference(directory); next.pending = nil; next.initialized = true
     // Publish the location only after the copied library opens and validates.
     // Any failure preserves the source and the copied destination for recovery.

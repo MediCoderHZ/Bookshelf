@@ -192,7 +192,7 @@ final class MetadataNormalizerTests: XCTestCase {
     )
 
     let result = try XCTUnwrap(
-      OpenLibraryBookMetadataProvider.decodeSearchResponse(data).first
+      OpenLibraryBookMetadataProvider.decode(data, query: .title("测试"), script: .openLibrary).first
     )
     XCTAssertEqual(result.title, "测试书籍")
     XCTAssertEqual(result.authors, ["张三"])

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct BookMetadataSearchView: View {
   @Environment(\.dismiss) private var dismiss
-  @State private var translators = TranslatorStore.shared
+  @Environment(TranslatorStore.self) private var translators
   let onSelect: (BookMetadataSearchResult) -> Void
 
   @State private var query: String

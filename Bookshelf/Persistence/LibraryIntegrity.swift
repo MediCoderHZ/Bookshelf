@@ -4,6 +4,7 @@ import SwiftData
 
 enum LibraryStorageError: LocalizedError {
   case invalidConfiguration, unavailableDirectory, missingDatabase, occupiedDirectory, sameDirectory, invalidLibrary
+  case nestedTranslatorDirectory, translatorCopyMismatch
   case sqlite(String)
   var errorDescription: String? {
     switch self {
@@ -12,6 +13,8 @@ enum LibraryStorageError: LocalizedError {
     case .missingDatabase: L10n.tr("指定目录中未找到原数据库。应用不会创建空书库，请检查磁盘和文件位置。")
     case .occupiedDirectory: L10n.tr("请选择一个空文件夹。为避免覆盖已有数据，目标目录中的文件不会被替换。")
     case .sameDirectory: L10n.tr("所选目录就是当前数据目录。")
+    case .nestedTranslatorDirectory: L10n.tr("数据目录不能位于原解析器目录内。")
+    case .translatorCopyMismatch: L10n.tr("解析器文件复制校验失败，请重新尝试。")
     case .invalidLibrary: L10n.tr("书库记录或关联检查未通过，原数据已保留。")
     case .sqlite(let message): L10n.tr("数据库完整性检查未通过：\(message)")
     }

@@ -260,7 +260,7 @@ struct ContentView: View {
           selectedNoteIDs: $selectedNoteIDs, selectedTrashItemIDs: $selectedTrashItemIDs, expandedBookIDs: $expandedBookIDs, sortOrder: $sortOrder,
           collections: manualCollections, currentCollectionID: currentCollectionID,
           onNewNote: { createNote(parentID: $0) },
-          onEditNote: { openNote($0.id) },
+          onTemplateNote: { createNote($0) }, onEditNote: { openNote($0.id) },
           onTrashNote: { note in
             changeNoteTrash(note, true)
           },

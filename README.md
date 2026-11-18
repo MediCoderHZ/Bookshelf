@@ -2,7 +2,9 @@
 
 本地优先的 macOS 原生书籍元信息管理器，使用 SwiftUI、SwiftData 和 Swift 6，支持 macOS 14 及以上版本。
 
-支持书籍与笔记管理、多层文件夹、标签、搜索与智能文件夹、元信息检索、批量编辑、回收站、撤销重做，以及 JSON 备份、RIS 导入导出和 CSV 导出。完整功能说明见[使用手册](Docs/USER-GUIDE.md)。
+支持书籍与笔记管理、多层文件夹、标签、搜索与智能文件夹、元信息检索、批量编辑、回收站、撤销重做，以及 JSON 备份与恢复。完整功能说明见[使用手册](Docs/USER-GUIDE.md)。
+
+在「设置 → 文件与数据库 → 元信息解析器」管理书籍来源。豆瓣、Goodreads 和 Open Library 各有一个[默认脚本](Bookshelf/Resources/Translators)。点击「打开解析器目录」可查看与数据库 `default.store` 同级的 `translators/` 文件夹。在菜单栏「插件 → 管理插件…」管理笔记模板。右键一本书，选择「从模板新建笔记 → 阅读笔记」即可试用随附的[示例插件](Bookshelf/Resources/reading-notes.json)。
 
 ## 下载与更新
 
@@ -12,7 +14,7 @@
 
 书库默认每小时自动备份，保留最近 30 份定时与手动版本，升级前额外备份并单独保留 10 份。设置中可以调整频率与保留数量、查看历史并预览恢复；详见[自动备份与历史恢复](Docs/USER-GUIDE.md#自动备份与历史恢复)。
 
-界面支持简体中文和 English，可在「设置 → 通用 → 界面语言」中选择。完成编辑后点击「重启应用」，自动备份并重新打开同一个应用，窗口、菜单、文件对话框与界面文字统一切换；重启前可取消语言更改。书籍、笔记和自定义名称保持原文。
+界面支持简体中文和 English，可在「设置 → 通用 → 界面语言」中选择。完成编辑后点击「重启应用」，书架会自动备份并重新打开，窗口、菜单和文件对话框统一切换到所选语言。书籍、笔记和自定义名称保持原文。
 
 「设置 → 文件与数据库」支持自定义数据目录、在 Finder 中显示数据库，以及只读完整性检查。迁移前备份、校验后启用新位置，保留原数据库；详见[数据目录与完整性检查](Docs/USER-GUIDE.md#数据目录与完整性检查)。
 
@@ -25,7 +27,7 @@ Bookshelf/
 ├── Models/              SwiftData 数据模型
 ├── Application/         命令、查询、事务通知与撤销
 ├── Persistence/         数据库、仓储、备份与草稿恢复
-├── Translation/         元信息检索、网页解析与书目交换
+├── Translation/         元信息检索与网页解析
 ├── Views/               按功能划分的原生界面
 ├── Resources/           图标与隐私清单
 └── Support/             Info.plist 与沙盒权限
@@ -36,7 +38,7 @@ Docs/                   使用手册、架构与专题文档
 Distribution/           GitHub Pages 更新清单
 .github/                CI、手动更新清单发布、Issue 与 PR 模板
 AppStore/               历史商店材料（不参与当前 GitHub 发布）
-Examples/               书目交换和解析器示例
+Examples/               网页解析器示例
 scripts/                架构检查、构建与发布前检查
 Archive/                带编号副本的原样归档及校验清单
 work/                   本地构建、缓存与备份（Git 忽略）
@@ -79,7 +81,6 @@ Sparkle 接入后的最新验证：XCTest 481 项通过、10 项跳过、0 失�
 | [使用手册](Docs/USER-GUIDE.md) | 原 README 中的完整功能与交互说明 |
 | [架构说明](Docs/ARCHITECTURE.md) | 分层、数据流、扩展边界与开发约束 |
 | [文件夹与笔记](Docs/ORGANIZATION.md) | 书库内容组织、笔记与备份规则 |
-| [书目交换](Docs/INTERCHANGE.md) | RIS、CSV 和 JSON 的适用范围 |
 | [解析器扩展](Docs/TRANSLATORS.md) | 元信息检索、网页解析与自定义规则 |
 | [隐私政策草案](Docs/PRIVACY.md) | 本地数据、网络请求与文件访问 |
 | [更新接入验收](Docs/UPDATE-VALIDATION.md) | Sparkle、开源准备与签名测试结果及待验证范围 |

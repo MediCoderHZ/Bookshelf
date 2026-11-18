@@ -113,6 +113,67 @@ final class TranslatorSystemTests: XCTestCase {
   }
 
   @MainActor
+  func testDirectoryScriptsAreSeededReloadedAndIsolated() throws {
+    let name = UUID().uuidString, folder = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+    let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
+    defer { try? FileManager.default.removeItem(at: folder); defaults.removePersistentDomain(forName: name) }
+    let store = TranslatorStore(directory: folder, defaults: defaults)
+    for seed in TranslatorScript.bundled {
+      let active = try XCTUnwrap(store.scriptFile(for: seed.id))
+      XCTAssertEqual(active.standardizedFileURL, folder.appendingPathComponent(seed.id + ".js").standardizedFileURL)
+      XCTAssertEqual(try Data(contentsOf: active), try Data(contentsOf: XCTUnwrap(seed.file)))
+    }
+    let file = try XCTUnwrap(store.scriptFile(for: "douban-books"))
+    let initial = try String(contentsOf: file, encoding: .utf8)
+    let edit = initial + "\nfunction doWeb() { return record({id: 'local', title: 'Local script'}); }"
+    try edit.write(to: file, atomically: true, encoding: .utf8)
+    let revision = store.revision
+    store.reload()
+    XCTAssertGreaterThan(store.revision, revision)
+    let active = TranslatorStore(directory: folder, defaults: defaults)
+    let html = Data("<h1>Title</h1><div id='info'>ISBN: 9780743273565</div>".utf8)
+    let result = try active.registry.translate(html: html, sourceURL: "https://book.douban.com/subject/123/")
+    guard case .book(let book) = result.page else { return XCTFail("Expected local book") }
+    XCTAssertEqual(book.title, "Local script")
+    let broken = edit + "\nfunction ("
+    try broken.write(to: file, atomically: true, encoding: .utf8)
+    active.reload()
+    XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), broken)
+    XCTAssertFalse(active.descriptors.contains { $0.id == "douban-books" })
+    XCTAssertTrue(active.diagnostics.contains { $0.contains(file.lastPathComponent) })
+    XCTAssertEqual(Set(active.catalog.searchSources.map(\.id)), ["goodreads-books", "open-library"])
+    try FileManager.default.removeItem(at: file)
+    active.reload()
+    XCTAssertTrue(active.diagnostics.isEmpty)
+    XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), initial)
+  }
+
+  func testFactoryUpgradeUpdatesUntouchedFilesAndPreservesEdits() throws {
+    let name = UUID().uuidString, root = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+    let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
+    defer { try? FileManager.default.removeItem(at: root); defaults.removePersistentDomain(forName: name) }
+    let folder = root.appendingPathComponent("Translators")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    let id = "douban-books", factory = root.appendingPathComponent("factory.js"), local = folder.appendingPathComponent(id + ".js")
+    let v1 = try String(contentsOf: XCTUnwrap(TranslatorScript.douban.file), encoding: .utf8)
+    let v2 = v1 + "\n// Factory update"
+    func install(_ source: String) throws {
+      try source.write(to: factory, atomically: true, encoding: .utf8)
+      _ = try TranslatorScript(id: id, file: factory).installed(in: folder, defaults: defaults)
+    }
+    try install(v1)
+    try install(v2)
+    XCTAssertEqual(try String(contentsOf: local, encoding: .utf8), v2)
+    let edit = v2 + "\n// Local edit"
+    try edit.write(to: local, atomically: true, encoding: .utf8)
+    try install(v2 + "\n// Newer update")
+    XCTAssertEqual(try String(contentsOf: local, encoding: .utf8), edit)
+    defaults.removePersistentDomain(forName: name)
+    try install(v1)
+    XCTAssertEqual(try String(contentsOf: local, encoding: .utf8), edit)
+  }
+
+  @MainActor
   func testInstallationReplacementPersistenceRemovalAndCorruptFileIsolation() async throws {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     let suite = "translator-tests-\(UUID().uuidString)"
@@ -141,6 +202,42 @@ final class TranslatorSystemTests: XCTestCase {
     XCTAssertTrue(reloaded.rules.isEmpty)
     XCTAssertEqual(Set(reloaded.descriptors.map(\.id)), Set(BuiltinTranslators.catalog.map(\.descriptor.id)))
     XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent("broken.json").path))
+  }
+
+  @MainActor
+  func testFolderReloadUsesDeclaredIDAndIsolatesDuplicateFiles() throws {
+    let name = UUID().uuidString, directory = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+    let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
+    defer { try? FileManager.default.removeItem(at: directory); defaults.removePersistentDomain(forName: name) }
+    let store = TranslatorStore(directory: directory, defaults: defaults)
+    try store.ensureDirectory()
+    let rule = TranslatorRule.example, chosen = directory.appendingPathComponent("Publisher.JSON")
+    try rule.encoded().write(to: chosen)
+    store.reload()
+    XCTAssertEqual(store.rules, [rule])
+    let revision = store.revision
+    store.reload()
+    XCTAssertEqual(store.revision, revision)
+    store.setEnabled(false, for: rule.id)
+    var object = try XCTUnwrap(JSONSerialization.jsonObject(with: rule.encoded()) as? [String: Any])
+    object["version"] = "2.0.0"
+    let updated = try TranslatorRule.decode(JSONSerialization.data(withJSONObject: object))
+    try store.install(updated)
+    XCTAssertEqual(try TranslatorRule.decode(Data(contentsOf: chosen)), updated)
+    XCTAssertFalse(store.isEnabled(rule.id))
+    let duplicate = directory.appendingPathComponent(rule.id + ".json")
+    try rule.encoded().write(to: duplicate)
+    store.reload()
+    XCTAssertTrue(store.rules.isEmpty)
+    XCTAssertFalse(store.diagnostics.isEmpty)
+    XCTAssertThrowsError(try store.install(rule))
+    XCTAssertThrowsError(try store.remove(rule.id))
+    try FileManager.default.removeItem(at: duplicate)
+    store.reload()
+    XCTAssertEqual(store.rules, [updated])
+    XCTAssertFalse(store.isEnabled(rule.id))
+    try store.remove(rule.id)
+    XCTAssertFalse(FileManager.default.fileExists(atPath: chosen.path))
   }
 
   private func fixture(_ name: String) throws -> Data {

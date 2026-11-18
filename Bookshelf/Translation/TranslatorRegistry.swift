@@ -2,33 +2,18 @@ import Foundation
 
 protocol BookTranslator: Sendable { var descriptor: TranslatorDescriptor { get } }
 
-/// The same four capability bits used by Zotero; a translator may implement several.
 struct TranslatorCapabilities: OptionSet, Sendable {
   let rawValue: Int
-  static let fileImport = Self(rawValue: 1)
-  static let fileExport = Self(rawValue: 2)
   static let web = Self(rawValue: 4)
   static let search = Self(rawValue: 8)
   var title: String {
-    [(Self.web, L10n.tr("网页")), (.search, L10n.tr("搜索")), (.fileImport, L10n.tr("导入")), (.fileExport, L10n.tr("导出"))]
+    [(Self.web, L10n.tr("网页")), (.search, L10n.tr("搜索"))]
       .filter { contains($0.0) }.map(\.1).joined(separator: " · ")
   }
 }
 
-protocol FileImportTranslator: BookTranslator {
-  var fileExtensions: [String] { get }
-  @MainActor func detectImport(_ data: Data) -> Bool
-  @MainActor func doImport(_ data: Data) throws -> BibliographicImportResult
-}
-
-protocol FileExportTranslator: BookTranslator {
-  var fileExtension: String { get }
-  var exportSummary: String { get }
-  @MainActor func doExport(_ records: [BookArchive], includeNotes: Bool) throws -> Data
-}
-
 protocol SearchMetadataTranslator: BookTranslator {
-  func searchURL(for query: BookMetadataQuery) -> URL
+  func searchURL(for query: BookMetadataQuery) throws -> URL
   func doSearch(_ query: BookMetadataQuery, host: TranslationHost) async throws -> [MetadataSearchHit]
   func resolve(_ hit: MetadataSearchHit, host: TranslationHost) async throws -> BookMetadataSearchResult
 }
@@ -60,8 +45,6 @@ struct TranslatorRegistry: Sendable {
     var types: TranslatorCapabilities = []
     if translator is any WebMetadataTranslator { types.insert(.web) }
     if translator is any SearchMetadataTranslator { types.insert(.search) }
-    if translator is any FileImportTranslator { types.insert(.fileImport) }
-    if translator is any FileExportTranslator { types.insert(.fileExport) }
     return types
   }
   func translator(_ id: String) throws -> any BookTranslator {
@@ -83,7 +66,12 @@ struct TranslatorRegistry: Sendable {
 
 extension BuiltinTranslators {
   static var catalog: [any BookTranslator] {
-    all.map { $0 as any BookTranslator } + [OpenLibraryTranslator(), RISTranslator(), CSVTranslator()]
+    TranslatorScript.bundled.map(translator(for:))
+  }
+
+  static func translator(for script: TranslatorScript) -> any BookTranslator {
+    if script.id == TranslatorScript.openLibrary.id { return OpenLibraryTranslator(script: script) }
+    return ScriptWebTranslator(script: script)
   }
 }
 
@@ -118,25 +106,5 @@ struct TranslationEngine: Sendable {
       throw WebMetadataError.invalidConfiguration(L10n.tr("该解析器不支持搜索"))
     }
     return translator
-  }
-  @MainActor
-  func importFile(_ data: Data, fileExtension: String = "ris") throws -> BibliographicImportResult {
-    try registry.validate()
-    let candidates = registry.ordered.compactMap { $0 as? any FileImportTranslator }
-      .filter { $0.fileExtensions.contains(fileExtension.lowercased()) }
-    for translator in candidates where !registry.disabledIDs.contains(translator.descriptor.id) {
-      if translator.detectImport(data) { return try translator.doImport(data) }
-    }
-    if !candidates.isEmpty && candidates.allSatisfy({ registry.disabledIDs.contains($0.descriptor.id) }) {
-      throw WebMetadataError.disabled
-    }
-    throw BibliographicExchangeError.invalid(L10n.tr("没有可读取此文件的导入解析器，请核对格式和文件编码。"))
-  }
-  @MainActor
-  func exportFile(_ records: [BookArchive], translatorID: String, includeNotes: Bool = false) throws -> Data {
-    guard let translator = try registry.translator(translatorID) as? any FileExportTranslator else {
-      throw WebMetadataError.invalidConfiguration(L10n.tr("该解析器不支持导出"))
-    }
-    return try translator.doExport(records.filter { $0.deletedAt == nil }, includeNotes: includeNotes)
   }
 }

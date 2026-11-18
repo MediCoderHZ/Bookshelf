@@ -1,83 +1,79 @@
+import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct TranslatorSettingsView: View {
-  @Environment(\.dismiss) private var dismiss
-  @State private var store = TranslatorStore.shared
+  static let windowID = "metadata-translators"
+  @Environment(TranslatorStore.self) private var store
   @State private var isImporting = false
   @State private var isExporting = false
   @State private var exportDocument = TranslatorRuleDocument()
-  @State private var exportName = "translator-template"
+  @State private var exportName = ""
   @State private var pendingRule: TranslatorRule?
   @State private var removingRule: TranslatorRule?
-  @State private var testDestination: TranslatorTestDestination?
   @State private var errorMessage: String?
 
   var body: some View {
-    NavigationStack {
-      Form {
-        Section {
-          HStack {
-            Button(L10n.tr("导入解析规则…")) { isImporting = true }
-            Button(L10n.tr("导出规则模板…")) { export(TranslatorRule.example, name: "translator-template") }
-          }
-        }
-        Section(L10n.tr("已安装的解析器")) {
-          ForEach(store.descriptors) { descriptor in
-            HStack(alignment: .firstTextBaseline) {
-              DisclosureGroup(descriptor.name) {
-                VStack(alignment: .leading, spacing: 4) {
-                  Text(L10n.tr("\(descriptor.version) · \(descriptor.author) · 优先级 \(descriptor.priority)"))
-                  Text(store.catalog.capabilities(for: descriptor.id).title)
-                  Text(descriptor.targetDescription)
-                  Text(store.isBuiltin(descriptor.id) ? L10n.tr("内置") : L10n.tr("自定义 JSON"))
-                  Text(descriptor.id)
+    Form {
+      Section {
+        ForEach(store.descriptors) { descriptor in
+          Toggle(descriptor.name, isOn: Binding(
+            get: { store.isEnabled(descriptor.id) },
+            set: { store.setEnabled($0, for: descriptor.id) }))
+            .toggleStyle(.switch)
+            .accessibilityIdentifier("translator.enabled.\(descriptor.id)")
+            .contextMenu {
+              if let file = store.scriptFile(for: descriptor.id) {
+                Button(L10n.tr("在 Finder 中显示解析器文件")) {
+                  NSWorkspace.shared.activateFileViewerSelecting([file])
                 }
-                .font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
-              }
-              Spacer()
-              if store.catalog.capabilities(for: descriptor.id).contains(.web) {
-                Button(L10n.tr("测试…")) { testDestination = TranslatorTestDestination(id: descriptor.id) }
-                  .disabled(!store.isEnabled(descriptor.id))
-                  .accessibilityLabel(L10n.tr("测试\(descriptor.name)"))
-                  .accessibilityIdentifier("translator.test.\(descriptor.id)")
               }
               if let rule = store.rules.first(where: { $0.id == descriptor.id }) {
-                Button(L10n.tr("导出…")) { export(rule, name: rule.id) }
+                Button(L10n.tr("导出…")) { export(rule) }
                 Button(L10n.tr("移除…"), role: .destructive) { removingRule = rule }
               }
-              Toggle(descriptor.name, isOn: Binding(
-                get: { store.isEnabled(descriptor.id) },
-                set: { store.setEnabled($0, for: descriptor.id) }))
-                .labelsHidden()
             }
-          }
-        }
-        if !store.diagnostics.isEmpty {
-          Section(L10n.tr("未加载的规则")) {
-            ForEach(store.diagnostics, id: \.self) { Text($0).font(.caption).foregroundStyle(.red) }
-            Button(L10n.tr("重新加载")) { store.reload() }
-          }
         }
       }
-      .formStyle(.grouped)
-      .navigationTitle(L10n.tr("元信息解析器"))
-      .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("完成")) { dismiss() } } }
+      if !store.diagnostics.isEmpty {
+        Section(L10n.tr("未加载的规则")) {
+          ForEach(store.diagnostics, id: \.self) { Text($0).font(.caption).foregroundStyle(.red) }
+        }
+      }
     }
-    .frame(width: 680, height: 640)
+    .formStyle(.grouped)
+    .frame(minWidth: 430, minHeight: 175)
+    .onAppear { store.reload() }
+    .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in store.reload() }
+    .toolbar {
+      Button {
+        do {
+          try store.ensureDirectory()
+          guard NSWorkspace.shared.open(store.directory) else { throw CocoaError(.fileReadUnknown) }
+        } catch { errorMessage = error.localizedDescription }
+      } label: { Label(L10n.tr("打开解析器目录"), systemImage: "folder") }
+        .labelStyle(.titleAndIcon)
+      Menu {
+        Button(L10n.tr("重新加载")) { store.reload() }
+        Button(L10n.tr("导入解析规则…")) { isImporting = true }
+      } label: {
+        Label(L10n.tr("更多操作"), systemImage: "ellipsis.circle")
+      }
+      .labelStyle(.iconOnly)
+      .help(L10n.tr("更多操作"))
+    }
     .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
       do {
         let url = try result.get()
         let accessed = url.startAccessingSecurityScopedResource()
         defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-        guard (try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0) <= 256 * 1_024 else {
-          throw WebMetadataError.invalidConfiguration(L10n.tr("规则文件不能超过 256 KB"))
+        guard case .translator(let rule) = try ExtensionFile.read(from: url) else {
+          throw WebMetadataError.invalidConfiguration(L10n.tr("笔记模板由插件窗口管理。"))
         }
-        let rule = try TranslatorRule.decode(Data(contentsOf: url))
         guard !store.isBuiltin(rule.id) else { throw WebMetadataError.invalidConfiguration(L10n.tr("此 ID 属于内置解析器，请修改 ID")) }
         pendingRule = rule
-      } catch { errorMessage = error.localizedDescription }
+      } catch CocoaError.userCancelled { return }
+      catch { errorMessage = error.localizedDescription }
     }
     .fileExporter(isPresented: $isExporting, document: exportDocument, contentType: .json, defaultFilename: exportName) {
       if case .failure(let error) = $0 { errorMessage = error.localizedDescription }
@@ -90,8 +86,6 @@ struct TranslatorSettingsView: View {
         if let previous = store.rules.first(where: { $0.id == rule.id }) {
           Text(L10n.tr("将替换同 ID 的版本 \(previous.version)，保留其启用状态。"))
         }
-        Text(L10n.tr("导入不会访问网站。完成后可点击“测试”，使用已保存的 HTML 验证规则。"))
-          .font(.caption).foregroundStyle(.secondary)
         HStack {
           Spacer()
           Button(L10n.tr("取消")) { pendingRule = nil }
@@ -102,32 +96,29 @@ struct TranslatorSettingsView: View {
         }
       }.padding(24).frame(width: 540)
     }
-    .sheet(item: $testDestination) { destination in
-      WebMetadataImportView(testTranslatorID: destination.id) { _ in }
-    }
     .confirmationDialog(L10n.tr("移除此解析器？"), isPresented: Binding(
-      get: { removingRule != nil }, set: { if !$0 { removingRule = nil } }), titleVisibility: .visible) {
+      get: { removingRule != nil }, set: { if !$0 { removingRule = nil } }), titleVisibility: .visible, presenting: removingRule) { rule in
         Button(L10n.tr("移除规则"), role: .destructive) {
-          guard let rule = removingRule else { return }
           do { try store.remove(rule.id) } catch { errorMessage = error.localizedDescription }
-          removingRule = nil
         }
-      } message: { Text(L10n.tr("已保存的书籍不受影响。如需保留配置，请先导出规则。")) }
+      } message: { _ in Text(L10n.tr("已保存的书籍不受影响。如需保留配置，请先导出规则。")) }
     .alert(L10n.tr("元信息解析器"), isPresented: Binding(
       get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
         Button(L10n.tr("好"), role: .cancel) {}
       } message: { Text(errorMessage ?? "") }
   }
 
-  private func export(_ rule: TranslatorRule, name: String) {
-    do { exportDocument = TranslatorRuleDocument(data: try rule.encoded()); exportName = name; isExporting = true }
+  private func export(_ rule: TranslatorRule) {
+    do {
+      exportDocument = TranslatorRuleDocument(data: try rule.encoded())
+      exportName = rule.id
+      isExporting = true
+    }
     catch { errorMessage = error.localizedDescription }
   }
 }
 
-private struct TranslatorTestDestination: Identifiable { let id: String }
-
-struct TranslatorRuleDocument: FileDocument {
+private struct TranslatorRuleDocument: FileDocument {
   static var readableContentTypes: [UTType] { [.json] }
   var data: Data = Data()
   init(data: Data = Data()) { self.data = data }

@@ -91,6 +91,12 @@ try:
         check((framework / "XPCServices/Installer.xpc").is_dir(), "缺少 Sparkle 沙盒安装服务")
         check((app / "Contents/Resources/ThirdPartyNotices.txt").is_file(), "缺少第三方许可声明")
         check((app / "Contents/Resources/relaunch.sh").is_file(), "缺少自动重启组件")
+        check((app / "Contents/Resources/reading-notes.json").is_file(), "缺少阅读笔记示例插件")
+        for name in ("douban-books", "goodreads-books", "open-library"):
+            script = Path("Translators") / (name + ".js")
+            source = ROOT / "Bookshelf/Resources" / script
+            bundled = app / "Contents/Resources" / script
+            check(bundled.is_file() and bundled.read_bytes() == source.read_bytes(), "产物缺少或使用了旧版解析器：" + name)
         for language in ("zh-Hans", "en"):
             check((app / "Contents/Resources" / (language + ".lproj") / "Localizable.strings").is_file(),
                   "产物缺少界面语言资源：" + language)

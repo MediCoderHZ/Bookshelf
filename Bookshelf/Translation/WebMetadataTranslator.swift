@@ -10,14 +10,14 @@ struct TranslatorDescriptor: Identifiable, Sendable {
 
 }
 
-struct WebBookCandidate: Identifiable, Sendable {
+struct WebBookCandidate: Identifiable, Sendable, Decodable {
   let title: String
   let url: URL
   var summary: String? = nil
   var id: String { url.absoluteString }
 }
 
-enum WebPageKind: String, Sendable { case book, multiple }
+enum WebPageKind: String, Sendable, Decodable { case book, multiple }
 enum TranslatedWebPage: Sendable {
   case book(BookMetadataSearchResult)
   case choices([WebBookCandidate])
@@ -39,7 +39,6 @@ protocol WebMetadataTranslator: BookTranslator {
 /// Optional capability for compiled translators. Search only discovers candidates;
 /// the same translator reads a selected edition's detail page afterwards.
 protocol BookSearchTranslator: WebMetadataTranslator, SearchMetadataTranslator {
-  func searchURL(for query: BookMetadataQuery) -> URL
   func searchResults(in document: HTMLMetadataDocument, url: URL) throws -> [WebBookCandidate]
 }
 extension WebMetadataTranslator {
@@ -51,9 +50,9 @@ extension WebMetadataTranslator {
   }
 }
 
-/// The single registration point for compiled adapters.
+/// Factory catalog for isolated callers. The application uses the installed catalog from TranslatorStore.
 enum BuiltinTranslators {
-  static var all: [any WebMetadataTranslator] { [DoubanBookTranslator(), GoodreadsBookTranslator()] }
+  static var all: [any WebMetadataTranslator] { catalog.compactMap { $0 as? any WebMetadataTranslator } }
 }
 
 struct WebTranslatorRegistry: Sendable {
@@ -152,13 +151,15 @@ enum WebURLPolicy {
 
 enum WebMetadataError: LocalizedError {
   case unsupportedURL, disabled, accessRestricted, noBook, noBooks, tooLarge, unexpectedContent
+  case editionMismatch
   case httpStatus(Int)
   case invalidConfiguration(String)
   var errorDescription: String? {
     switch self {
-    case .unsupportedURL: L10n.tr("没有可用的解析器匹配此链接。请检查网址，或在设置中导入对应网站的解析规则。")
-    case .disabled: L10n.tr("此元信息解析器已停用，请在设置的“元信息解析器”中启用。")
-    case .accessRestricted: L10n.tr("网站返回了访问限制或验证页面。可在浏览器保存为 HTML 后导入，也可以手动录入。")
+    case .editionMismatch: L10n.tr("Goodreads 页面数据与链接中的图书 ID 不一致。请核对版本，并使用该页面原始链接重新提取。")
+    case .unsupportedURL: L10n.tr("没有可用的解析器匹配此链接。请检查网址，或在元信息解析器窗口中安装对应网站的解析规则。")
+    case .disabled: L10n.tr("此元信息解析器已停用，请在设置 → 文件与数据库 → 元信息解析器中启用。")
+    case .accessRestricted: L10n.tr("网站返回了访问限制或验证页面。请尝试其他来源，或手动填写书籍信息。")
     case .noBook: L10n.tr("匹配的解析器没有识别到书籍。请核对页面、来源链接和解析规则；页面也可能需要验证。")
     case .noBooks: L10n.tr("没有识别到可用的图书链接，请使用图书详情页或检查列表解析规则。")
     case .tooLarge: L10n.tr("页面超出大小限制，已停止读取。")

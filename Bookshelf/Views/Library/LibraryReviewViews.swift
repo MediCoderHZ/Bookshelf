@@ -339,16 +339,6 @@ struct ImportPreviewView: View {
       VStack(alignment: .leading, spacing: 12) {
         Text(L10n.tr("共 \(plan.items.count) 条。冲突默认跳过；“合并补全”保留已有值，“采用导入”替换提供的出版字段。两种更新均保留并汇总笔记、标签和文件夹。"))
           .font(.callout).foregroundStyle(.secondary)
-        if let summary = plan.importSummary { Text(summary).font(.callout) }
-        if !plan.importNotices.isEmpty {
-          DisclosureGroup(L10n.tr("导入提示（\(plan.importNotices.count) 项）：部分条目或字段不会导入")) {
-            ScrollView {
-              VStack(alignment: .leading, spacing: 6) {
-                ForEach(Array(plan.importNotices.enumerated()), id: \.offset) { Text($0.element) }
-              }.font(.caption).frame(maxWidth: .infinity, alignment: .leading)
-            }.frame(maxHeight: 110)
-          }
-        }
         if !plan.smartCollections.isEmpty {
           Toggle(L10n.tr("同时导入 \(plan.smartCollections.count) 个智能文件夹（同 ID 或同名保留本地）"), isOn: $includeSmartCollections)
             .toggleStyle(.checkbox)
@@ -407,10 +397,10 @@ struct ImportPreviewView: View {
           }
         }
         if let errorMessage { Text(errorMessage).foregroundStyle(.red) }
-        Text(plan.isRIS ? L10n.tr("应用前不会改动书库，完成后可撤销。RIS 附件不会读取或下载；来源标记为文件导入。") : L10n.tr("应用前不会改动书库。完成后可撤销本次导入。备份中的回收站状态会保留。"))
+        Text(L10n.tr("应用前不会改动书库。完成后可撤销本次导入。备份中的回收站状态会保留。"))
           .font(.caption).foregroundStyle(.secondary)
       }.padding(20)
-      .navigationTitle(plan.isRIS ? L10n.tr("RIS 导入冲突预览") : L10n.tr("导入冲突预览"))
+      .navigationTitle(L10n.tr("导入冲突预览"))
       .toolbar {
         ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { dismiss() } }
         ToolbarItem(placement: .confirmationAction) {
@@ -456,7 +446,7 @@ struct ImportPreviewView: View {
       }
       ScrollView {
         Grid(alignment: .topLeading, horizontalSpacing: 14, verticalSpacing: 12) {
-          GridRow { Text(L10n.tr("字段")); Text(L10n.tr("本地")).bold(); Text(plan.isRIS ? L10n.tr("RIS 文件") : L10n.tr("备份")).bold() }
+          GridRow { Text(L10n.tr("字段")); Text(L10n.tr("本地")).bold(); Text(L10n.tr("备份")).bold() }
           ForEach(BookField.allCases) { field in
             GridRow {
               Text(field.label).foregroundStyle(.secondary)

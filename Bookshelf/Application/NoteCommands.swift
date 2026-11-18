@@ -95,6 +95,18 @@ enum NoteCreationTarget: Equatable {
   }
 }
 
+extension NoteTemplatePlugin {
+  @MainActor
+  func draft(for book: Book, language: InterfaceLanguage) -> NoteRecord {
+    let content = localized(for: language)
+    let fields = ["title": book.title, "authors": book.authors.map(\.name).joined(separator: language == .chinese ? "、" : ", "),
+      "publisher": book.publisher ?? "", "isbn": book.isbn13 ?? book.isbn10 ?? ""]
+    var note = NoteRecord(title: render(content.title, fields: fields), parentBookID: book.id)
+    note.body = render(content.body, fields: fields)
+    return note
+  }
+}
+
 @MainActor
 struct NoteCommands {
   let context: ModelContext

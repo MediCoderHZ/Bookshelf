@@ -2,7 +2,7 @@ import Foundation
 
 /// Versioned, declarative rule package. XPath is evaluated against an inert local DOM.
 /// No JavaScript, shell commands, arbitrary HTTP requests, or file access are available to rules.
-struct TranslatorRule: Codable, Sendable, Identifiable {
+struct TranslatorRule: Codable, Equatable, Sendable, Identifiable {
   let schemaVersion: Int
   let id: String
   let name: String
@@ -93,7 +93,7 @@ struct TranslatorRule: Codable, Sendable, Identifiable {
   }
 }
 
-struct TranslatorURLTarget: Codable, Sendable {
+struct TranslatorURLTarget: Codable, Equatable, Sendable {
   let host: String
   let pathPrefix: String
   var exactPath: Bool? = nil
@@ -103,17 +103,17 @@ struct TranslatorURLTarget: Codable, Sendable {
   }
 }
 
-struct BookExtractionRule: Codable, Sendable {
+struct BookExtractionRule: Codable, Equatable, Sendable {
   let detect: String
   let fields: [String: FieldExtractionRule]
 }
 
-struct FieldExtractionRule: Codable, Sendable {
+struct FieldExtractionRule: Codable, Equatable, Sendable {
   let xpath: String
   var splitBy: [String]? = nil
 }
 
-struct ListExtractionRule: Codable, Sendable {
+struct ListExtractionRule: Codable, Equatable, Sendable {
   let detect: String
   let items: String
   let title: String

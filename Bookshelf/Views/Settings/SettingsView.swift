@@ -4,16 +4,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+  @Environment(\.openWindow) private var openWindow
   @EnvironmentObject private var backups: AutomaticBackupController
   @EnvironmentObject private var relauncher: AppRelaunchController
   @Bindable private var languagePreferences = InterfaceLanguagePreferences.shared
   @Environment(\.modelContext) private var modelContext
-  @Query(sort: \Book.addedAt, order: .reverse) private var books: [Book]
   @State private var selectedPane = SettingsPane.general
   @State private var searchText = ""
   @FocusState private var searchFocused: Bool
-  @State private var exchangePresentation = BibliographicExchangePresentation()
-  @State private var isShowingTranslators = false
 
   @State private var exportDocument = LibraryBackupDocument()
   @State private var isExporting = false
@@ -78,7 +76,6 @@ struct SettingsView: View {
     .font(.system(size: 13))
     .background(Color(nsColor: .windowBackgroundColor))
     .background(SettingsWindowTitle())
-    .modifier(BibliographicExchangePresenter(presentation: exchangePresentation))
     .fileExporter(
       isPresented: $isExporting,
       document: exportDocument,
@@ -110,7 +107,6 @@ struct SettingsView: View {
         Button(L10n.tr("完成")) { isShowingLicenses = false }.frame(maxWidth: .infinity, alignment: .trailing)
       }.padding(24).frame(width: 640, height: 520)
     }
-    .sheet(isPresented: $isShowingTranslators) { TranslatorSettingsView() }
     .sheet(isPresented: $isShowingBackupHistory, onDismiss: {
       guard let data = pendingBackupRestore else { return }
       pendingBackupRestore = nil
@@ -216,33 +212,25 @@ struct SettingsView: View {
         ForEach(InterfaceLanguage.allCases) { Text($0.title).tag($0) }
       }.labelsHidden().frame(width: 210, alignment: .leading).disabled(relauncher.isRestarting)
       if languagePreferences.requiresRelaunch {
-        VStack(alignment: .leading, spacing: 12) {
-          Text(L10n.tr("重启应用以使用所选语言。"))
-          HStack(spacing: 12) {
-            Button(relauncher.isRestarting ? L10n.tr("正在重启…") : L10n.tr("重启应用")) {
-              Task { await relauncher.restart() }
-            }
-            .disabled(relauncher.isRestarting)
-            Button(L10n.tr("取消语言更改")) { languagePreferences.requestedLanguage = languagePreferences.language }
-              .disabled(relauncher.isRestarting)
-          }
-          if let message = relauncher.errorMessage { Text(message).foregroundStyle(.red).textSelection(.enabled) }
-        }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
-          .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
+        Button(relauncher.isRestarting ? L10n.tr("正在重启…") : L10n.tr("重启应用")) {
+          Task { await relauncher.restart() }
+        }
+        .disabled(relauncher.isRestarting)
+        if let message = relauncher.errorMessage {
+          Text(message).foregroundStyle(.red).textSelection(.enabled)
+        }
       }
-    case .exchange:
-      BibliographicExchangeMenu(books: books, scopeName: L10n.tr("全部书籍"), presentation: exchangePresentation)
-    case .translators:
-      Button(L10n.tr("管理元信息解析器…")) { isShowingTranslators = true }
     case .automaticBackup:
       AutomaticBackupSettings(backups: backups, onHistory: { isShowingBackupHistory = true })
     case .restore:
       HStack(spacing: 12) {
-        Button(L10n.tr("导出 JSON 备份…"), action: prepareExport)
+        Button(L10n.tr("保存 JSON 备份…"), action: prepareExport)
         Button(L10n.tr("从备份恢复…")) { isImporting = true }
       }
     case .storage:
       LibraryStorageSettings()
+    case .translators:
+      Button(L10n.tr("管理元信息解析器…")) { openWindow(id: TranslatorSettingsView.windowID) }
     case .about:
       HStack(spacing: 16) {
         Image(nsImage: NSApplication.shared.applicationIconImage).resizable().frame(width: 64, height: 64)

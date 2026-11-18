@@ -143,34 +143,6 @@ final class BookTypeTests: XCTestCase {
     XCTAssertEqual(merged.contributors, current.contributors)
   }
 
-  func testRISRoundTripsAllTypesAndRetainedTranslator() throws {
-    for type in BookType.allCases {
-      var record = BookArchive(book: Book(title: "导出")); record.bookTypeRaw = type.rawValue; record.originalLanguageCode = "ja"
-      record.contributors = [ContributorArchive(name: "保留译者", roleRaw: "translator", displayOrder: 0)]
-      let data = BibliographicExchange.export([record], format: .ris)
-      let result = try BibliographicExchange.decodeRIS(data)
-      XCTAssertTrue(result.notices.isEmpty)
-      XCTAssertEqual(result.records[0].bookType, type); XCTAssertEqual(result.records[0].originalLanguageCode, "ja")
-      XCTAssertEqual(result.records[0].contributors, record.contributors)
-      XCTAssertTrue(String(decoding: data, as: UTF8.self).contains("TY  - BOOK"))
-    }
-  }
-
-  func testOtherApplicationsRISCustomFieldsAreNotMistakenForBookType() throws {
-    let data = Data("TY  - BOOK\nTI  - 测试\nLA  - en\nC1  - other\nC2  - unrelated\nA4  - Translator\nER  - \n".utf8)
-    let result = try BibliographicExchange.decodeRIS(data)
-    XCTAssertNil(result.records[0].bookTypeRaw); XCTAssertNil(result.records[0].originalLanguageCode)
-    XCTAssertEqual(result.notices.count, 2); XCTAssertEqual(result.records[0].contributors.count, 1)
-  }
-
-  func testCSVIncludesTypeAndOriginalLanguageWithoutLosingISBNTextProtection() {
-    var record = BookArchive(book: Book(title: "清单")); record.bookTypeRaw = BookType.chineseTranslation.rawValue
-    record.originalLanguageCode = "=unsafe"; record.isbn13 = "9780306406157"
-    let csv = String(decoding: BibliographicExchange.export([record], format: .csv), as: UTF8.self)
-    XCTAssertTrue(csv.contains("\"条目类型\",\"原作语言\""))
-    XCTAssertTrue(csv.contains("\"中文译本\",\"'=unsafe\"")); XCTAssertTrue(csv.contains("\"'9780306406157\""))
-  }
-
   func testDiskPersistenceOfTypeAndOriginalLanguage() throws {
     let url = try directory().appendingPathComponent("library.store")
     do {

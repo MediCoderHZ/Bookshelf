@@ -58,7 +58,7 @@ final class WebMetadataTranslatorTests: XCTestCase {
       <a href='https://book.douban.com.evil.test/subject/999/'>外站</a>
       <a href='/review/123/'>书评</a>
       """
-    let page = try DoubanBookTranslator().translate(html: Data(html.utf8), url: URL(string: "https://book.douban.com/")!)
+    let page = try ScriptWebTranslator(script: .douban).translate(html: Data(html.utf8), url: URL(string: "https://book.douban.com/")!)
     guard case .choices(let choices) = page else { return XCTFail("Expected choices") }
     XCTAssertEqual(choices.map(\.title), ["示例书", "第二本"])
     XCTAssertEqual(choices.first?.url, url)
@@ -84,7 +84,7 @@ final class WebMetadataTranslatorTests: XCTestCase {
       "<h1>评论</h1><div id='info'>没有出版信息</div>"] {
       XCTAssertThrowsError(try book(html))
     }
-    XCTAssertThrowsError(try DoubanBookTranslator().translate(
+    XCTAssertThrowsError(try ScriptWebTranslator(script: .douban).translate(
       html: Data(repeating: 32, count: WebMetadataClient.htmlLimit + 1), url: url))
   }
 
@@ -148,7 +148,7 @@ final class WebMetadataTranslatorTests: XCTestCase {
   }
 
   private func book(_ html: String) throws -> BookMetadataSearchResult {
-    let result = try DoubanBookTranslator().translate(html: Data(html.utf8), url: url)
+    let result = try ScriptWebTranslator(script: .douban).translate(html: Data(html.utf8), url: url)
     guard case .book(let book) = result else { throw WebMetadataError.noBook }
     return book
   }

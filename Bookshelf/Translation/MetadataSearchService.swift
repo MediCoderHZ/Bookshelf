@@ -37,7 +37,7 @@ struct MetadataSearchService: Sendable {
   }
   var sources: [MetadataSearchSource] { engine.registry.searchSources }
   func searchURL(for query: BookMetadataQuery, source: MetadataSearchSource) -> URL? {
-    (try? engine.searchTranslator(source.id))?.searchURL(for: query)
+    try? engine.searchTranslator(source.id).searchURL(for: query)
   }
   func search(_ query: BookMetadataQuery, source: MetadataSearchSource) async throws -> [MetadataSearchHit] {
     try await engine.search(query, source: source)

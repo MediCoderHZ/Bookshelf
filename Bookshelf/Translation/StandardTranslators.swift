@@ -1,45 +1,10 @@
 import Foundation
 
-struct RISTranslator: FileImportTranslator, FileExportTranslator {
-  var descriptor: TranslatorDescriptor { TranslatorDescriptor(id: "ris", name: L10n.tr("RIS 书目"), version: "1.0.0", author: "Bookshelf",
-    targetDescription: L10n.tr("本地 RIS 图书元信息"), priority: 100) }
-  let fileExtensions = ["ris"]
-  let fileExtension = "ris"
-  var exportSummary: String { L10n.tr("用于交换整本图书的出版信息、作者、译者、编辑、标签、简介及首个丛书。条目类型和原作语言供本应用往返保存，其他工具可能不保留；副标题合并到书名；普通文件夹、原书名和其他贡献者不会导出。") }
-  @MainActor func detectImport(_ data: Data) -> Bool {
-    let prefix = data.prefix(4096)
-    let encoding: String.Encoding = prefix.starts(with: [0xFF, 0xFE]) || prefix.starts(with: [0xFE, 0xFF]) ? .utf16 : .utf8
-    let text = encoding == .utf8 ? String(decoding: prefix, as: UTF8.self)
-      : (String(data: prefix, encoding: .utf16) ?? String(data: prefix.dropLast(2), encoding: .utf16) ?? "")
-    return text.replacingOccurrences(of: "\u{FEFF}", with: "")
-      .range(of: "(?im)^TY[ \\t]{1,2}-[ \\t]", options: .regularExpression) != nil
-  }
-  @MainActor func doImport(_ data: Data) throws -> RISImportResult { try BibliographicExchange.decodeRIS(data) }
-  @MainActor func doExport(_ records: [BookArchive], includeNotes: Bool) throws -> Data {
-    BibliographicExchange.export(records, format: .ris, includeNotes: includeNotes)
-  }
-}
-
-struct CSVTranslator: FileExportTranslator {
-  var descriptor: TranslatorDescriptor { TranslatorDescriptor(id: "csv", name: L10n.tr("CSV 清单"), version: "1.0.0", author: "Bookshelf",
-    targetDescription: L10n.tr("本地 CSV 书籍清单（仅导出）"), priority: 100) }
-  let fileExtension = "csv"
-  var exportSummary: String { L10n.tr("用于表格查看书籍清单，包含条目类型、原作语言、出版信息、作者、译者、标签、普通文件夹和来源网址。CSV 使用 UTF-8；ISBN 和可能被识别为公式的文本带文本前缀。") }
-  @MainActor func doExport(_ records: [BookArchive], includeNotes: Bool) throws -> Data {
-    BibliographicExchange.export(records, format: .csv, includeNotes: includeNotes)
-  }
-}
-
-struct OpenLibraryTranslator: SearchMetadataTranslator {
-  var descriptor: TranslatorDescriptor { TranslatorDescriptor(id: "open-library", name: "Open Library", version: "1.0.0", author: "Bookshelf",
-    targetDescription: L10n.tr("书名或 ISBN 检索 · openlibrary.org"), priority: 200) }
-  func searchURL(for query: BookMetadataQuery) -> URL {
-    var parts = URLComponents(string: "https://openlibrary.org/search")!
-    parts.queryItems = [URLQueryItem(name: "q", value: query.text)]
-    return parts.url!
-  }
+struct OpenLibraryTranslator: ScriptedSearchSource {
+  var script: TranslatorScript = .openLibrary
   func doSearch(_ query: BookMetadataQuery, host: TranslationHost) async throws -> [MetadataSearchHit] {
-    try await host.openLibrary.search(query).map { MetadataSearchHit(source: .openLibrary, candidate: nil, metadata: $0) }
+    let source = MetadataSearchSource(id: descriptor.id, name: descriptor.name)
+    return try await host.openLibrary.search(query, script: script).map { MetadataSearchHit(source: source, candidate: nil, metadata: $0) }
   }
   func resolve(_ hit: MetadataSearchHit, host: TranslationHost) async throws -> BookMetadataSearchResult {
     guard let metadata = hit.metadata else { throw WebMetadataError.noBook }

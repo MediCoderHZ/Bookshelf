@@ -48,19 +48,6 @@
 	<false/>
 	<key>SUVerifyUpdateBeforeExtraction</key>
 	<true/>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeIdentifier</key><string>org.bookshelf.ris</string>
-			<key>UTTypeDescription</key><string>RIS bibliography</string>
-			<key>UTTypeConformsTo</key><array><string>public.plain-text</string></array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key><array><string>ris</string></array>
-				<key>public.mime-type</key><string>application/x-research-info-systems</string>
-			</dict>
-		</dict>
-	</array>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

@@ -85,7 +85,7 @@ struct WebMetadataClient: WebMetadataLoading {
   }
 }
 
-private final class NoWebRedirects: NSObject, URLSessionTaskDelegate, Sendable {
+final class NoWebRedirects: NSObject, URLSessionTaskDelegate, Sendable {
   func urlSession(
     _ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
     newRequest request: URLRequest, completionHandler: @escaping @Sendable (URLRequest?) -> Void

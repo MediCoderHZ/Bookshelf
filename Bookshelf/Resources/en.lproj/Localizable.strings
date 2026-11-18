@@ -4,8 +4,6 @@
 " 空格表示同时匹配，大写 OR 表示任选条件；双引号匹配连续短语，- 排除词、短语或括号组。括号优先，例如 (经济 OR 金融) -教材。支持嵌套和中文括号。点击放大镜旁的箭头切换范围（⌘F 聚焦）。" = " Spaces require all terms; uppercase OR matches either condition. Double quotes match phrases; - excludes a word, phrase, or group. Parentheses take priority, for example (economics OR finance) -textbook. Nested and full-width parentheses are supported. Click the arrow beside the magnifying glass to change the scope (⌘F to focus).";
 " 草稿副本也未能写入，请复制保留输入。" = " The draft copy could not be written either. Copy your input to keep it safe.";
 " 草稿已在本机保留。" = " A draft was kept on this Mac.";
-"CSV 清单" = "CSV List";
-"ER 前没有 TY 开始标记" = "ER has no preceding TY start marker";
 "Goodreads 隐私政策" = "Goodreads Privacy Policy";
 "Goodreads 页面数据与链接中的图书 ID 不一致。请核对版本，并使用该页面原始链接重新提取。" = "The book ID in the Goodreads page data does not match the URL. Check the edition and try again using the page’s original URL.";
 "ID 须为 3–64 位小写字母、数字、点或连字符，并以字母开头" = "IDs must be 3–64 lowercase letters, digits, dots, or hyphens, starting with a letter";
@@ -19,23 +17,15 @@
 "Markdown 自动格式" = "Markdown Autoformat";
 "Markdown 预览" = "Markdown Preview";
 "Open Library / Internet Archive 服务与隐私说明" = "Open Library / Internet Archive Service and Privacy Information";
-"RIS 书目" = "RIS Bibliography";
-"RIS 导入冲突预览" = "RIS Import Conflict Preview";
-"RIS 文件" = "RIS File";
-"RIS 文件不能超过 10 MB，请分批导出。" = "RIS files cannot exceed 10 MB. Export them in smaller batches.";
-"RIS 文件在本机解析，不读取或下载其中列出的附件，也不访问记录中的网址。RIS 和 CSV 导出仅写入用户选择的位置，个人笔记默认不包含；勾选后笔记会写入导出文件。文件可能包含标签、阅读信息及来源网址，未单独加密；保存到云盘可能由该服务同步。完整书库仍使用 JSON 备份。" = "RIS files are parsed locally. Listed attachments are not read or downloaded, and record URLs are not visited. RIS and CSV exports write only to your chosen location. Personal notes are excluded by default and are written to the export only when selected. Files may include tags, reading information, and source URLs and are not separately encrypted. Saving to cloud storage may allow that service to sync them. Use JSON backups for a complete library.";
-"RIS 第 {0} 行：{1}。请修正文件后重新导入；本次未写入书库。" = "RIS line {0}: {1}. Correct the file and import again. Nothing was written to the library.";
 "XPath 表达式无效或超过 2048 字符" = "Invalid XPath expression or more than 2048 characters";
 "book.douban.com 图书页面与 www.douban.com/search 图书搜索" = "Book pages at book.douban.com and book searches at www.douban.com/search";
 "goodreads.com 图书详情、首页、搜索、公开图书列表与书架分类页" = "Goodreads book details, home, search, public book lists, and shelves";
 "splitBy 分隔符无效" = "Invalid splitBy separator";
 "{0} · {1} · 优先级 {2}" = "{0} · {1} · Priority {2}";
-"{0} · {1} 本书" = "{0} · {1} books";
 "{0} · {1} 条条件" = "{0} · {1} conditions";
 "{0} · {1} 项" = "{0} · {1} items";
 "{0} · 当前范围 {1} 本书" = "{0} · {1} books in this view";
 "{0} · 记录 {1}" = "{0} · Record {1}";
-"{0} 共 {1} 条，可导入 {2} 本，跳过 {3} 条。" = "{0}: {1} records, {2} books to import, {3} skipped.";
 "{0} 本书" = "{0} books";
 "{0} 本书 · {1} 条笔记" = "{0} books · {1} notes";
 "{0} 条书籍 · {1} 条笔记（含回收站）" = "{0} books · {1} notes (including trash)";
@@ -48,17 +38,7 @@
 "{0}条件值" = "{0} search value";
 "{0}需要数字。" = "{0} requires a number.";
 "{0}（{1}/{2} 本）" = "{0} ({1}/{2} books)";
-"{0}：ISBN 无效或无法识别，已留空，请核对原文件。" = "{0}: invalid or unrecognized ISBN; left blank. Check the original file.";
-"{0}：字段 {1} 有多个值，仅采用首个值。" = "{0}: multiple values for {1}; using the first value only.";
-"{0}：有多个不同版本的 ISBN，仅采用首个版本。" = "{0}: multiple edition ISBNs; using the first edition only.";
-"{0}：未导入其他应用的 C2 扩展字段。" = "{0}: another app’s C2 extension was not imported.";
 "{0}：未导入字段 {1}。附件不会读取或下载。" = "{0}: field {1} was not imported. Attachments will not be read or downloaded.";
-"{0}：未识别 C1 条目类型扩展，请导入后手动选择。" = "{0}: unrecognized C1 item-type extension. Choose the type manually after importing.";
-"{0}：缺少书名，已跳过。" = "{0}: missing title; skipped.";
-"{0}：网址不是普通 HTTP(S) 网址，未保存。" = "{0}: the URL is not a standard HTTP(S) URL and was not saved.";
-"{0}：跳过类型 {1}，目前仅导入整本图书。" = "{0}: skipped type {1}. Only whole books can be imported.";
-"{0}：页数不是单一整数，已留空。" = "{0}: page count is not a single integer; left blank.";
-"上一条记录缺少 ER 结束标记" = "the previous record is missing its ER end marker";
 "上下拖动调整标签面板高度" = "Drag up or down to resize the tag pane";
 "上下拖动调整高度" = "Drag up or down to resize";
 "上移" = "Move Up";
@@ -71,7 +51,6 @@
 "不支持此版本的筛选规则。" = "This search rule version is not supported.";
 "不支持的筛选方式。" = "Unsupported comparison.";
 "不支持规则格式版本 {0}" = "Unsupported rule format version {0}";
-"不是有效的 RIS 记录" = "not a valid RIS record";
 "不等于" = "is not";
 "不高于" = "is at most";
 "个人笔记" = "Personal Notes";
@@ -93,8 +72,6 @@
 "书架" = "Bookshelf";
 "书架历史备份" = "Bookshelf Historical Backup";
 "书架备份-{0}" = "Bookshelf Backup-{0}";
-"书目交换" = "Bibliographic Exchange";
-"书目导入导出" = "Bibliographic Import and Export";
 "书籍信息" = "Book Information";
 "书籍元信息、个人备注和智能文件夹条件均保存在用户 Mac 的应用沙盒中。高级筛选和智能文件夹只在本机运行，筛选值不会发送至在线检索来源。JSON 备份包含智能文件夹名称与条件，未单独加密，请妥善保管。应用不会将本地书库整体上传到开发者或第三方服务器。" = "Book metadata, personal remarks, and smart collection rules are stored in the app sandbox on your Mac. Advanced searches and smart collections run locally; filter values are not sent to online search providers. JSON backups contain smart collection names and rules and are not separately encrypted; keep them safe. The app does not upload your library to the developer or third-party servers.";
 "书籍可同时加入多个文件夹。上级文件夹默认只显示直接加入的内容，可在侧栏右键菜单中开启「包含子文件夹」。文件夹名称需在普通文件夹中唯一。" = "Books can belong to multiple collections. Parent collections show only directly added items by default; enable Include Subcollections in the sidebar context menu to include descendants. Regular collection names must be unique.";
@@ -108,7 +85,7 @@
 "书籍清单.{0}" = "Book List.{0}";
 "仅书名相同，作者与版本需要核对" = "Matching title only; check authors and editions";
 "仅保存在这台 Mac 上" = "Stored only on this Mac";
-"仅在点击提取或选择列表中的图书后，应用才向已启用解析器匹配的网址请求页面。网站会收到请求网址、IP 地址和应用版本等网络信息，可能依其政策记录日志。内置豆瓣解析器使用 book.douban.com；自定义 JSON 规则导入前会显示目标网站。导入规则不发出网络请求，规则保存在本机，不运行代码。应用不读取浏览器 Cookie、不登录网站、不上传书库或笔记、不执行网页脚本。来源和时间随书籍保存并包含在书库备份中；自定义规则需单独导出。可在设置中停用或移除自定义规则。测试模式只预览结果；点击在线提取时仍会访问对应网站。打开浏览器后，适用浏览器和网站自身的设置。" = "The app requests a matching URL only when you click Extract or select a book from a list. Websites receive the URL, IP address, app version, and other network information and may log it under their policies. The built-in Douban translator uses book.douban.com. Custom JSON rules show their target sites before import. Importing rules makes no network request; rules are stored locally and do not run code. The app does not read browser cookies, sign into sites, upload your library or notes, or execute page scripts. Sources and retrieval dates are saved with books and included in backups; export custom rules separately. You can disable or remove custom rules in Settings. Test mode only previews results, but online extraction still contacts the website. When you open a browser, its own settings and the website’s policies apply.";
+"仅在点击提取或选择列表中的图书后，应用才向已启用解析器匹配的网址请求页面。网站会收到请求网址、IP 地址和应用版本等网络信息，可能依其政策记录日志。内置豆瓣解析器使用 book.douban.com；自定义 JSON 规则导入前会显示目标网站。导入规则不发出网络请求，规则保存在本机，不运行代码。应用不读取浏览器 Cookie、不登录网站、不上传书库或笔记、不执行网页脚本。来源和时间随书籍保存并包含在书库备份中；自定义规则需单独导出。可在元信息解析器窗口中停用或移除自定义规则。打开浏览器后，适用浏览器和网站自身的设置。" = "The app requests a matching URL only when you click Extract or select a book from a list. Websites receive the URL, IP address, app version, and other network information and may log it under their policies. The built-in Douban translator uses book.douban.com. Custom JSON rules show their target sites before import. Importing rules makes no network request; rules are stored locally and do not run code. The app does not read browser cookies, sign into sites, upload your library or notes, or execute page scripts. Sources and retrieval dates are saved with books and included in backups; export custom rules separately. You can disable or remove custom rules in the Metadata Translators window. When you open a browser, its own settings and the website’s policies apply.";
 "仅在点击搜索后，应用将书名或 ISBN 发送至所选来源：豆瓣 www.douban.com、Goodreads www.goodreads.com 或 Open Library openlibrary.org。选择全部来源会分别请求全部已启用来源，停用的解析器不参与。选择候选后读取详情（豆瓣详情来自 book.douban.com）；ISBN 搜索有时直接返回详情。服务方会收到请求内容、IP 地址及应用版本等网络信息，可能按其政策保留日志。本地书库和个人备注不会随请求发送。可以取消任务；已经发出的请求无法撤回。" = "Only when you click Search does the app send the title or ISBN to your selected sources: Douban (www.douban.com), Goodreads (www.goodreads.com), or Open Library (openlibrary.org). Selecting all sources requests each enabled source; disabled translators are excluded. Selecting a result loads its details (Douban details come from book.douban.com); ISBN searches may return details directly. Providers receive the request, IP address, app version, and other network information and may retain logs under their policies. Your library and personal remarks are not sent. You can cancel a task, but requests already sent cannot be recalled.";
 "仅填充来源提供的字段，缺失信息保留现有内容。请核对版本，最后在编辑页保存。" = "Only supplied fields are filled; missing information leaves existing content intact. Check the edition, then save in the editor.";
 "仅填充网页提供的字段，缺失信息保留现有内容。请核对版本、作者与 ISBN，最后在编辑页点击保存。" = "Only fields supplied by the page are filled; missing information leaves existing content intact. Check the edition, authors, and ISBN, then save in the editor.";
@@ -175,7 +152,7 @@
 "关闭高级筛选" = "Close Advanced Search";
 "其他" = "Other";
 "内置" = "Built-in";
-"内置 Goodreads 解析器请求 www.goodreads.com 的公开页面。网站会收到网址、IP 地址及应用标识等网络信息，其处理受服务方政策约束。应用不登录账号，不使用页面认证信息请求 API，不保存页面中的用户资料、广告或认证字段。只提取书籍元信息，可在解析器设置中停用。" = "The built-in Goodreads translator requests public pages at www.goodreads.com. The site receives the URL, IP address, app identifier, and other network information, handled under its policies. The app does not sign into an account, use page credentials to call APIs, or save user profiles, advertisements, or authentication fields from pages. Only book metadata is extracted. Disable it in translator settings if desired.";
+"内置 Goodreads 解析器请求 www.goodreads.com 的公开页面。网站会收到网址、IP 地址及应用标识等网络信息，其处理受服务方政策约束。应用不登录账号，不使用页面认证信息请求 API，不保存页面中的用户资料、广告或认证字段。只提取书籍元信息，可在元信息解析器窗口中停用。" = "The built-in Goodreads translator requests public pages at www.goodreads.com. The site receives the URL, IP address, app identifier, and other network information, handled under its policies. The app does not sign into an account, use page credentials to call APIs, or save user profiles, advertisements, or authentication fields from pages. Only book metadata is extracted. Disable it in the Metadata Translators window if desired.";
 "内置解析器 ID 不可覆盖，请使用新的 ID" = "Built-in translator IDs cannot be overwritten. Use a new ID";
 "内置解析器随应用更新。自定义规则仅在本机解析 HTML，不运行 JavaScript；访问域名由规则声明，网页提取由你主动发起。书库备份不包含规则，请单独导出保管。" = "Built-in translators are updated with the app. Custom rules parse HTML locally without running JavaScript. Rules declare the domains they access, and you initiate web extraction. Library backups do not include rules; export them separately.";
 "出版信息" = "Publication Details";
@@ -199,7 +176,6 @@
 "加粗（⌘B）" = "Bold (⌘B)";
 "勾选要从所选书籍移除的标签" = "Select tags to remove from the selected books";
 "包含" = "contains";
-"包含书籍备注" = "Include Book Remarks";
 "包含回收站记录；更新保留其回收站状态。" = "Includes a trashed record. Updating preserves its trash status.";
 "包含子文件夹" = "Include Subcollections";
 "匹配书库；↑/↓ 选择，回车填入并保存。Esc 关闭候选，再按一次取消当前修改。" = " to find matches in your library; ↑/↓ selects, Return fills and saves. Esc closes suggestions; press it again to cancel the current change.";
@@ -209,7 +185,6 @@
 "升级前备份失败，已暂停升级。请检查可用空间和备份目录后重试。\n" = "The pre-update backup failed and the update was paused. Check available space and the backup folder, then try again.\n";
 "升级前备份未完成" = "Pre-update Backup Incomplete";
 "升级已暂停，完成备份后才能继续。" = "The update is paused until a backup completes.";
-"单次最多导入 5000 条 RIS 记录，请分批导出。" = "Import up to 5000 RIS records at a time. Export smaller batches.";
 "历史备份" = "Backup History";
 "历史来源，未逐字段记录" = "Historical source; not recorded per field";
 "原书名" = "Original Title";
@@ -221,7 +196,6 @@
 "取消编辑智能文件夹" = "Cancel Editing Smart Collection";
 "取消编辑，保留文件夹原有规则" = "Cancel editing and keep the original collection rules";
 "另存为新笔记" = "Save as New Note";
-"另有 {0} 条字段或条目提示；请分批导入以逐一核对。" = "There are {0} more field or item notices. Import smaller batches to review them all.";
 "只有在用户主动导入 HTML 网页或解析规则、导出规则、导入或导出备份与书目清单时，应用才会访问用户明确选择的文件或位置。应用会加载自身沙盒目录内已安装的解析规则。HTML 在本机解析，不执行脚本、不加载其引用资源。应用不会扫描用户的其他文件夹。" = "The app accesses files or locations you explicitly choose when importing saved HTML pages, translator rules, backups, or bibliographies, or exporting rules, backups, or lists. It loads installed translator rules within its own sandbox. HTML is parsed locally without executing scripts or loading linked resources. The app does not scan your other folders.";
 "只移除文件夹层级和归属，书籍与笔记仍保留在书库中。此操作可以撤销。" = "Only the collection hierarchy and membership will be removed. Books and notes stay in the library. This can be undone.";
 "可能已经存在这本书" = "This Book May Already Exist";
@@ -274,7 +248,6 @@
 "姓名" = "Name";
 "姓名不能为空。如需删除此人，请使用减号按钮。" = "The name cannot be empty. To remove this person, use the minus button.";
 "字段" = "Field";
-"字段位于 TY / ER 记录之外" = "a field appears outside a TY / ER record";
 "存在未知的书籍字段" = "Unknown book fields found";
 "存在没有对应左括号的右括号。" = "A closing parenthesis has no matching opening parenthesis.";
 "完成" = "Done";
@@ -286,28 +259,16 @@
 "对应的本地记录" = "Matching Local Record";
 "导入" = "Import";
 "导入 JSON 规则即可扩展网站，无需重新编译。测试只预览提取结果，不写入书库。" = "Import JSON rules to add website support without rebuilding the app. Testing previews extracted results without changing the library.";
-"导入 RIS 书目" = "Import RIS Bibliography";
-"导入 RIS 书目…" = "Import RIS Bibliography…";
-"导入 RIS 图书并预览冲突；导出 RIS 书目或 CSV 清单。书籍备注默认不导出；新笔记与文件夹层级请用 JSON 备份完整迁移。" = "Import RIS books with conflict previews, or export RIS bibliographies and CSV lists. Book remarks are excluded by default. Use a JSON backup to transfer notes and collection hierarchy completely.";
-"导入 RIS，或导出当前结果与所选书籍" = "Import RIS, or export current results and selected books";
 "导入 {0}" = "Import {0}";
-"导入/导出" = "Import/Export";
 "导入不会访问网站。完成后可点击“测试”，使用已保存的 HTML 验证规则。" = "Importing does not contact the website. Afterwards, click Test to verify the rules with saved HTML.";
 "导入冲突预览" = "Import Conflict Preview";
 "导入备份" = "Import Backup";
 "导入已保存网页…" = "Import Saved Web Page…";
-"导入提示（{0} 项）：部分条目或字段不会导入" = "Import notices ({0}): some items or fields will not be imported";
 "导入文件夹层级（{0} 个）与笔记（{1} 条）" = "Import collection hierarchy ({0}) and notes ({1})";
 "导入规则" = "Import Rules";
 "导入解析规则…" = "Import Translator Rules…";
-"导出" = "Export";
-"导出 JSON 备份…" = "Export JSON Backup…";
-"导出{0}（{1} 本）…" = "Export {0} ({1} books)…";
+"保存 JSON 备份…" = "Save JSON Backup…";
 "导出…" = "Export…";
-"导出书籍清单" = "Export Book List";
-"导出所选书籍（{0} 本）…" = "Export Selected Books ({0})…";
-"导出格式" = "Export Format";
-"导出范围预览" = "Export Scope Preview";
 "导出规则模板…" = "Export Rule Template…";
 "将修改 {0} 本，保持 {1} 本不变。" = "{0} books will change; {1} will stay unchanged.";
 "将删除{0}。" = "This will delete {0}. ";
@@ -348,7 +309,6 @@
 "应用不会向开发者或任何第三方出售用户数据。在线检索、网页提取与软件更新会产生前述网络请求；本地书库和笔记不会随请求发送。用户自行导出的 JSON 备份由用户负责保管。" = "The app does not sell your data to the developer or any third party. Online search, web extraction, and software updates make the network requests described above; your library and notes are not included. You are responsible for safely storing JSON backups you export.";
 "应用到 {0} 本书" = "Apply to {0} Books";
 "应用前不会改动书库。完成后可撤销本次导入。备份中的回收站状态会保留。" = "The library stays unchanged until you apply. Import can be undone. Trash status from the backup is preserved.";
-"应用前不会改动书库，完成后可撤销。RIS 附件不会读取或下载；来源标记为文件导入。" = "The library stays unchanged until you apply. Import can be undone. RIS attachments are not read or downloaded; the source is marked as a file import.";
 "应用所选字段" = "Apply Selected Fields";
 "应用没有删除或重建你的书库。请先退出并重新打开应用；如果问题持续，请联系支持并提供以下错误信息。" = "Your library has not been deleted or recreated. Quit and reopen the app. If the problem persists, contact support with the error below.";
 "应用默认每小时在本机保存书籍、笔记和书库关联数据的备份，保留最近 30 份定时与手动备份。升级前备份单独保留最近 10 份。备份包含回收站和可用的恢复草稿，不会上传，也未单独加密。你可以在设置中调整频率、保留份数或关闭定期备份；升级保护始终保留。删除书库条目不会立即从已有历史备份中移除它。" = "By default, the app backs up books, notes, and library relationships locally every hour, keeping the latest 30 scheduled and manual backups. The latest 10 pre-upgrade backups are retained separately. Backups include trash and available recovery drafts; they are not uploaded or separately encrypted. Settings lets you change the frequency and retention or disable scheduled backups; update protection remains enabled. Deleting a library item does not immediately remove it from existing historical backups.";
@@ -356,7 +316,6 @@
 "引用" = "Block Quote";
 "当前" = "Current";
 "当前值" = "Current Value";
-"当前结果" = "Current Results";
 "当前范围 {0} 本书" = "{0} books in this view";
 "当前范围暂无标签" = "No Tags in This View";
 "待补全 ISBN" = "Missing ISBN";
@@ -371,7 +330,6 @@
 "我已核对并确认要更新此版本" = "I have checked the edition and want to update it";
 "所属书籍在回收站中，请先恢复书籍。" = "The parent book is in the trash. Restore it first.";
 "所有内容" = "Everything";
-"所选书籍" = "Selected Books";
 "所选笔记中有未保存的修改，请先重试保存或另存为新笔记。" = "Some selected notes have unsaved changes. Retry saving or save them as new notes first.";
 "所选笔记仍有未保存的草稿，请先保存或另存草稿，再永久删除。" = "Some selected notes have unsaved drafts. Save them or save new copies before deleting permanently.";
 "所选记录的有效 ISBN 不同，属于不同版本，请分别保留。" = "The selected records have different valid ISBNs. Keep them as separate editions.";
@@ -463,7 +421,6 @@
 "无法移动到该位置：文件夹必须存在，且不能移入自己或自己的子文件夹。" = "Cannot move here. The destination collection must exist and cannot be the collection itself or one of its descendants.";
 "无法移动所选笔记，请在当前书库中重新拖动到有效的书籍或列表顶层。" = "Unable to move the selected notes. Drag them again to a valid book or the top level of the current library.";
 "无法读取备份目录：" = "Unable to read the backup folder: ";
-"无法读取文件编码。请使用 UTF-8，或带 BOM 的 UTF-16 RIS 文件。" = "Unable to read the file encoding. Use UTF-8 or UTF-16 with a BOM.";
 "无法读取解析器目录：{0}" = "Unable to read the translator folder: {0}";
 "无法读取这个备份文件。" = "Unable to read this backup file.";
 "无法预览所选书籍，请关闭后重新选择。" = "Unable to preview the selected books. Close and select them again.";
@@ -506,15 +463,12 @@
 "未加载的规则" = "Rules Not Loaded";
 "未发现重复书目" = "No Duplicate Items Found";
 "未启用修改项，或已有内容符合设置。" = "No changes are enabled, or existing values already match.";
-"未找到可导入的图书。仅支持 BOOK、EBOOK、EDBOOK、CLSWK、SER，且必须有书名。" = "No importable books found. Only BOOK, EBOOK, EDBOOK, CLSWK, and SER records with titles are supported.";
 "未找到结果，可尝试其他书名或 ISBN。" = "No results. Try another title or ISBN.";
 "未知" = "Unknown";
 "未知作者" = "Unknown author";
 "未知出版社" = "Unknown publisher";
 "未选择导入" = "Not selected for import";
 "本地" = "Local";
-"本地 CSV 书籍清单（仅导出）" = "Local CSV book list (export only)";
-"本地 RIS 图书元信息" = "Local RIS book metadata";
 "本地书库不会上传。在线检索和软件更新会访问相应服务，详见隐私政策。" = "Your library is not uploaded. Online search and updates contact their respective services. See the privacy policy for details.";
 "条件值" = "Value";
 "条目类型" = "Item Type";
@@ -555,7 +509,7 @@
 "此书已包含标签 {0}" = "This book already has tag {0}";
 "此书已包含该标签" = "This book already has this tag";
 "此书无需修改" = "No Changes for This Book";
-"此元信息解析器已停用，请在设置的“元信息解析器”中启用。" = "This metadata translator is disabled. Enable it in Settings → Metadata Translators.";
+"此元信息解析器已停用，请在设置 → 文件与数据库 → 元信息解析器中启用。" = "This metadata translator is disabled. Enable it in Settings → Files and Database → Metadata Translators.";
 "此字段不支持文本编辑。" = "This field does not support text editing.";
 "此字段已被其他操作修改，未覆盖新内容。可复制当前输入，或放弃修改后重新编辑。" = "This field was changed by another operation. The newer value was preserved. Copy your input, or discard it and edit again.";
 "此操作无法撤销，删除后无法从回收站恢复。" = "This cannot be undone. Deleted items cannot be restored from the trash.";
@@ -577,9 +531,7 @@
 "永久删除？" = "Permanently Delete?";
 "没有匹配的文件夹" = "No Matching Collections";
 "没有匹配的标签" = "No Matching Tags";
-"没有可用的解析器匹配此链接。请检查网址，或在设置中导入对应网站的解析规则。" = "No translator matches this link. Check the URL or import rules for this website in Settings.";
-"没有可读取此文件的导入解析器，请核对格式和文件编码。" = "No import translator can read this file. Check its format and encoding.";
-"没有启用的导出解析器，请在设置中启用 RIS 或 CSV。" = "No export translators are enabled. Enable RIS or CSV in Settings.";
+"没有可用的解析器匹配此链接。请检查网址，或在元信息解析器窗口中安装对应网站的解析规则。" = "No translator matches this link. Check the URL or install rules for this website in the Metadata Translators window.";
 "没有识别到可用的图书链接，请使用图书详情页或检查列表解析规则。" = "No usable book links found. Use a book detail page or check the list extraction rules.";
 "沿用本地" = "Keep local";
 "测试{0}" = "Test {0}";
@@ -624,9 +576,6 @@
 "版本须采用 1.0.0 格式" = "Versions must use the 1.0.0 format";
 "版次" = "Edition";
 "独立笔记" = "Standalone Notes";
-"独立笔记、书籍子笔记、文件夹层级、回收站和智能规则不在此文件中。完整迁移请使用 JSON 备份。" = "Standalone notes, child notes, collection hierarchy, trash, and smart rules are not included. Use a JSON backup for a complete transfer.";
-"用于交换整本图书的出版信息、作者、译者、编辑、标签、简介及首个丛书。条目类型和原作语言供本应用往返保存，其他工具可能不保留；副标题合并到书名；普通文件夹、原书名和其他贡献者不会导出。" = "Exchange publication details, authors, translators, editors, tags, descriptions, and the first series of whole books. Item type and original language support round-tripping in Bookshelf but may be lost in other tools. Subtitles are combined with titles. Collections, original titles, and other contributors are not exported.";
-"用于表格查看书籍清单，包含条目类型、原作语言、出版信息、作者、译者、标签、普通文件夹和来源网址。CSV 使用 UTF-8；ISBN 和可能被识别为公式的文本带文本前缀。" = "View a book list in a spreadsheet, including item type, original language, publication details, authors, translators, tags, regular collections, and source URLs. CSV uses UTF-8. ISBNs and text that could be read as formulas receive a text prefix.";
 "界面字号" = "Interface font size";
 "界面密度" = "Interface density";
 "目标域名必须为小写 DNS 域名：{0}" = "Target domains must be lowercase DNS names: {0}";
@@ -666,7 +615,6 @@
 "笔记正文" = "Note body";
 "笔记移入回收站" = "Move Note to Trash";
 "笔记链接" = "Note Link";
-"第 {0} 条（行 {1}）" = "Record {0} (line {1})";
 "等于" = "is";
 "筛选字段" = "Search field";
 "筛选文件夹" = "Filter collections";
@@ -675,7 +623,7 @@
 "简介" = "Description";
 "管理元信息解析器…" = "Manage Metadata Translators…";
 "粘贴笔记" = "Paste Note";
-"粘贴网址后自动匹配解析器。更多网站可在设置 → 元信息解析器中导入规则。" = "Paste a URL to find a translator. Import rules for more websites in Settings → Metadata Translators.";
+"粘贴网址后自动匹配解析器。更多网站可在设置 → 文件与数据库 → 元信息解析器中导入规则。" = "Paste a URL to find a translator. Import rules for more websites in Settings → Files and Database → Metadata Translators.";
 "紧凑" = "Compact";
 "结束段落格式" = "End Paragraph Formatting";
 "绘者" = "Illustrator";
@@ -692,7 +640,7 @@
 "编辑规则" = "Edit Rules";
 "编辑链接" = "Edit Link";
 "网站暂时无法返回页面（HTTP {0}），请稍后再试。" = "The website is temporarily unable to return the page (HTTP {0}). Try again later.";
-"网站返回了访问限制或验证页面。可在浏览器保存为 HTML 后导入，也可以手动录入。" = "The website returned an access restriction or verification page. Save it as HTML in your browser and import it, or enter the metadata manually.";
+"网站返回了访问限制或验证页面。请尝试其他来源，或手动填写书籍信息。" = "The site returned an access restriction or verification page. Try another source or enter the book details manually.";
 "网站返回的内容格式不符合预期，请在浏览器查看。" = "The website returned an unexpected content format. Open it in your browser.";
 "网页" = "Web";
 "网页范围：{0}" = "Web scope: {0}";
@@ -715,11 +663,9 @@
 "解析规则无效：{0}" = "Invalid translator rules: {0}";
 "记录 ID 相同，默认保留本地。" = "Matching record ID. Keep the local record by default.";
 "记录在预览或操作后发生了变化，已停止以免覆盖新修改。请重新打开预览。" = "Records changed after the preview or operation. The operation was stopped to preserve newer changes. Reopen the preview.";
-"记录缺少 ER 结束标记" = "the record is missing its ER end marker";
 "许可与致谢" = "Licenses and Acknowledgments";
 "许可与致谢…" = "Licenses and Acknowledgments…";
 "译者" = "Translator";
-"该解析器不支持导出" = "This translator does not support exporting";
 "该解析器不支持搜索" = "This translator does not support searching";
 "该页面未提供 ISBN，无法确认与查询号码一致，请核对版本。" = "This page has no ISBN, so it cannot be matched to your query. Check the edition.";
 "详情导航" = "Item Pane Navigation";
@@ -770,7 +716,6 @@
 "选择一本书" = "Select a Book";
 "选择一本书核对差异" = "Select a Book to Compare";
 "选择一本书，读取其详情（{0} 本）" = "Select a Book to Load Details ({0} books)";
-"选择保存位置…" = "Choose Save Location…";
 "选择全部新值" = "Select All New Values";
 "选择已有标签" = "Choose Existing Tags";
 "选择文件夹加入；取消勾选可移除归属" = "Select a collection to join; uncheck it to remove membership";
@@ -830,7 +775,6 @@
 
 /* Settings navigation and search */
 "通用" = "General";
-"导入与导出" = "Import and Export";
 "外观与语言" = "Appearance and Language";
 "书库显示" = "Library Display";
 "本地数据与隐私" = "Local Data and Privacy";
@@ -859,7 +803,6 @@
 "语言更改将在重新打开应用后统一生效，包括窗口、菜单、文件对话框和更新窗口。当前界面保持原语言，避免中英文混用。" = "Language changes take effect throughout the app when you reopen it, including windows, menus, file dialogs, and update windows. The current interface keeps its language until then.";
 "语言更改已保存。请先完成当前编辑，再退出并重新打开应用。" = "Your language choice is saved. Finish any current edits, then quit and reopen the app.";
 "退出应用" = "Quit App";
-"取消语言更改" = "Cancel Language Change";
 "撤销{0}" = "Undo {0}";
 "重做{0}" = "Redo {0}";
 "手动编辑" = "Manual edit";
@@ -906,10 +849,39 @@
 
 /* Storage privacy clarification */
 "书籍、笔记和智能文件夹默认保存在本机应用目录，也可由你选择自定义数据目录。切换目录前先备份，原数据库保留。自动备份和恢复草稿仍保存在本机应用目录。高级筛选和完整性检查只在本机运行，不上传书库内容。数据库与 JSON 备份未单独加密，请妥善保管。" = "Books, notes, and smart collections are stored in the local app directory by default, or in a custom directory you choose. The app backs up the library before changing its location and retains the original database. Automatic backups and recovery drafts stay in the local app directory. Advanced searches and integrity checks run locally without uploading library content. The database and JSON backups are not separately encrypted; keep them secure.";
-"导入、导出和选择自定义数据目录时，应用访问你明确选择的文件或位置。自定义数据目录的授权保存在本机，以便重启后继续读取和保存书库。应用也会加载自身目录内的解析规则。HTML 在本机解析，不执行脚本、不加载引用资源；应用不会扫描其他文件夹。" = "When importing, exporting, or selecting a custom data directory, the app accesses only the files or locations you choose. Access to a custom data directory is saved locally so the library can be read and saved after restarting. The app also loads parser rules in its own directory. HTML is parsed locally without running scripts or loading referenced resources; other folders are not scanned.";
+"导入、导出和选择自定义数据目录时，应用访问你明确选择的文件或位置。自定义数据目录的授权保存在本机，以便重启后继续读取和保存书库。应用从当前数据库旁的 translators 文件夹加载解析规则。HTML 在本机解析，不执行脚本、不加载引用资源；应用不会扫描其他文件夹。" = "When importing, exporting, or selecting a custom data directory, the app accesses only the files or locations you choose. Access to a custom data directory is saved locally so the library can be read and saved after restarting. The app loads translator rules from the translators folder beside the current database. HTML is parsed locally without running scripts or loading referenced resources; other folders are not scanned.";
 "正式发行版通过 Sparkle 检查和安装更新。手动检查或允许自动检查后，会访问 GitHub Pages 上的更新清单，并在下载时访问 GitHub Releases。服务方可收到 IP 地址、应用版本等常规网络信息；不会发送书籍、笔记或书库备份。系统分析默认关闭。手动检查入口位于应用菜单；未启用更新服务的开发版不会发起更新请求。" = "Release versions use Sparkle to check for and install updates. Manual checks or permitted automatic checks access the feed on GitHub Pages; downloads access GitHub Releases. These services may receive your IP address and app version, but no books, notes, or library backups. System profiling is off by default. Manual update checks are available in the app menu. Development builds with updates disabled make no update requests.";
 "最后更新：2026 年 11 月 16 日" = "Last updated: November 16, 2026";
 
-"导出与恢复" = "Export and Restore";
-"重启应用以使用所选语言。" = "Restart the app to use the selected language.";
+"备份文件" = "Backup Files";
 "请选择稳定连接的本地空文件夹，避免云同步目录。选择后不会立即移动数据。" = "Choose an empty folder on a reliably connected local disk, outside cloud-synced folders. Selecting a folder does not move data immediately.";
+"插件" = "Plugins";
+"管理插件…" = "Manage Plugins…";
+"笔记模板" = "Note Templates";
+"从模板新建笔记" = "New Note from Template";
+"安装阅读笔记示例…" = "Install Reading Notes Example…";
+"未加载的插件" = "Plugins That Could Not Be Loaded";
+"安装插件…" = "Install Plugin…";
+"移除插件？" = "Remove Plugin?";
+"移除" = "Remove";
+"移除“{0}”后，已保存的书籍和笔记会保留。" = "Removing “{0}” keeps the books and notes in your library.";
+"安装" = "Install";
+"替换" = "Replace";
+"请选择 JSON 插件文件。" = "Choose a JSON plugin file.";
+"不支持此插件类型。" = "Unsupported plugin type.";
+"不支持的笔记模板格式或版本。" = "Unsupported note template format or version.";
+"请填写插件作者，并提供简体中文或英文模板。" = "Specify an author and a Simplified Chinese or English template.";
+"请检查模板名称、标题和正文的长度。" = "Check the lengths of the template name, title and body.";
+"模板含有未知或不完整的字段占位符。" = "The template contains an unknown or incomplete placeholder.";
+"此 ID 已用于另一种插件。" = "This ID is already used by another type of plugin.";
+"打开解析器目录" = "Open Translators Folder";
+"规则 ID 或文件名冲突，请在解析器目录中核对文件。" = "A rule ID or filename conflicts. Check the files in the translators folder.";
+"解析规则已更改，请重新加载。" = "The rule has changed. Reload the translators.";
+"笔记模板由插件窗口管理。" = "Manage note templates in the Plugins window.";
+"与文件“{0}”的解析器 ID 重复。" = "The translator ID matches the one in “{0}”.";
+"这是解析规则，请在「设置 → 文件与数据库 → 元信息解析器」中安装。" = "Install this translator in Settings → Files and Database → Metadata Translators.";
+"在 Finder 中显示解析器文件" = "Show Translator File in Finder";
+"页面署名：{0}" = "Page credit: {0}";
+"数据目录不能位于原解析器目录内。" = "The data directory cannot be inside the original translators folder.";
+"解析器文件复制校验失败，请重新尝试。" = "The copied translator files could not be verified. Please try again.";
+"更多操作" = "More Actions";

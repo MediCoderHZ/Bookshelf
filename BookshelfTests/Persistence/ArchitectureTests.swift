@@ -31,13 +31,6 @@ final class ArchitectureTests: XCTestCase {
     XCTAssertEqual(try LibraryBackupService.decode(backup).books.count, count)
   }
 
-  func testRISDetectionHandlesUnicodeAtProbeBoundary() throws {
-    let text = "TY  - BOOK\nTI  - " + String(repeating: "图书", count: 2000) + "\nER  - \n"
-    let engine = TranslationEngine(registry: TranslatorRegistry())
-    XCTAssertEqual(try engine.importFile(Data(text.utf8)).records.count, 1)
-    XCTAssertThrowsError(try engine.importFile(Data("not a bibliography".utf8)))
-  }
-
   func testCommandSaveUndoRedoPublishesCommittedSnapshots() throws {
     let database = try LibraryDatabase.open(inMemory: true), ctx = database.mainContext, undo = undoManager()
     let notifier = LibraryNotifier.forContext(ctx)
@@ -150,8 +143,9 @@ final class ArchitectureTests: XCTestCase {
   func testCentralQueryFindsTranslatorsSeriesAndEquivalentISBN() throws {
     let database = try LibraryDatabase.open(inMemory: true), ctx = database.mainContext
     var draft = record(); draft.isbn10 = "0306406152"
-    draft.contributors = [ContributorArchive(name: "测试译者", role: .translator, order: 0)]
-    draft.seriesMemberships = [SeriesMembershipArchive(name: "科学书系", volume: "1")]
+    draft.contributors = [ContributorArchive(name: "测试译者", roleRaw: ContributorRole.translator.rawValue, displayOrder: 0)]
+    let membership = SeriesMembership(series: BookSeries(name: "科学书系"), book: nil, volumeLabel: "1")
+    draft.seriesMemberships = [try XCTUnwrap(SeriesMembershipArchive(membership: membership))]
     try LibraryCommands(context: ctx, undoManager: nil).save(draft, expected: nil)
     let books = try ctx.fetch(FetchDescriptor<Book>())
     for text in ["测试译者", "科学书系", "9780306406157"] {
@@ -160,30 +154,18 @@ final class ArchitectureTests: XCTestCase {
     XCTAssertTrue(LibraryQueries.results(books, collections: [], request: LibraryQueryRequest(selection: .smart(UUID()))).isEmpty)
   }
 
-  func testRegistryAdvertisesAllFourCapabilities() throws {
+  func testRegistryAdvertisesMetadataCapabilities() throws {
     let registry = TranslatorRegistry()
     try registry.validate()
     XCTAssertEqual(registry.capabilities(for: "douban-books"), [.web, .search])
     XCTAssertEqual(registry.capabilities(for: "goodreads-books"), [.web, .search])
     XCTAssertEqual(registry.capabilities(for: "open-library"), [.search])
-    XCTAssertEqual(registry.capabilities(for: "ris"), [.fileImport, .fileExport])
-    XCTAssertEqual(registry.capabilities(for: "csv"), [.fileExport])
+    XCTAssertEqual(registry.capabilities(for: "ris"), [])
+    XCTAssertEqual(registry.capabilities(for: "csv"), [])
   }
 
-  func testDuplicateIDsAndDisabledFileTranslatorsAreRejected() throws {
-    XCTAssertThrowsError(try TranslatorRegistry(translators: [RISTranslator(), RISTranslator()]).validate())
-    let engine = TranslationEngine(registry: TranslatorRegistry(disabledIDs: ["ris", "csv"]))
-    XCTAssertThrowsError(try engine.importFile(Data("TY  - BOOK\nTI  - 测试\nER  - \n".utf8)))
-    XCTAssertThrowsError(try engine.exportFile([record()], translatorID: "ris"))
-    XCTAssertThrowsError(try engine.exportFile([record()], translatorID: "csv"))
-  }
-
-  func testNewFileTranslatorWorksWithoutChangingDispatcher() throws {
-    let engine = TranslationEngine(registry: TranslatorRegistry(translators: [ExampleExchangeTranslator()]))
-    let imported = try engine.importFile(Data("自制图书".utf8), fileExtension: "example")
-    XCTAssertEqual(imported.records.first?.title, "自制图书")
-    let output = try engine.exportFile(imported.records, translatorID: "example-exchange")
-    XCTAssertEqual(String(data: output, encoding: .utf8), "自制图书")
+  func testDuplicateTranslatorIDsAreRejected() throws {
+    XCTAssertThrowsError(try TranslatorRegistry(translators: [OpenLibraryTranslator(), OpenLibraryTranslator()]).validate())
   }
 
   func testDisabledOpenLibraryAlsoRejectsCachedResults() async throws {
@@ -197,31 +179,17 @@ final class ArchitectureTests: XCTestCase {
     } catch { guard case WebMetadataError.disabled = error else { return XCTFail("Unexpected error") } }
   }
 
-  func testRegistryPreferencesPersistForSearchImportAndExport() throws {
+  func testRegistryPreferencesPersistForMetadataSources() throws {
     let name = "BookshelfArchitecture-" + UUID().uuidString
     let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(name)
     defer { defaults.removePersistentDomain(forName: name); try? FileManager.default.removeItem(at: directory) }
     let store = TranslatorStore(directory: directory, defaults: defaults)
-    for id in ["open-library", "ris", "csv"] { store.setEnabled(false, for: id) }
+    for id in ["open-library", "goodreads-books", "douban-books"] { store.setEnabled(false, for: id) }
     let reloaded = TranslatorStore(directory: directory, defaults: defaults)
-    for id in ["open-library", "ris", "csv"] {
+    for id in ["open-library", "goodreads-books", "douban-books"] {
       XCTAssertFalse(reloaded.isEnabled(id)); XCTAssertTrue(reloaded.isBuiltin(id))
     }
     XCTAssertEqual(reloaded.registry.translators.count, 2)
-  }
-}
-
-private struct ExampleExchangeTranslator: FileImportTranslator, FileExportTranslator {
-  let descriptor = TranslatorDescriptor(id: "example-exchange", name: "示例", version: "1", author: "Tests",
-    targetDescription: "自制本地样例", priority: 1)
-  let fileExtensions = ["example"], fileExtension = "example", exportSummary = "测试扩展接口"
-  @MainActor func detectImport(_ data: Data) -> Bool { !data.isEmpty }
-  @MainActor func doImport(_ data: Data) throws -> BibliographicImportResult {
-    BibliographicImportResult(records: [BookArchive(book: Book(title: String(decoding: data, as: UTF8.self)))],
-      totalCount: 1, notices: [], formatName: "示例")
-  }
-  @MainActor func doExport(_ records: [BookArchive], includeNotes: Bool) throws -> Data {
-    Data(records.map(\.title).joined(separator: "\n").utf8)
   }
 }

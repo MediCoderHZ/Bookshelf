@@ -19,6 +19,7 @@ struct LibraryView: View {
   let collections: [BookCollection]
   let currentCollectionID: UUID?
   let onNewNote: (UUID) -> Void
+  let onTemplateNote: (NoteRecord) -> Void
   let onEditNote: (NoteRecord) -> Void
   let onTrashNote: (NoteRecord) -> Void
   let onMoveNote: ([NoteDragBatch], NoteDropDestination) -> Void
@@ -225,6 +226,18 @@ struct LibraryView: View {
     if selected.count == 1, let book = selected.first, book.deletedAt == nil {
       Button(L10n.tr("编辑书籍…")) { appState.presentEditor(for: book) }
       Button(L10n.tr("新建笔记…")) { onNewNote(book.id) }
+      let templates = PluginStore.shared.enabledTemplates
+      if !templates.isEmpty {
+        Menu(L10n.tr("从模板新建笔记")) {
+          ForEach(templates) { template in
+            Button(template.displayName) {
+              guard let current = PluginStore.shared.enabledTemplates.first(where: { $0.id == template.id })
+              else { return }
+              onTemplateNote(current.draft(for: book, language: InterfaceLanguagePreferences.shared.language))
+            }
+          }
+        }
+      }
       Divider()
     }
     if !selected.isEmpty {

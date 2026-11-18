@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct WebMetadataImportView: View {
   @Environment(\.dismiss) private var dismiss
-  @State private var translators = TranslatorStore.shared
+  @Environment(TranslatorStore.self) private var translators
   var testTranslatorID: String? = nil
   let onSelect: (BookMetadataSearchResult) -> Void
 
@@ -120,7 +120,7 @@ struct WebMetadataImportView: View {
         case nil:
           ContentUnavailableView(
             L10n.tr("从网页添加书籍"), systemImage: "link",
-            description: Text(L10n.tr("粘贴网址后自动匹配解析器。更多网站可在设置 → 元信息解析器中导入规则。")))
+            description: Text(L10n.tr("粘贴网址后自动匹配解析器。更多网站可在设置 → 文件与数据库 → 元信息解析器中导入规则。")))
         }
       }
       .padding(22)

@@ -167,9 +167,9 @@ final class InterfaceLanguageTests: XCTestCase {
   }
 
   func testCachedTranslatorAndErrorDescriptionsFollowLanguageChoice() {
-    let translator = RISTranslator()
+    let translator = OpenLibraryTranslator()
     withEnglish {
-      XCTAssertEqual(translator.descriptor.name, "RIS Bibliography")
+      XCTAssertEqual(translator.descriptor.targetDescription, "Search by title or ISBN · openlibrary.org")
       XCTAssertEqual(AutomaticBackupKind.manual.title, "Manual backup")
       XCTAssertEqual(BookMetadataEditError.emptyTitle.errorDescription, "The title cannot be empty.")
     }

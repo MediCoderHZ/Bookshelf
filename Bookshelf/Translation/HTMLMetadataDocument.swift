@@ -29,9 +29,13 @@ final class HTMLMetadataDocument {
     context.pointee.node = node ?? xmlDocGetRootElement(document)
     guard let result = xmlXPathEvalExpression(xpath, context) else { return [] }
     defer { xmlXPathFreeObject(result) }
-    guard let set = result.pointee.nodesetval, let table = set.pointee.nodeTab,
+    guard result.pointee.type == XPATH_NODESET, let set = result.pointee.nodesetval, let table = set.pointee.nodeTab,
       set.pointee.nodeNr > 0 else { return [] }
-    return (0..<Int(set.pointee.nodeNr)).compactMap { table[$0] }
+    // Namespace-axis entries belong to the XPath result, not the document.
+    return (0..<Int(set.pointee.nodeNr)).compactMap { index in
+      guard let node = table[index], node.pointee.type != XML_NAMESPACE_DECL else { return nil }
+      return node
+    }
   }
 
   func first(_ xpath: String, from node: xmlNodePtr? = nil) -> xmlNodePtr? {

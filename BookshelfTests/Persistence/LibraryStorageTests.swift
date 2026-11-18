@@ -76,6 +76,93 @@ final class LibraryStorageTests: XCTestCase {
     XCTAssertEqual(try copy.mainContext.fetch(FetchDescriptor<LibraryNote>()).first?.body, "新位置最新正文")
   }
 
+  func testPendingMoveOnUpgradeCarriesEditedTranslatorAndRulesToEachNewLibraryDirectory() throws {
+    let root = try root(), first = controller(root)
+    let original = try first.openLibrary(backups: backups(root))
+    try seed(original.mainContext)
+    let legacy = try directory(root, "Support/Translators")
+    let rule = TranslatorRule.example
+    let ruleFile = legacy.appendingPathComponent("custom.json")
+    try rule.encoded().write(to: ruleFile)
+    let script = legacy.appendingPathComponent("douban-books.js")
+    let factory = try String(contentsOf: XCTUnwrap(TranslatorScript.douban.file), encoding: .utf8)
+    try factory.write(to: script, atomically: true, encoding: .utf8)
+    let target = try directory(root, "library-A")
+    try first.requestDirectory(target)
+    let edit = factory + "\n// Local edit after selecting the new directory"
+    try edit.write(to: script, atomically: true, encoding: .utf8)
+
+    let moved = controller(root)
+    let library = try moved.openLibrary(backups: backups(root))
+    XCTAssertEqual(try archive(library.mainContext), try archive(original.mainContext))
+    XCTAssertEqual(moved.translatorDirectory.path, target.appendingPathComponent("translators").path)
+    let suite = UUID().uuidString, defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let catalog = TranslatorStore(directory: moved.translatorDirectory, defaults: defaults, prepareDirectory: moved.migrateLegacyTranslatorsIfNeeded)
+    XCTAssertTrue(catalog.diagnostics.isEmpty)
+    XCTAssertEqual(catalog.rules, [rule])
+    let activeScript = try XCTUnwrap(catalog.scriptFile(for: "douban-books"))
+    XCTAssertEqual(try String(contentsOf: activeScript, encoding: .utf8), edit)
+    XCTAssertEqual(try Data(contentsOf: activeScript), try Data(contentsOf: script))
+
+    try catalog.remove(rule.id)
+    let nextEdit = edit + "\n// Edited in library A"
+    try nextEdit.write(to: activeScript, atomically: true, encoding: .utf8)
+    let targetB = try directory(root, "library-B")
+    try moved.requestDirectory(targetB)
+    let reopened = controller(root)
+    _ = try reopened.openLibrary(backups: backups(root))
+    let next = TranslatorStore(directory: reopened.translatorDirectory, defaults: defaults, prepareDirectory: reopened.migrateLegacyTranslatorsIfNeeded)
+    XCTAssertEqual(next.directory.path, targetB.appendingPathComponent("translators").path)
+    XCTAssertEqual(try String(contentsOf: XCTUnwrap(next.scriptFile(for: "douban-books")), encoding: .utf8), nextEdit)
+    XCTAssertTrue(next.rules.isEmpty)
+    XCTAssertTrue(FileManager.default.fileExists(atPath: ruleFile.path))
+  }
+
+  func testExistingLibraryTranslatorFilesWinDuringOneTimeMerge() throws {
+    let root = try root(), manager = controller(root)
+    _ = try manager.openLibrary(backups: backups(root))
+    let legacy = try directory(root, "Support/Translators")
+    let active = try directory(root, "translators")
+    let oldNotes = try directory(legacy, "notes"), newNotes = try directory(active, "notes")
+    try Data("keep mine".utf8).write(to: newNotes.appendingPathComponent("readme.txt"))
+    try Data("older".utf8).write(to: oldNotes.appendingPathComponent("readme.txt"))
+    try Data("extra".utf8).write(to: oldNotes.appendingPathComponent("extra.txt"))
+    try manager.migrateLegacyTranslatorsIfNeeded()
+    XCTAssertEqual(manager.translatorDirectory.path, active.path)
+    XCTAssertEqual(try Data(contentsOf: newNotes.appendingPathComponent("readme.txt")), Data("keep mine".utf8))
+    XCTAssertEqual(try Data(contentsOf: newNotes.appendingPathComponent("extra.txt")), Data("extra".utf8))
+    try FileManager.default.removeItem(at: newNotes.appendingPathComponent("extra.txt"))
+    let restarted = controller(root)
+    _ = try restarted.openLibrary(backups: backups(root))
+    try restarted.migrateLegacyTranslatorsIfNeeded()
+    XCTAssertFalse(FileManager.default.fileExists(atPath: newNotes.appendingPathComponent("extra.txt").path))
+  }
+
+  func testTranslatorCopyFailureLeavesOriginalLibraryActiveAndCanBeRetried() throws {
+    let root = try root(), manager = controller(root)
+    _ = try manager.openLibrary(backups: backups(root))
+    let folder = try directory(root, "translators"), nested = try directory(folder, "nested")
+    XCTAssertThrowsError(try manager.requestDirectory(nested))
+    let target = try directory(root, "next")
+    try manager.requestDirectory(target)
+    let saved = root.appendingPathComponent("saved-translators")
+    try FileManager.default.moveItem(at: folder, to: saved)
+    try Data("occupied".utf8).write(to: folder)
+    let failed = controller(root)
+    _ = try failed.openLibrary(backups: backups(root))
+    XCTAssertEqual(failed.currentStoreURL, manager.currentStoreURL)
+    XCTAssertNotNil(failed.locationError)
+    XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: target.path).isEmpty)
+    try FileManager.default.removeItem(at: folder)
+    try FileManager.default.moveItem(at: saved, to: folder)
+    let retried = controller(root)
+    _ = try retried.openLibrary(backups: backups(root))
+    XCTAssertNil(retried.locationError)
+    XCTAssertEqual(retried.currentStoreURL, target.appendingPathComponent("default.store"))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: target.appendingPathComponent("translators/nested").path))
+  }
+
   func testCancelAndOccupiedDestinationDoNotMoveOrOverwrite() throws {
     let root = try root(), manager = controller(root)
     let container = try manager.openLibrary(backups: backups(root)); try seed(container.mainContext)

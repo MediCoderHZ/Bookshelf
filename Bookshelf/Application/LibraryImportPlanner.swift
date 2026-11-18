@@ -37,9 +37,6 @@ struct LibraryImportPlan: Identifiable {
   let items: [ImportPreviewItem]
   var smartCollections: [SmartCollectionArchive] = []
   var existingSmartIDs: Set<UUID> = []
-  var isRIS = false
-  var importSummary: String?
-  var importNotices: [String] = []
   var manualCollections: [ManualCollectionRecord] = []
   var notes: [NoteRecord] = []
   var collectionBaseline: [UUID: ManualCollectionRecord] = [:]
@@ -50,17 +47,6 @@ struct LibraryImportPlan: Identifiable {
 enum LibraryImportPlanner {
   static func prepare(_ data: Data, context: ModelContext) throws -> LibraryImportPlan {
     let archive = try LibraryBackupService.decode(data)
-    return try prepare(archive, context: context)
-  }
-
-  static func prepareRIS(_ data: Data, context: ModelContext, registry: TranslatorRegistry = TranslatorRegistry()) throws -> LibraryImportPlan {
-    let decoded = try TranslationEngine(registry: registry).importFile(data)
-    var plan = try prepare(LibraryArchive(schemaVersion: 3, exportedAt: Date(), books: decoded.records), context: context)
-    plan.isRIS = true; plan.importSummary = decoded.summary; plan.importNotices = decoded.notices
-    return plan
-  }
-
-  private static func prepare(_ archive: LibraryArchive, context: ModelContext) throws -> LibraryImportPlan {
     let incoming = archive.books
     let local = try context.fetch(FetchDescriptor<Book>()).map { BookArchive(book: $0) }
     var previous: [BookArchive] = []
@@ -151,7 +137,7 @@ enum LibraryImportPlanner {
       try LibraryRepository.apply(records, smartCollections: smart, manualCollections: organization.records, notes: notes, into: context)
       let ids = Set(records.map(\.id))
       let after = try context.fetch(FetchDescriptor<Book>()).filter { ids.contains($0.id) }
-      LibraryServices.forContext(context).history.register(plan.isRIS ? L10n.tr("导入 RIS 书目") : L10n.tr("导入备份"), before: before, after: LibraryHistory.snapshots(after),
+      LibraryServices.forContext(context).history.register(L10n.tr("导入备份"), before: before, after: LibraryHistory.snapshots(after),
         afterSmart: try SmartCollectionService.snapshots(in: context, ids: Set(smart.map(\.id))),
         afterCollections: try OrganizationStore.collections(in: context, ids: Set(organization.records.map(\.id))),
         afterNotes: try OrganizationStore.notes(in: context, ids: Set(notes.map(\.id))),

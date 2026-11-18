@@ -9,9 +9,10 @@ struct BookshelfApp: App {
   @StateObject private var backups: AutomaticBackupController
   @StateObject private var relauncher: AppRelaunchController
   @StateObject private var locations: LibraryLocationController
-  private let storage: Result<ModelContainer, Error>
+  private let storage: Result<(container: ModelContainer, translators: TranslatorStore), Error>
 
   init() {
+    _ = PluginStore.shared // Separate legacy note templates before the translator catalog opens.
     let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
     let backups = AutomaticBackupController(appVersion: "\(AppReleaseInfo.version) (\(AppReleaseInfo.build))",
       recoveryRoot: support.appendingPathComponent("Bookshelf"))
@@ -24,7 +25,8 @@ struct BookshelfApp: App {
       LibrarySearchScope.migratePreference(in: .standard)
       let container = try locations.openLibrary(backups: backups)
       try SmartCollectionService.retireBookTypeDefaults(in: container.mainContext)
-      return container
+      let translators = TranslatorStore(directory: locations.translatorDirectory, prepareDirectory: locations.migrateLegacyTranslatorsIfNeeded)
+      return (container, translators)
     }
     _updater = StateObject(wrappedValue: AppUpdater(backups: backups))
     _relauncher = StateObject(wrappedValue: AppRelaunchController(prepare: {
@@ -38,8 +40,9 @@ struct BookshelfApp: App {
     WindowGroup(AppReleaseInfo.displayName) {
       Group {
         switch storage {
-        case .success(let container):
-          LibraryWindowRoot(container: container)
+        case .success(let library):
+          LibraryWindowRoot(container: library.container)
+            .environment(library.translators)
             .safeAreaInset(edge: .bottom) {
               VStack(spacing: 0) {
                 if let message = locations.locationError {
@@ -60,20 +63,37 @@ struct BookshelfApp: App {
     .windowToolbarStyle(.unifiedCompact(showsTitle: false))
     .commands {
       AppUpdateCommands(updater: updater)
+      PluginCommands()
       LibraryUndoCommands()
       LibraryNewBookCommands()
       LibrarySearchCommands()
       LibraryToolbarCommands()
     }
 
+    Window(Text(L10n.tr("插件")), id: PluginCommands.windowID) {
+      PluginManagerView().environment(\.locale, L10n.locale)
+    }
+    .defaultSize(width: 680, height: 510)
+
+    Window(Text(L10n.tr("元信息解析器")), id: TranslatorSettingsView.windowID) {
+      switch storage {
+      case .success(let library):
+        TranslatorSettingsView().environment(library.translators).environment(\.locale, L10n.locale)
+      case .failure(let error):
+        storageFailure(error)
+      }
+    }
+    .defaultSize(width: 490, height: 200)
+
     Settings {
       switch storage {
-      case .success(let container):
+      case .success(let library):
         LibraryUndoScope {
           SettingsView().environmentObject(backups).environmentObject(relauncher)
             .environmentObject(locations)
             .environment(\.locale, L10n.locale)
-            .modelContainer(container)
+            .environment(library.translators)
+            .modelContainer(library.container)
             .frame(width: 960, height: 700)
         }
       case .failure(let error):
@@ -154,6 +174,16 @@ private struct LibraryWindowRoot: View {
     // Launch Services can omit launch arguments for a sandboxed app. Consume
     // this one-shot preference after activation, when Settings is registered.
     DispatchQueue.main.async { openSettings() }
+  }
+}
+
+private struct PluginCommands: Commands {
+  static let windowID = "plugin-manager"
+  @Environment(\.openWindow) private var openWindow
+  var body: some Commands {
+    CommandMenu(Text(L10n.tr("插件"))) {
+      Button(L10n.tr("管理插件…")) { openWindow(id: Self.windowID) }
+    }
   }
 }
 

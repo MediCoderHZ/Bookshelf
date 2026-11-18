@@ -27,12 +27,11 @@ struct SettingsWindowTitle: NSViewRepresentable {
 }
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-  case general, exchange, backups, storage, about
+  case general, backups, storage, about
   var id: Self { self }
   var titleKey: InterfaceText {
     switch self {
     case .general: "通用"
-    case .exchange: "导入与导出"
     case .backups: "备份与恢复"
     case .storage: "文件与数据库"
     case .about: "关于"
@@ -42,7 +41,6 @@ enum SettingsPane: String, CaseIterable, Identifiable {
   var symbol: String {
     switch self {
     case .general: "gearshape"
-    case .exchange: "square.and.arrow.up"
     case .backups: "clock.arrow.circlepath"
     case .storage: "externaldrive"
     case .about: "info.circle"
@@ -53,25 +51,23 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
 /// Search the settings themselves in either language, independently of library data.
 enum SettingsGroup: String, CaseIterable, Identifiable {
-  case appearance, exchange, translators, automaticBackup, restore, storage, about
+  case appearance, automaticBackup, restore, storage, translators, about
   var id: Self { self }
   var pane: SettingsPane {
     switch self {
     case .appearance: .general
-    case .exchange, .translators: .exchange
     case .automaticBackup, .restore: .backups
-    case .storage: .storage
+    case .storage, .translators: .storage
     case .about: .about
     }
   }
   var titleKey: InterfaceText {
     switch self {
     case .appearance: "界面语言"
-    case .exchange: "书目交换"
-    case .translators: "元信息解析器"
     case .automaticBackup: "自动备份"
-    case .restore: "导出与恢复"
+    case .restore: "备份文件"
     case .storage: "数据目录与维护"
+    case .translators: "元信息解析器"
     case .about: "关于书架"
     }
   }
@@ -79,10 +75,9 @@ enum SettingsGroup: String, CaseIterable, Identifiable {
   private var keywords: [InterfaceText] {
     switch self {
     case .appearance: ["界面语言", "简体中文", "English", "Language", "中文", "英文"]
-    case .exchange: ["导入 RIS 书目…", "导出", "RIS", "CSV", "书目", "Bibliography"]
-    case .translators: ["管理元信息解析器…", "网页", "搜索", "自定义规则", "Metadata", "Translators", "Web", "Rules", "RIS", "CSV"]
     case .automaticBackup: ["定期备份书籍和笔记", "备份频率", "保留定时与手动备份", "最近成功备份", "立即备份", "查看历史备份…", "每小时", "每天", "升级", "历史", "频率", "History", "Retention", "Interval", "Update"]
-    case .restore: ["导出 JSON 备份…", "从备份恢复…", "JSON", "Restore", "Import", "Export"]
+    case .restore: ["保存 JSON 备份…", "从备份恢复…", "JSON", "Restore"]
+    case .translators: ["管理元信息解析器…", "打开解析器目录", "重新加载", "Translators", "Metadata"]
     case .storage: ["数据目录", "数据库维护", "检查数据库完整性", "使用自定义位置…", "Database", "Directory", "Location", "Integrity", "Storage"]
     case .about: ["应用名称", "版本", "帮助与支持", "许可与致谢…", "查看隐私政策…", "隐私", "Privacy", "MIT", "License", "Bookshelf", "书架"]
     }

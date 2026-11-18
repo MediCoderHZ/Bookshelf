@@ -7,15 +7,49 @@ final class MetadataSearchTests: XCTestCase {
   private let goodreads = MetadataSearchSource(id: "goodreads-books", name: "Goodreads")
 
   func testQueriesAreEncodedWithoutAddingParameters() throws {
-    for translator in [DoubanBookTranslator() as any BookSearchTranslator, GoodreadsBookTranslator()] {
-      let url = translator.searchURL(for: .title("活着 & q=other # 第2版"))
+    for translator in [ScriptWebTranslator(script: .douban), ScriptWebTranslator(script: .goodreads)] {
+      let url = try translator.searchURL(for: .title("C++ & q=other # 第2版"))
       let query = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
-      XCTAssertEqual(query.first(where: { $0.name == "q" })?.value, "活着 & q=other # 第2版")
+      XCTAssertEqual(query.first(where: { $0.name == "q" })?.value, "C++ & q=other # 第2版")
       XCTAssertNotNil(translator.canonicalURL(for: url))
       XCTAssertEqual(query.count, 2)
+      XCTAssertTrue(url.absoluteString.contains("C%2B%2B"))
     }
-    XCTAssertNil(DoubanBookTranslator().canonicalURL(for: URL(string: "https://www.douban.com/search?cat=1002&q=test")!))
-    XCTAssertNil(DoubanBookTranslator().canonicalURL(for: URL(string: "https://evil.test/search?cat=1001&q=test")!))
+    XCTAssertNil(ScriptWebTranslator(script: .douban).canonicalURL(for: URL(string: "https://www.douban.com/search?cat=1002&q=test")!))
+    XCTAssertNil(ScriptWebTranslator(script: .douban).canonicalURL(for: URL(string: "https://evil.test/search?cat=1001&q=test")!))
+  }
+
+  @MainActor
+  func testOpenLibraryISBNUsesInstalledScriptForRequestAndParsing() async throws {
+    let name = UUID().uuidString, directory = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+    let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
+    defer { try? FileManager.default.removeItem(at: directory); defaults.removePersistentDomain(forName: name) }
+    let store = TranslatorStore(directory: directory, defaults: defaults)
+    let file = try XCTUnwrap(store.scriptFile(for: "open-library"))
+    let source = try String(contentsOf: file, encoding: .utf8)
+    let changes = """
+      const originalRequest = requestURL, originalSearch = doSearch;
+      requestURL = query => originalRequest(query) + "&installed=1";
+      doSearch = (query, data) => originalSearch(query, data).map(book => ({...book, subtitle: "Local script"}));
+      """
+    try (source + "\n" + changes).write(to: file, atomically: true, encoding: .utf8)
+    store.reload()
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [OpenLibraryFixtureProtocol.self]
+    let session = URLSession(configuration: configuration)
+    defer { session.invalidateAndCancel() }
+    let service = MetadataSearchService(catalog: store.catalog,
+      host: TranslationHost(openLibrary: OpenLibraryBookMetadataProvider(session: session)))
+    let hits = try await service.search(.isbn("9780743273565"), source: .openLibrary)
+    let book = try await service.resolve(XCTUnwrap(hits.first))
+    XCTAssertEqual(book.id, "ISBN:9780743273565")
+    XCTAssertEqual(book.title, "Example Edition")
+    XCTAssertEqual(book.subtitle, "Local script")
+    XCTAssertEqual(book.authors, ["Writer"])
+    XCTAssertEqual(book.publisher, "Edition Press")
+    XCTAssertEqual(book.isbn10, "0743273567")
+    XCTAssertEqual(book.isbn13, "9780743273565")
+    XCTAssertEqual(book.sourceName, "Open Library")
   }
 
   func testDoubanSearchUnwrapsOnlyBookLinksAndDeduplicates() throws {
@@ -25,7 +59,7 @@ final class MetadataSearchTests: XCTestCase {
       <div class='result'><h3><a href='https://movie.douban.com/subject/789/'>Movie</a></h3></div>
       <a href='https://book.douban.com/subject/999/'>Recommendation outside search rows</a>
       """
-    let t = DoubanBookTranslator()
+    let t = ScriptWebTranslator(script: .douban)
     let rows = try t.searchResults(in: HTMLMetadataDocument(data: Data(html.utf8)), url: t.searchURL(for: .title("Example")))
     XCTAssertEqual(rows.count, 1)
     XCTAssertEqual(rows.first?.title, "Example Book")
@@ -34,7 +68,7 @@ final class MetadataSearchTests: XCTestCase {
   }
 
   func testGoodreadsSearchUsesRankedRowsNotOtherBookLinks() throws {
-    let t = GoodreadsBookTranslator()
+    let t = ScriptWebTranslator(script: .goodreads)
     let rows = try t.searchResults(in: HTMLMetadataDocument(data: Data(Self.goodreadsSearch.utf8)), url: t.searchURL(for: .title("Example")))
     XCTAssertEqual(rows.count, 1)
     XCTAssertEqual(rows.first?.url.absoluteString, "https://www.goodreads.com/book/show/123-example")
@@ -42,13 +76,13 @@ final class MetadataSearchTests: XCTestCase {
   }
 
   func testEmptySearchIsDifferentFromChallengeOrChangedMarkup() throws {
-    let d = DoubanBookTranslator()
-    let g = GoodreadsBookTranslator()
+    let d = ScriptWebTranslator(script: .douban)
+    let g = ScriptWebTranslator(script: .goodreads)
     XCTAssertTrue(try d.searchResults(in: HTMLMetadataDocument(data: Data("<div class='search-result'></div>".utf8)),
       url: d.searchURL(for: .title("empty"))).isEmpty)
     XCTAssertTrue(try g.searchResults(in: HTMLMetadataDocument(data: Data("<form action='/search'></form>".utf8)),
       url: g.searchURL(for: .title("empty"))).isEmpty)
-    for translator in [d as any BookSearchTranslator, g] {
+    for translator in [d, g] {
       XCTAssertThrowsError(try translator.searchResults(in: HTMLMetadataDocument(data: Data("<h1>Unknown page</h1>".utf8)),
         url: translator.searchURL(for: .title("test"))))
       XCTAssertThrowsError(try translator.searchResults(in: HTMLMetadataDocument(data: Data("<title>安全验证 Just a moment</title>".utf8)),
@@ -125,9 +159,9 @@ final class MetadataSearchTests: XCTestCase {
     do { _ = try await task.value; XCTFail("Cancelled search returned data") } catch {}
   }
 
-  func testSearchRedirectAllowsOnlyKnownHTTPSPathsOnSameHost() {
-    let t = GoodreadsBookTranslator()
-    let from = t.searchURL(for: .isbn("9780743273565"))
+  func testSearchRedirectAllowsOnlyKnownHTTPSPathsOnSameHost() throws {
+    let t = ScriptWebTranslator(script: .goodreads)
+    let from = try t.searchURL(for: .isbn("9780743273565"))
     XCTAssertEqual(WebMetadataClient.searchRedirect(URL(string: "https://www.goodreads.com/book/show/4671.The_Great_Gatsby?tracking=1")!,
       from: from, translator: t)?.absoluteString, "https://www.goodreads.com/book/show/4671.The_Great_Gatsby")
     for target in ["http://www.goodreads.com/book/show/4671", "https://evil.test/book/show/4671",
@@ -163,13 +197,13 @@ final class MetadataSearchTests: XCTestCase {
 
   func testSavedRealSearchPagesWhenProvided() throws {
     guard let directory = ProcessInfo.processInfo.environment["BOOKSHELF_SEARCH_SAMPLES"] else { throw XCTSkip("Set BOOKSHELF_SEARCH_SAMPLES to the saved search sample directory") }
-    let douban = DoubanBookTranslator()
+    let douban = ScriptWebTranslator(script: .douban)
     let d = try douban.searchResults(in: HTMLMetadataDocument(data: Data(contentsOf:
       URL(fileURLWithPath: directory).appendingPathComponent("bookshelf-search-douban-search-isbn.txt"))),
       url: douban.searchURL(for: .isbn("9787544270878")))
     XCTAssertEqual(d.first?.title, "解忧杂货店")
     XCTAssertEqual(d.first?.url.absoluteString, "https://book.douban.com/subject/25862578/")
-    let goodreads = GoodreadsBookTranslator()
+    let goodreads = ScriptWebTranslator(script: .goodreads)
     let g = try goodreads.searchResults(in: HTMLMetadataDocument(data: Data(contentsOf:
       URL(fileURLWithPath: directory).appendingPathComponent("bookshelf-search-goodreads-title.txt"))),
       url: goodreads.searchURL(for: .title("The Great Gatsby")))
@@ -250,6 +284,31 @@ private actor SearchWebStub: WebMetadataLoading {
 
 private struct SearchOpenLibraryStub: BookMetadataProvider {
   let displayName = "Open Library"
-  func search(_ query: BookMetadataQuery) async throws -> [BookMetadataSearchResult] { [MetadataSearchTests.book()] }
+  func search(_ query: BookMetadataQuery, script: TranslatorScript) async throws -> [BookMetadataSearchResult] { [MetadataSearchTests.book()] }
 
+}
+
+private final class OpenLibraryFixtureProtocol: URLProtocol, @unchecked Sendable {
+  override class func canInit(with request: URLRequest) -> Bool { true }
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+  override func startLoading() {
+    guard let url = request.url, url.host == "openlibrary.org", url.path == "/api/books",
+      let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+      items.contains(URLQueryItem(name: "bibkeys", value: "ISBN:9780743273565")),
+      items.contains(URLQueryItem(name: "jscmd", value: "data")),
+      items.contains(URLQueryItem(name: "installed", value: "1")),
+      items.contains(URLQueryItem(name: "format", value: "json")),
+      let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil) else {
+      client?.urlProtocol(self, didFailWithError: URLError(.badURL))
+      return
+    }
+    let json = """
+      {"ISBN:9780743273565":{"title":"Example Edition","authors":[{"name":"Writer"}],
+      "publishers":[{"name":"Edition Press"}],"identifiers":{"isbn_10":["0-7432-7356-7"]}}}
+      """
+    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    client?.urlProtocol(self, didLoad: Data(json.utf8))
+    client?.urlProtocolDidFinishLoading(self)
+  }
+  override func stopLoading() {}
 }

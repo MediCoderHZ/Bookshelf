@@ -14,7 +14,7 @@ Zotero 区分窗口代码与不依赖界面的核心代码；窗口通过数据 
 | 核心操作与事务调用 | Application/LibraryCommands、CollectionCommands、TrashCommands、LibraryImportPlanner、BookBatchEditing | 表单保存、整理、笔记、文件夹、导入、批量修改、合并及回收站共用持久化路径 |
 | Notifier | LibraryNotifier | 成功提交后按记录 ID 通知；失败不通知；查询界面观察版本变化 |
 | 搜索、保存搜索 | LibraryQueries、AdvancedBookQuery、SmartCollectionService | 快速检索、标签交集、组合条件、智能文件夹、重复组与回收站范围统一组合 |
-| Translate / translators | Translation/TranslatorRegistry、TranslationEngine | Web、Search、Import、Export 四类协议；同 ID 可具备多种能力，统一注册、优先级、停用和调度 |
+| Translate / translators | Translation/TranslatorRegistry、TranslationEngine | Web、Search 两类协议；同 ID 可具备多种能力，统一注册、优先级、停用和调度 |
 | 翻译结果与保存分离 | 元信息预览、字段对比、LibraryImportPlan | 提取本身不写数据库；核对冲突与版本后才提交 |
 
 Notifier 的职责参考 [官方 notifier.js](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/notifier.js)；数据对象与保存边界参考 [官方 dataObject.js](https://github.com/zotero/zotero/blob/main/chrome/content/zotero/xpcom/data/dataObject.js)。采用的是职责与行为约定，不是逐行移植或数据库格式兼容。
@@ -26,9 +26,8 @@ flowchart TD
   UI --> Translate[TranslationEngine]
   Translate --> Registry[统一 TranslatorRegistry]
   Registry --> Web[Web / Search]
-  Registry --> Files[Import / Export]
   Web --> Host[宿主提供网络与域名限制]
-  Translate --> Preview[统一元信息与导入预览]
+  Translate --> Preview[元信息预览]
   Preview --> Commands
   Commands --> Repo[LibraryRepository]
   Repo --> DB[SwiftData / SQLite]
@@ -44,7 +43,7 @@ flowchart TD
 
 SwiftData 既有实体名称、UUID 和默认存储位置保持兼容。删除的阅读状态、评分、收藏、阅读日期与封面属性由推断迁移从旧表中移除；LibraryDatabase 在打开书库时清除智能查询中的状态、评分、收藏与封面条件，仅含这些旧条件的文件夹删除，混合条件保留其余规则及匹配方式。子文件夹与独立笔记升级增加可空 parentID 和 LibraryNote 实体；Book 增加可空 bookTypeRaw 与 originalLanguageCode；新建表单默认中文原版书，旧库与外部记录不推断分类。类型只控制字段显示，不删除原作信息或贡献者。JSON 备份为 schemaVersion 9，可读取版本 1/2/3/4/5/6/7/8；旧备份先清理阅读状态、评分、收藏、封面字段及规则，再通过正常校验和冲突预览。旧格式 SQLite 固定样本覆盖物理列删除、关系保留及重复迁移，备份与偏好清理由回归测试保护。Database 显式关闭自动保存，所有持久化由命令完成；打开失败显示错误，不重建或删除原书库。
 
-BookArchive 是跨命令、预览、撤销和书目交换的值快照。编辑器打开时保存基线，保存时重新读取当前记录；发现其他窗口已修改时停止，避免旧表单覆盖新内容。笔记使用同样的规则。未变更的贡献者、标签、文件夹和丛书关系保留原关联身份。
+BookArchive 是跨命令、预览、撤销和备份恢复的值快照。编辑器打开时保存基线，保存时重新读取当前记录；发现其他窗口已修改时停止，避免旧表单覆盖新内容。笔记使用同样的规则。未变更的贡献者、标签、文件夹和丛书关系保留原关联身份。
 
 ## 窗口、书库与通知
 
@@ -54,11 +53,11 @@ AppState 属于单个主窗口，添加书籍快捷键路由到当前窗口。Un
 
 ## Translator 扩展
 
-四类能力的定义和位值参考 [Zotero translators](https://www.zotero.org/support/dev/translators)：Import 1、Export 2、Web 4、Search 8。本应用从协议实现推导能力，避免描述信息声称支持但实际未实现。
+网页与搜索能力的位值参考 [Zotero translators](https://www.zotero.org/support/dev/translators)，分别为 Web 4 和 Search 8。本应用从协议实现推导能力，避免描述信息声称支持但实际未实现。
 
-内置注册：豆瓣和 Goodreads 为 Web + Search，Open Library 为 Search，RIS 为 Import + Export，CSV 为 Export。设置中的「元信息解析器」统一显示能力并保存启停状态。停用同时影响运行入口和已缓存候选；导出格式列表从注册中心生成。
+内置注册：豆瓣和 Goodreads 为 Web + Search，Open Library 为 Search。设置中的「元信息解析器」统一显示能力并保存启停状态。停用同时影响运行入口和已缓存候选。
 
-新增 Swift 适配器实现相应协议并加入 BuiltinTranslators.catalog。网络由 TranslationHost 提供，支持替换为测试客户端；适配器没有 ModelContext。普通网页继续使用受验证的 JSON 规则，按目标、优先级、检测和提取执行。文件导入返回 BibliographicImportResult，交给既有冲突预览；文件导出接收确定范围的值快照。
+Resources/Translators 内的三个 JavaScript 文件是出厂版本。打开数据库后安装到其同级的 `translators/` 目录，搜索和提取使用该目录中的脚本快照。TranslatorScript 读取文件头并在 JavaScriptCore 中调用入口。网络由 TranslationHost 提供，支持替换为测试客户端；适配器没有 ModelContext。普通网页继续使用受验证的 JSON 规则，按目标、优先级、检测和提取执行。
 
 本项目不运行 Zotero JavaScript translator 或插件包。架构对照不代表 Zotero 文件格式、插件 API 或同步协议兼容。
 

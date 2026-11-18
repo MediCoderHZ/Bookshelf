@@ -15,7 +15,7 @@
 | `Distribution/Updates/` | GitHub Pages 发布的 Sparkle 更新清单 |
 | `.github/` | 构建验证、手动 Pages 发布及协作模板 |
 | `AppStore/` | 历史商店元数据与验收记录，不作为 GitHub 分发要求 |
-| `Examples/` | 可供手动体验和测试复用的 RIS、JSON 与 HTML 示例 |
+| `Examples/` | 可供手动体验和测试复用的 JSON 与 HTML 示例 |
 | `scripts/` | 架构检查、项目验证、Release 构建和发布前检查；`lib/` 共用工具链与构建目录设置 |
 | `Archive/` | 整理时发现的编号副本，保留原文件内容、原相对路径和校验清单 |
 | `work/` | 本地构建、缓存、原始设计图片和操作前快照，由 Git 忽略 |
@@ -31,7 +31,7 @@
 | `Models/` | SwiftData 实体及关系定义 |
 | `Application/` | 书籍、文件夹、笔记与标签命令，查询、建议、历史和通知 |
 | `Persistence/` | 数据库打开、事务仓储、组织数据、JSON 备份与草稿恢复 |
-| `Translation/` | 解析器注册、规则与存储、网络客户端、站点适配和格式交换 |
+| `Translation/` | 插件格式与本机存储、解析器注册、网络客户端和站点适配 |
 | `Resources/` | Asset Catalog、应用图标、隐私清单与许可声明 |
 | `Support/` | Info.plist 和 Bookshelf.entitlements |
 
@@ -60,7 +60,7 @@ BookshelfTests/
 ├── Persistence/    事务架构、书库安全与旧版本兼容
 ├── Search/         搜索范围与已保存查询
 ├── Tags/           标签管理、建议与侧栏范围
-├── Translation/    站点解析、元信息检索、规则和书目交换
+├── Translation/    站点解析、元信息检索与自定义规则
 ├── Workspace/      列表投影、列宽、滚动、选区与工作区状态
 └── Fixtures/       ReadingStatusV5、RatingV6、FavoriteV7、CoverV8
 ```
@@ -72,7 +72,6 @@ SwiftPM 递归发现测试文件，`Fixtures/` 仍通过 `.copy("Fixtures")` 打
 - [USER-GUIDE.md](USER-GUIDE.md)：从原 README 迁入的完整功能说明。
 - [ARCHITECTURE.md](ARCHITECTURE.md)：源码分层与扩展约束。
 - [ORGANIZATION.md](ORGANIZATION.md)：应用中的文件夹与笔记功能。
-- [INTERCHANGE.md](INTERCHANGE.md)：书目交换及字段说明；样例位于 `Examples/Interchange/`。
 - [TRANSLATORS.md](TRANSLATORS.md)：解析器扩展；样例位于 `Examples/Translators/`。
 - [PRIVACY.md](PRIVACY.md)：可用于发布准备的隐私政策草案。
 - [BUILDING.md](BUILDING.md)：工具链、验证命令、中间文件位置与环境排查。
