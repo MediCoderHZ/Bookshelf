@@ -1,22 +1,30 @@
-# Bookshelf
+# 书架 · Bookshelf
 
-本地优先的 macOS 原生书籍元信息管理器，使用 SwiftUI、SwiftData 和 Swift 6，支持 macOS 14 及以上版本。
+书架是一款为 macOS 开发的开源个人藏书管理软件，参考 Zotero 用文件夹、条目列表和详情面板整理资料的方式。你可以按书名或 ISBN 查找一本书，把不同译本分别归档，再把摘录和想法记在对应的书下。书目和笔记保存在自己的 Mac 上，界面支持简体中文和英文。
 
-支持书籍与笔记管理、多层文件夹、标签、搜索与智能文件夹、元信息检索、批量编辑、回收站、撤销重做，以及 JSON 备份与恢复。完整功能说明见[使用手册](Docs/USER-GUIDE.md)。
+## 下载与运行
 
-在「设置 → 文件与数据库 → 元信息解析器」管理书籍来源。豆瓣、Goodreads 和 Open Library 各有一个[默认脚本](Bookshelf/Resources/Translators)。点击「打开解析器目录」可查看与数据库 `default.store` 同级的 `translators/` 文件夹。在菜单栏「插件 → 管理插件…」管理笔记模板。右键一本书，选择「从模板新建笔记 → 阅读笔记」即可试用随附的[示例插件](Bookshelf/Resources/reading-notes.bookshelfplugin)。
+**当前提供 0.1.0 源码版，支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载源码并解压后，需要完整版 Xcode 才能构建应用。正式安装包将在完成 Developer ID 签名和 Apple 公证后发布。[下载此版源码 ZIP](https://github.com/MediCoderHZ/Bookshelf/archive/refs/tags/v0.1.0-source.zip) · [查看发行页面](https://github.com/MediCoderHZ/Bookshelf/releases)
 
-## 下载与更新
+首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开书架，请先正常退出。
 
-正式安装包将通过 [GitHub Releases](https://github.com/MediCoderHZ/Bookshelf/releases) 发布，支持 Apple Silicon 与 Intel Mac。当前仍处于首次公开发行准备阶段；没有正式安装包时，请按下文从源码构建。Releases 中自动生成的 Source code ZIP 仅包含源码。
+```sh
+bash scripts/install-local.sh
+open ~/Applications/Bookshelf.app
+```
 
-应用已接入 Sparkle 2，提供“检查更新…”和自动更新设置。线上更新清单发布前，开发版的在线更新保持关闭。发布步骤与当前待办见 [GitHub 分发与更新](Docs/DISTRIBUTION.md)。
+安装脚本会构建应用、在本机签名并安装到 `~/Applications/Bookshelf.app`。以后从这个位置打开即可。此源码版的在线更新尚未启用。[构建与测试说明](Docs/BUILDING.md)
 
-书库默认每小时自动备份，保留最近 30 份定时与手动版本，升级前额外备份并单独保留 10 份。设置中可以调整频率与保留数量、查看历史并预览恢复；详见[自动备份与历史恢复](Docs/USER-GUIDE.md#自动备份与历史恢复)。
+## 用书架管理一本书
 
-界面支持简体中文和 English，可在「设置 → 通用 → 界面语言」中选择。完成编辑后点击「重启应用」，书架会自动备份并重新打开，窗口、菜单和文件对话框统一切换到所选语言。书籍、笔记和自定义名称保持原文。
+1. **添加书目。** 输入书名、ISBN 或支持的图书详情页地址，从豆瓣读书、Goodreads 或 Open Library 获取候选记录。核对作者、译者和出版信息后保存，也可以手动录入。
+2. **整理藏书。** 把书放进文件夹，添加主题标签。经常使用的筛选条件可以保存成智能文件夹，新加入且符合条件的书会出现在其中。
+3. **写阅读笔记。** 右键一本书，选择「从模板新建笔记 → 阅读笔记」，即可在书下记录摘录、思考和待查问题。在「插件 → 管理插件…」可以安装或停用笔记模板。[阅读笔记示例](Bookshelf/Resources/reading-notes.bookshelfplugin)
+4. **备份书库。** 应用默认每小时自动备份，并单独保留升级前的快照。可在「设置 → 备份与恢复」查看历史版本，在「文件与数据库」选择数据目录或检查数据库完整性。[使用手册](Docs/USER-GUIDE.md)
 
-「设置 → 文件与数据库」支持自定义数据目录、在 Finder 中显示数据库，以及只读完整性检查。迁移前备份、校验后启用新位置，保留原数据库；详见[数据目录与完整性检查](Docs/USER-GUIDE.md#数据目录与完整性检查)。
+## 致谢 Zotero
+
+感谢 Zotero 项目及其维护者、插件作者和文档贡献者。书架的三栏布局、保存搜索、元信息解析器和插件管理面板，都参考了 Zotero 的设计和公开文档。书架由本项目独立开发，专注于个人藏书与阅读笔记。[Zotero 官网](https://www.zotero.org/) · [Zotero 开发者文档](https://www.zotero.org/support/dev/start) · [Zotero 源码](https://github.com/zotero/zotero)
 
 ## 项目目录
 
@@ -66,10 +74,6 @@ bash scripts/build-release.sh
 此脚本生成未签名的本地验证产物。正式发行采用 Developer ID 签名、公证和 Sparkle 更新包签名，见[分发流程](Docs/DISTRIBUTION.md)。首次构建需要联网下载固定版本的 Sparkle；运行本地测试无需真实更新服务器。
 
 本机日常使用统一安装到 `~/Applications/Bookshelf.app`。退出当前“书架”后运行 `bash scripts/install-local.sh`，再打开这个固定入口；后续更新沿用同一应用身份与书库，不再启动多个验证副本。安装已编译产物的方式见[本机固定应用入口](Docs/BUILDING.md#本机固定应用入口)。
-
-2026-11-15 已完成目录整理后的验证：XCTest 476 项通过、10 项可选测试跳过、0 项失败；双架构 Release 构建及本机启动、书籍与笔记保存、重启读取通过。详见[验证记录](Docs/BUILD-VALIDATION.md)。
-
-Sparkle 接入后的最新验证：XCTest 481 项通过、10 项跳过、0 失败，8 项发布工具测试通过；双架构构建、更新界面及签名包完整性检查通过。完整范围见[更新接入验收](Docs/UPDATE-VALIDATION.md)。
 
 ## 文档导航
 

@@ -15,7 +15,7 @@
 
 `Config/Release.xcconfig` 保存公开配置，包括 Ed25519 公钥。私钥由 Sparkle 官方工具生成，保存在本机登录钥匙串中，没有导出到仓库或日志。Apple Developer ID 签名与 Sparkle 更新签名用途不同，两者都应保留。
 
-`BOOKSHELF_UPDATES_ENABLED` 暂为 `NO`，因为线上清单尚未发布；应用可正常使用，“检查更新…”会说明更新服务尚未启用。配置完整且该值为 `YES` 时，应用启动 Sparkle，自动检查前由 Sparkle 请求用户许可，默认不静默安装、不上传系统分析。设置中提供检查、自动检查和自动下载与安装选项。
+`BOOKSHELF_UPDATES_ENABLED` 暂为 `NO`，因为线上清单尚未发布；应用可正常使用，“检查更新…”会说明更新服务尚未启用。配置完整且该值为 `YES` 时，应用启动 Sparkle，自动检查前由 Sparkle 请求用户许可，默认不静默安装、不上传系统分析。用户可以从应用菜单选择“检查更新…”。
 
 ## 第一次发布
 
@@ -48,7 +48,7 @@
 
 ## 构建与发布工作流
 
-- `.github/workflows/ci.yml`：默认分支推送、PR 和手动触发时运行发布工具测试、XCTest、双架构未签名构建与 Sparkle 嵌入检查；保存 7 天的验证 ZIP。没有签名凭据，也不会发布 Release。
+- `.github/workflows/ci.yml`：默认分支推送、PR 和手动触发时运行发布工具测试、XCTest、双架构未签名构建与 Sparkle 嵌入检查。源码发布阶段只保留检查结果，应用安装包由正式签名发布流程提供。
 - `.github/workflows/pages.yml`：仅由维护者在默认分支手动运行，发布更新清单。仓库需先启用 Pages 的 GitHub Actions 来源。
 - 自动签名、公证与 Release 上传暂未接入 CI；待首个正式包人工验证通过后再配置受保护的发布环境。
 
