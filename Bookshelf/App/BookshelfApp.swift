@@ -8,6 +8,7 @@ struct BookshelfApp: App {
   @StateObject private var updater: AppUpdater
   @StateObject private var backups: AutomaticBackupController
   @StateObject private var relauncher: AppRelaunchController
+  @StateObject private var locations: LibraryLocationController
   private let storage: Result<ModelContainer, Error>
 
   init() {
@@ -15,20 +16,20 @@ struct BookshelfApp: App {
     let backups = AutomaticBackupController(appVersion: "\(AppReleaseInfo.version) (\(AppReleaseInfo.build))",
       recoveryRoot: support.appendingPathComponent("Bookshelf"))
     _backups = StateObject(wrappedValue: backups)
+    let locations = LibraryLocationController(defaultStoreURL: LibraryDatabase.defaultStoreURL,
+      configurationURL: support.appendingPathComponent("Bookshelf/LibraryLocation.json"), recoveryRoot: support.appendingPathComponent("Bookshelf"))
+    _locations = StateObject(wrappedValue: locations)
     storage = Result {
-      let url = LibraryDatabase.defaultStoreURL
-      try backups.prepareToOpenStore(at: url)
       RetiredReadingData.cleanPreferences(.standard)
       LibrarySearchScope.migratePreference(in: .standard)
-      let container = try LibraryDatabase.open(at: url)
+      let container = try locations.openLibrary(backups: backups)
       try SmartCollectionService.retireBookTypeDefaults(in: container.mainContext)
-      backups.attach(context: container.mainContext, storeURL: url)
       return container
     }
     _updater = StateObject(wrappedValue: AppUpdater(backups: backups))
     _relauncher = StateObject(wrappedValue: AppRelaunchController(prepare: {
       guard NSApp.keyWindow?.makeFirstResponder(nil) != false else { throw AutomaticBackupError.pendingChanges }
-      _ = try backups.create()
+      if locations.isOpen { _ = try backups.create() }
     }))
     lifecycle.backups = backups
   }
@@ -39,7 +40,15 @@ struct BookshelfApp: App {
         switch storage {
         case .success(let container):
           LibraryWindowRoot(container: container)
-            .safeAreaInset(edge: .bottom) { AutomaticBackupWarning(backups: backups) }
+            .safeAreaInset(edge: .bottom) {
+              VStack(spacing: 0) {
+                if let message = locations.locationError {
+                  Label(message, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
+                    .padding(10).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled)
+                }
+                AutomaticBackupWarning(backups: backups)
+              }
+            }
             .task { backups.start() }
         case .failure(let error):
           storageFailure(error)
@@ -61,7 +70,8 @@ struct BookshelfApp: App {
       switch storage {
       case .success(let container):
         LibraryUndoScope {
-          SettingsView().environmentObject(updater).environmentObject(backups).environmentObject(relauncher)
+          SettingsView().environmentObject(backups).environmentObject(relauncher)
+            .environmentObject(locations)
             .environment(\.locale, L10n.locale)
             .modelContainer(container)
             .frame(width: 960, height: 700)
@@ -79,6 +89,25 @@ struct BookshelfApp: App {
       Text(L10n.tr("应用没有删除或重建你的书库。请先退出并重新打开应用；如果问题持续，请联系支持并提供以下错误信息。"))
         .multilineTextAlignment(.center)
       Text(error.localizedDescription).font(.caption).textSelection(.enabled)
+      Text(locations.configuredDirectory.path).font(.caption).textSelection(.enabled)
+      Button(L10n.tr("重启应用")) { Task { await relauncher.restart() } }.disabled(relauncher.isRestarting)
+      if locations.canReauthorize {
+        Button(L10n.tr("重新授权数据目录…")) {
+          let panel = NSOpenPanel()
+          panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.allowsMultipleSelection = false
+          panel.directoryURL = locations.configuredDirectory
+          panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            do {
+              try locations.reauthorize(url)
+              Task { await relauncher.restart() }
+            } catch {
+              let alert = NSAlert(); alert.messageText = error.localizedDescription; alert.runModal()
+            }
+          }
+        }
+      }
+      if let message = relauncher.errorMessage { Text(message).font(.caption).foregroundStyle(.red) }
       if let url = AppReleaseInfo.supportURL { Link(L10n.tr("联系支持"), destination: url) }
     }.padding(32).frame(maxWidth: 560)
   }

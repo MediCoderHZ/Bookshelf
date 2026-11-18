@@ -9,7 +9,7 @@ struct PrivacyPolicyView: View {
         VStack(alignment: .leading, spacing: 20) {
           policySection(
             L10n.tr("数据存储"),
-            L10n.tr("书籍元信息、个人备注和智能文件夹条件均保存在用户 Mac 的应用沙盒中。高级筛选和智能文件夹只在本机运行，筛选值不会发送至在线检索来源。JSON 备份包含智能文件夹名称与条件，未单独加密，请妥善保管。应用不会将本地书库整体上传到开发者或第三方服务器。")
+            L10n.tr("书籍、笔记和智能文件夹默认保存在本机应用目录，也可由你选择自定义数据目录。切换目录前先备份，原数据库保留。自动备份和恢复草稿仍保存在本机应用目录。高级筛选和完整性检查只在本机运行，不上传书库内容。数据库与 JSON 备份未单独加密，请妥善保管。")
           )
           policySection(
             L10n.tr("自动备份"),
@@ -38,11 +38,11 @@ struct PrivacyPolicyView: View {
           Link(L10n.tr("Goodreads 隐私政策"), destination: URL(string: "https://www.goodreads.com/about/privacy")!)
           policySection(
             L10n.tr("软件更新"),
-            L10n.tr("正式发行版通过 Sparkle 检查和安装更新。手动检查或允许自动检查后，会访问 GitHub Pages 上的更新清单，并在下载时访问 GitHub Releases。服务方可收到 IP 地址、应用版本等常规网络信息；不会发送书籍、笔记或书库备份。系统分析默认关闭。你可以在设置中关闭自动检查和自动下载；未启用更新服务的开发版不会发起更新请求。")
+            L10n.tr("正式发行版通过 Sparkle 检查和安装更新。手动检查或允许自动检查后，会访问 GitHub Pages 上的更新清单，并在下载时访问 GitHub Releases。服务方可收到 IP 地址、应用版本等常规网络信息；不会发送书籍、笔记或书库备份。系统分析默认关闭。手动检查入口位于应用菜单；未启用更新服务的开发版不会发起更新请求。")
           )
           policySection(
             L10n.tr("文件访问"),
-            L10n.tr("只有在用户主动导入 HTML 网页或解析规则、导出规则、导入或导出备份与书目清单时，应用才会访问用户明确选择的文件或位置。应用会加载自身沙盒目录内已安装的解析规则。HTML 在本机解析，不执行脚本、不加载其引用资源。应用不会扫描用户的其他文件夹。")
+            L10n.tr("导入、导出和选择自定义数据目录时，应用访问你明确选择的文件或位置。自定义数据目录的授权保存在本机，以便重启后继续读取和保存书库。应用也会加载自身目录内的解析规则。HTML 在本机解析，不执行脚本、不加载引用资源；应用不会扫描其他文件夹。")
           )
           policySection(
             L10n.tr("书目交换"),
@@ -62,7 +62,7 @@ struct PrivacyPolicyView: View {
           )
 
           if let url = AppReleaseInfo.supportURL { Link(L10n.tr("帮助与支持"), destination: url) }
-          Text(L10n.tr("最后更新：2026 年 11 月 15 日"))
+          Text(L10n.tr("最后更新：2026 年 11 月 16 日"))
             .font(.caption)
             .foregroundStyle(.secondary)
         }

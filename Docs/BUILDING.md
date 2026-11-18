@@ -37,7 +37,7 @@ bash scripts/install-local.sh
 bash scripts/install-local.sh --app /path/to/Bookshelf.app
 ```
 
-安装脚本保留旧应用到 `work/LocalAppBackups/`，拒绝覆盖仍在运行的应用。在替换应用前，通过 `scripts/lib/backup_local_library.py` 将现有书库及恢复草稿备份到正式容器的 `Bookshelf/Backups/`，包含 WAL 数据并校验完整性；备份失败时停止安装。脚本不启动应用，也不修改书库。安装完成后只打开 `~/Applications/Bookshelf.app`。本机数据位于 `~/Library/Containers/io.github.medicoderhz.bookshelf/Data/Library/Application Support/`；此前迁移备份仍保存在被 Git 忽略的 `work/LibraryMigration/`，不要上传个人书库。
+安装脚本保留旧应用到 `work/LocalAppBackups/`，拒绝覆盖仍在运行的应用。在替换应用前，通过 `scripts/lib/backup_local_library.py` 将现有书库及恢复草稿备份到正式容器的 `Bookshelf/Backups/`，包含 WAL 数据并校验完整性；备份失败时停止安装。脚本读取 `Bookshelf/LibraryLocation.json` 中已经生效的目录，尚未执行的迁移仍备份原书库；自定义目录不可用、配置损坏或已初始化的数据库缺失时停止安装。脚本不启动应用，也不修改书库。安装完成后只打开 `~/Applications/Bookshelf.app`。默认本机数据位于 `~/Library/Containers/io.github.medicoderhz.bookshelf/Data/Library/Application Support/`；此前迁移备份仍保存在被 Git 忽略的 `work/LibraryMigration/`，不要上传个人书库。
 
 此脚本为本机运行临时签名，原始 Release 产物保持不变；安装后的本机应用不作为公开分发包。
 
@@ -86,9 +86,19 @@ bash scripts/verify-project.sh --disable-sandbox
 
 新增界面文字时同步补全两种资源，并保留对应参数编号。书库字段、枚举原始值、解析器匹配词、历史迁移名称和用户内容应保持稳定，不能替换成翻译后的标签。`InterfaceLanguageTests` 检查资源、参数、偏好持久化、历史兼容和数据不变；原生表头在保留列对象与列宽的情况下刷新。
 
+## 自定义数据目录与完整性检查
+
+`LibraryLocationController` 在打开 SwiftData 前读取容器内 `Bookshelf/LibraryLocation.json`，通过用户在目录选择器中授予的安全作用域书签访问自定义目录。App Sandbox 保持开启，新增的 `com.apple.security.files.bookmarks.app-scope` 只用于持久保存用户所选目录的授权。
+
+选择目录只保存待生效请求。下一次启动时，先备份原库，再通过 SQLite backup API 复制包含已提交 WAL 内容的快照，检查复制后的数据库及应用记录关联，成功后原子保存已生效的目录配置。目标必须为空，原数据库保留；失败时继续使用原目录并显示错误。已经生效的自定义目录不可访问或数据库缺失时停止打开，不回退到旧书库，也不创建空库。已初始化的默认数据库缺失时同样停止打开。备份、恢复草稿、解析器和偏好仍位于原应用容器中。
+
+`LibraryIntegrity` 使用只读事务执行 `integrity_check` 和 `foreign_key_check`，并检查各模型的唯一标识、书籍关联和备份格式中的笔记／文件夹关系。该操作不修复、不删除，也不强制保存未提交修改。迁移与损坏数据用例统一使用临时测试书库。
+
 ## 当前验证状态
 
-2026-11-16 设置界面、语言一致性及重启时序修复已使用 Xcode 27.2 完成验证：528 项 XCTest 中 518 项通过、10 项按设计跳过、0 项失败；arm64 / x86_64 Release 构建、双语应用名称和重启资源检查通过。固定应用入口中已验证全部设置分类、中文／英文标题、应用菜单、文件选择器、待生效与取消状态，以及按钮触发的四次连续语言重启、自动返回设置页；每次先只读确认新进程，再检查界面。验证前后 10 类模型的全部记录一致。语言资源键与参数一致性测试通过。此前发布、备份、筛选和条目数量验证仍保留。当前范围见[完整版本验收记录](UPDATE-VALIDATION.md)，早期目录整理的验证保留在[初始验证记录](BUILD-VALIDATION.md)。
+2026-11-18 设置精简为五类，解析器与隐私政策归入对应分类，删除重复入口并缩短说明。最终源码的完整 XCTest 仍为 539 项（529 通过、10 跳过、0 失败），双架构 Release 构建通过；固定应用中完成中英文全部分类、合并入口、搜索及双向重启验证，用户书库全部记录和目录配置保持一致。证据位于 `work/SettingsSimplification/`。
+
+2026-11-16 自定义数据目录与完整性检查已使用 Xcode 27.2 完成验证：539 项 XCTest 中 529 项通过、10 项按设计跳过、0 项失败；Python 工具测试 16 项通过；arm64 / x86_64 Release 构建、双语应用名称和重启资源检查通过。最终英文文案调整后，15 项语言资源测试再次通过。固定入口中验证了中英文数据库设置、完整性检查、目录选择与取消、显示数据目录及双向语言重启；取消的目录更改不会在重启后生效。实际用户书库没有迁移，验证前后 10 类模型的全部记录一致。此前设置、重启、发布、备份、筛选和条目数量验证仍保留。当前范围见[完整版本验收记录](UPDATE-VALIDATION.md)，早期目录整理的验证保留在[初始验证记录](BUILD-VALIDATION.md)。
 
 ## 2026-11-15 初始排查记录
 

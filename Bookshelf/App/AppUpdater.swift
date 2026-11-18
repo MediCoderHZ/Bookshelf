@@ -153,32 +153,3 @@ struct AppUpdateCommands: Commands {
     }
   }
 }
-
-struct AppUpdateSettings: View {
-  @ObservedObject var updater: AppUpdater
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 18) {
-      Toggle(L10n.tr("自动检查更新"), isOn: Binding(
-        get: { updater.automaticallyChecksForUpdates },
-        set: updater.setAutomaticallyChecksForUpdates))
-        .disabled(!updater.isAvailable)
-      Toggle(L10n.tr("自动下载并安装更新"), isOn: Binding(
-        get: { updater.automaticallyDownloadsUpdates },
-        set: updater.setAutomaticallyDownloadsUpdates))
-        .disabled(!updater.isAvailable || !updater.automaticallyChecksForUpdates)
-      HStack {
-        Button(L10n.tr("检查更新…"), action: updater.checkForUpdates)
-          .disabled(!updater.canCheckForUpdates)
-        Link(L10n.tr("版本与下载"), destination: URL(string: "https://github.com/MediCoderHZ/Bookshelf/releases")!)
-      }
-      if !updater.isAvailable {
-        SettingsHelp(L10n.tr("此版本尚未启用在线更新。"))
-      }
-      if updater.installationPaused {
-        Text(L10n.tr("升级已暂停，完成备份后才能继续。")).foregroundStyle(.red)
-        Button(L10n.tr("重试备份并继续升级"), action: updater.retryInstallation)
-      }
-    }
-  }
-}

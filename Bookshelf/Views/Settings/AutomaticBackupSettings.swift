@@ -28,8 +28,6 @@ struct AutomaticBackupSettings: View {
         Button(L10n.tr("立即备份")) { _ = try? backups.create() }
         Button(L10n.tr("查看历史备份…"), action: onHistory)
       }
-      SettingsHelp(L10n.tr("运行期间按时备份，关闭或休眠错过的备份在下次运行时补做。升级前始终额外备份，并单独保留最近 10 份；关闭定期备份不关闭升级保护。"))
-      SettingsHelp(L10n.tr("备份保存在本机，不能防止整块磁盘损坏。可通过历史备份窗口导出 JSON 到其他磁盘。"))
       if let message = backups.lastError {
         Text(L10n.tr("备份未完成：") + message).foregroundStyle(.red).textSelection(.enabled)
       }
@@ -82,7 +80,6 @@ struct AutomaticBackupHistoryView: View {
         }.padding(.vertical, 5)
       }
       if backups.entries.isEmpty { Text(L10n.tr("暂无通过校验的备份。可点击“立即备份”创建。")).foregroundStyle(.secondary) }
-      Text(L10n.tr("恢复会先预览，确认后才合并到书库；不会直接覆盖数据库。升级前原始快照用于数据库故障排查，应保留原文件。损坏或不认识的备份不会自动清理。")).font(.caption).foregroundStyle(.secondary)
       if let errorMessage { Text(errorMessage).foregroundStyle(.red).textSelection(.enabled) }
       HStack { Spacer(); Button(L10n.tr("完成")) { dismiss() }.keyboardShortcut(.cancelAction) }
     }

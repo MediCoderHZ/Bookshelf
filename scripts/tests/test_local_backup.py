@@ -80,3 +80,36 @@ class LocalUpgradeBackupTests(unittest.TestCase):
     def test_fresh_install_does_not_create_empty_fake_backup(self):
         self.assertIsNone(backup.create_backup(self.root / "missing.store", self.output, "1"))
         self.assertFalse(self.output.exists())
+
+    def test_custom_location_is_backed_up_and_recovery_stays_in_app_support(self):
+        custom = self.root / "Custom"
+        custom.mkdir()
+        source = custom / "default.store"
+        with sqlite3.connect(source) as db:
+            db.execute("CREATE TABLE notes(body TEXT)")
+            db.execute("INSERT INTO notes VALUES('custom newest')")
+        config = self.root / "LibraryLocation.json"
+        config.write_text(json.dumps({"formatVersion": 1, "active": {"path": str(custom)}, "pending": {"path": "ignored"}}))
+        selected = backup.configured_store(self.source, config)
+        self.assertEqual(selected, source)
+        recovery = self.root / "AppSupport"
+        draft = recovery / "NoteDraftRecovery/draft.json"
+        draft.parent.mkdir(parents=True)
+        draft.write_text('{"body":"unsaved"}')
+        snapshot = backup.create_backup(selected, self.output, "2", recovery_root=recovery)
+        with sqlite3.connect(snapshot / "default.store") as db:
+            self.assertEqual(db.execute("SELECT body FROM notes").fetchall(), [("custom newest",)])
+        self.assertEqual((snapshot / "Recovery/NoteDraftRecovery/draft.json").read_bytes(), draft.read_bytes())
+
+    def test_missing_custom_library_or_bad_config_never_falls_back(self):
+        config = self.root / "LibraryLocation.json"
+        self.assertEqual(backup.configured_store(self.source, config), self.source)
+        config.write_text(json.dumps({"formatVersion": 1, "pending": {"path": "pending only"}}))
+        self.assertEqual(backup.configured_store(self.source, config), self.source)
+        for value in [{"formatVersion": 1, "active": {"path": str(self.root / "missing")}}, {"formatVersion": 1, "active": {"path": "relative"}}, {"formatVersion": 2}]:
+            config.write_text(json.dumps(value))
+            with self.assertRaises(ValueError):
+                backup.configured_store(self.source, config)
+        config.write_text(json.dumps({"formatVersion": 1, "initialized": True}))
+        with self.assertRaises(ValueError):
+            backup.configured_store(self.root / "missing-default.store", config)

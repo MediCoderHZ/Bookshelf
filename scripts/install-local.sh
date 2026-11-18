@@ -49,6 +49,8 @@ previous_info = installed if destination.exists() else info
 subprocess.run([sys.executable, str(project / 'scripts/lib/backup_local_library.py'),
                 '--store', str(library_support / 'default.store'),
                 '--output', str(library_support / 'Bookshelf/Backups'),
+                '--location-config', str(library_support / 'Bookshelf/LibraryLocation.json'),
+                '--recovery-root', str(library_support / 'Bookshelf'),
                 '--version', f"{previous_info.get('CFBundleShortVersionString', '')} ({previous_info.get('CFBundleVersion', '')})"], check=True)
 
 with tempfile.TemporaryDirectory(prefix='Bookshelf-local-', dir=build_root) as staging:

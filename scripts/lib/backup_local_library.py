@@ -56,7 +56,27 @@ def prune_upgrades(directory, limit=10):
         shutil.rmtree(folder)
 
 
-def create_backup(source, directory, version, now=None):
+def configured_store(default_store, configuration):
+    """Use only the committed location. Pending moves still back up the source."""
+    if not configuration.exists():
+        return default_store
+    data = json.loads(configuration.read_text())
+    if data.get("formatVersion") != 1:
+        raise ValueError("Unsupported library location configuration; installation stopped")
+    active = data.get("active")
+    if active is None:
+        if data.get("initialized") is True and not default_store.is_file():
+            raise ValueError("Existing default library is missing; installation stopped")
+        return default_store
+    if not isinstance(active, dict) or not isinstance(active.get("path"), str) or not Path(active["path"]).is_absolute():
+        raise ValueError("Invalid custom data directory; installation stopped")
+    source = Path(active["path"]) / "default.store"
+    if not source.is_file():
+        raise ValueError("Custom library is unavailable; connect its disk and reopen Bookshelf before installing")
+    return source
+
+
+def create_backup(source, directory, version, now=None, recovery_root=None):
     source, directory = Path(source), Path(directory)
     if not source.exists():
         return None
@@ -84,7 +104,7 @@ def create_backup(source, directory, version, now=None):
             src.close()
         files = {"default.store": digest(staging / "default.store")}
         for name in ("NoteDraftRecovery", "MetadataDraftRecovery"):
-            recovery = source.parent / "Bookshelf" / name
+            recovery = (Path(recovery_root) if recovery_root else source.parent / "Bookshelf") / name
             if not recovery.exists():
                 continue
             if recovery.is_symlink():
@@ -126,6 +146,9 @@ if __name__ == "__main__":
     parser.add_argument("--store", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--version", required=True)
+    parser.add_argument("--location-config", type=Path)
+    parser.add_argument("--recovery-root", type=Path)
     args = parser.parse_args()
-    result = create_backup(args.store, args.output, args.version)
+    source = configured_store(args.store, args.location_config) if args.location_config else args.store
+    result = create_backup(source, args.output, args.version, recovery_root=args.recovery_root)
     print("Verified pre-install library backup:", result if result else "no existing library")

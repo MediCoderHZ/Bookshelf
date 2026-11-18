@@ -4,19 +4,15 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
-  @EnvironmentObject private var updater: AppUpdater
   @EnvironmentObject private var backups: AutomaticBackupController
   @EnvironmentObject private var relauncher: AppRelaunchController
   @Bindable private var languagePreferences = InterfaceLanguagePreferences.shared
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Book.addedAt, order: .reverse) private var books: [Book]
-  @AppStorage("libraryDisplayDensity") private var density = LibraryDisplayDensity.compact
-  @AppStorage("libraryInterfaceFontSize") private var fontSize = 13.0
   @State private var selectedPane = SettingsPane.general
   @State private var searchText = ""
   @FocusState private var searchFocused: Bool
   @State private var exchangePresentation = BibliographicExchangePresentation()
-  @State private var translators = TranslatorStore.shared
   @State private var isShowingTranslators = false
 
   @State private var exportDocument = LibraryBackupDocument()
@@ -46,7 +42,6 @@ struct SettingsView: View {
         ScrollViewReader { proxy in
           ScrollView {
             VStack(alignment: .leading, spacing: 30) {
-              Color.clear.frame(height: 0).id("settingsTop")
               if isSearching && visibleGroups.isEmpty {
                 VStack(spacing: 12) {
                   Image(systemName: "magnifyingglass").font(.system(size: 32)).foregroundStyle(.tertiary)
@@ -58,19 +53,22 @@ struct SettingsView: View {
               } else {
                 ForEach(visibleGroups) { group in
                   VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 6) {
-                      if isSearching {
-                        Text(group.pane.title).font(.caption).foregroundStyle(.secondary)
+                    if isSearching || selectedPane.groups.count > 1 || group == .appearance {
+                      VStack(alignment: .leading, spacing: 6) {
+                        if isSearching {
+                          Text(group.pane.title).font(.caption).foregroundStyle(.secondary)
+                        }
+                        Text(group.title).font(.system(size: 16, weight: .semibold))
+                          .accessibilityAddTraits(.isHeader)
                       }
-                      Text(group.title).font(.system(size: 16, weight: .semibold))
-                        .accessibilityAddTraits(.isHeader)
                     }
                     settingsContent(group)
                   }.frame(maxWidth: .infinity, alignment: .leading)
                   if group != visibleGroups.last { Divider() }
                 }
               }
-            }.padding(.horizontal, 30).padding(.bottom, 32)
+            }.padding(.horizontal, 30).padding(.top, 8).padding(.bottom, 32)
+              .id("settingsTop")
           }
           .onChange(of: selectedPane) { _, _ in proxy.scrollTo("settingsTop", anchor: .top) }
           .onChange(of: searchText) { _, _ in proxy.scrollTo("settingsTop", anchor: .top) }
@@ -153,7 +151,7 @@ struct SettingsView: View {
   private var sidebar: some View {
     VStack(spacing: 4) {
       ForEach(SettingsPane.allCases) { pane in
-        if pane == .updates { Divider().padding(.horizontal, 12).padding(.vertical, 12) }
+        if pane == .about { Divider().padding(.horizontal, 12).padding(.vertical, 12) }
         Button {
           selectedPane = pane
           searchText = ""
@@ -214,15 +212,12 @@ struct SettingsView: View {
   @ViewBuilder private func settingsContent(_ group: SettingsGroup) -> some View {
     switch group {
     case .appearance:
-      SettingsControlRow(title: L10n.tr("界面语言")) {
-        Picker(L10n.tr("界面语言"), selection: $languagePreferences.requestedLanguage) {
-          ForEach(InterfaceLanguage.allCases) { Text($0.title).tag($0) }
-        }.labelsHidden().frame(width: 210, alignment: .leading).disabled(relauncher.isRestarting)
-      }
-      SettingsHelp(L10n.tr("语言更改将在重新打开应用后统一生效，包括窗口、菜单、文件对话框和更新窗口。当前界面保持原语言，避免中英文混用。"))
+      Picker(L10n.tr("界面语言"), selection: $languagePreferences.requestedLanguage) {
+        ForEach(InterfaceLanguage.allCases) { Text($0.title).tag($0) }
+      }.labelsHidden().frame(width: 210, alignment: .leading).disabled(relauncher.isRestarting)
       if languagePreferences.requiresRelaunch {
         VStack(alignment: .leading, spacing: 12) {
-          Text(L10n.tr("语言更改已保存。重启后将自动重新打开当前应用并应用所选语言。"))
+          Text(L10n.tr("重启应用以使用所选语言。"))
           HStack(spacing: 12) {
             Button(relauncher.isRestarting ? L10n.tr("正在重启…") : L10n.tr("重启应用")) {
               Task { await relauncher.restart() }
@@ -235,45 +230,19 @@ struct SettingsView: View {
         }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
           .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
       }
-    case .display:
-      SettingsControlRow(title: L10n.tr("界面密度")) {
-        Picker(L10n.tr("界面密度"), selection: $density) {
-          ForEach(LibraryDisplayDensity.allCases) { Text($0.title).tag($0) }
-        }.labelsHidden().pickerStyle(.segmented).frame(width: 210, alignment: .leading)
-      }
-      SettingsControlRow(title: L10n.tr("界面字号")) {
-        Picker(L10n.tr("界面字号"), selection: $fontSize) {
-          ForEach([12, 13, 14, 16, 18], id: \.self) { size in
-            Text(L10n.tr("\(size) 磅") + (size == 13 ? L10n.tr("（默认）") : "")).tag(Double(size))
-          }
-        }.labelsHidden().frame(width: 210, alignment: .leading)
-      }
-      SettingsHelp(L10n.tr("立即应用于文件夹、书籍列表、标签和信息面板，并记住你的设置。"))
     case .exchange:
-      SettingsHelp(L10n.tr("导入 RIS 图书并预览冲突；导出 RIS 书目或 CSV 清单。书籍备注默认不导出；新笔记与文件夹层级请用 JSON 备份完整迁移。"))
       BibliographicExchangeMenu(books: books, scopeName: L10n.tr("全部书籍"), presentation: exchangePresentation)
-      Button(L10n.tr("前往备份与恢复")) { selectedPane = .backups; searchText = "" }
     case .translators:
-      SettingsHelp(L10n.tr("已安装 \(translators.descriptors.count) 个解析器，统一管理网页、搜索、导入和导出；自定义网页规则支持独立测试。"))
       Button(L10n.tr("管理元信息解析器…")) { isShowingTranslators = true }
     case .automaticBackup:
       AutomaticBackupSettings(backups: backups, onHistory: { isShowingBackupHistory = true })
     case .restore:
-      SettingsHelp(L10n.tr("先预览新增、重复与版本冲突，再选择添加、补全或更新。JSON 备份包含文件夹层级、独立笔记、书籍子笔记、回收站和智能规则，并兼容旧版。预览中可选择导入范围，冲突默认保留本地；整次导入可撤销。"))
       HStack(spacing: 12) {
         Button(L10n.tr("导出 JSON 备份…"), action: prepareExport)
         Button(L10n.tr("从备份恢复…")) { isImporting = true }
       }
-      LibraryUndoButtons()
-    case .updates:
-      AppUpdateSettings(updater: updater)
-    case .privacy:
-      SettingsControlRow(title: L10n.tr("数据位置")) { Text(L10n.tr("仅保存在这台 Mac 上")) }
-      SettingsHelp(L10n.tr("本地书库不会上传。在线检索和软件更新会访问相应服务，详见隐私政策。"))
-      HStack(spacing: 12) {
-        Button(L10n.tr("查看隐私政策…")) { isShowingPrivacyPolicy = true }
-        if let url = AppReleaseInfo.privacyURL { Link(L10n.tr("在线隐私政策"), destination: url) }
-      }
+    case .storage:
+      LibraryStorageSettings()
     case .about:
       HStack(spacing: 16) {
         Image(nsImage: NSApplication.shared.applicationIconImage).resizable().frame(width: 64, height: 64)
@@ -284,6 +253,7 @@ struct SettingsView: View {
         }
       }
       HStack(spacing: 12) {
+        Button(L10n.tr("查看隐私政策…")) { isShowingPrivacyPolicy = true }
         Button(L10n.tr("许可与致谢…")) { isShowingLicenses = true }
         if let url = AppReleaseInfo.supportURL { Link(L10n.tr("帮助与支持"), destination: url) }
       }

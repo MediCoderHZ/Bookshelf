@@ -874,3 +874,42 @@
 "语言更改已保存。重启后将自动重新打开当前应用并应用所选语言。" = "Your language choice is saved. Restart to reopen this app automatically in the selected language.";
 "正在重启…" = "Restarting…";
 "重启应用" = "Restart App";
+
+/* Custom library location and integrity checks */
+"无法读取数据目录配置，已停止打开书库，原文件未改动。" = "The data directory configuration could not be read. Opening the library was stopped; the original files are unchanged.";
+"数据目录不可用或没有访问权限。请连接所在磁盘并重新授权目录。" = "The data directory is unavailable or access was denied. Connect its disk and grant access to the directory again.";
+"指定目录中未找到原数据库。应用不会创建空书库，请检查磁盘和文件位置。" = "The original database was not found in the selected directory. No empty library will be created. Check the disk and file location.";
+"请选择一个空文件夹。为避免覆盖已有数据，目标目录中的文件不会被替换。" = "Choose an empty folder. Existing files in the destination will not be overwritten.";
+"所选目录就是当前数据目录。" = "The selected folder is already the current data directory.";
+"书库记录或关联检查未通过，原数据已保留。" = "Library records or relationships failed validation. The original data is preserved.";
+"数据库完整性检查未通过：{0}" = "Database integrity check failed: {0}";
+"无法读取数据库文件" = "The database file could not be read";
+"目录切换未完成，仍使用原数据目录：{0}" = "The directory change could not be completed. The original data directory is still in use: {0}";
+"检查通过：数据库结构和书库关联正常，共 {0} 本书籍、{1} 条笔记（含回收站）。" = "Check passed: database structure and library relationships are valid. Books: {0}; notes: {1} (including Trash).";
+"当前数据目录" = "Current Data Directory";
+"显示数据目录" = "Show Data Directory";
+"使用自定义位置…" = "Use Custom Location…";
+"选择一个空文件夹。重启时会先备份并校验，再复制当前书库；成功后使用新目录，原数据库保留。自动备份和恢复草稿仍保存在本机应用目录。请使用稳定连接的本地磁盘，避免将正在使用的数据库放入云同步目录。" = "Choose an empty folder. On restart, the app backs up and validates your library before copying it. The new directory is used only after success, and the original database is retained. Automatic backups and recovery drafts stay in the local app directory. Use a reliably connected local disk; avoid cloud-synced folders for an active database.";
+"重启后迁移到：{0}" = "Move the library on restart to: {0}";
+"重启并迁移" = "Restart and Move Library";
+"取消目录更改" = "Cancel Directory Change";
+"数据库维护" = "Database Maintenance";
+"正在检查…" = "Checking…";
+"检查数据库完整性" = "Check Database Integrity";
+"只读检查数据库结构、书籍、笔记及关联，不会自动修复或删除内容。检查通过不能替代历史备份。" = "Checks the database structure, books, notes, and relationships without modifying, repairing, or deleting content. A successful check does not replace historical backups.";
+"数据目录" = "Data Directory";
+"选择目录" = "Choose Folder";
+"请选择用于存放当前书库的空文件夹。选择后不会立即移动数据。" = "Choose an empty folder for your current library. Selecting it does not move any data yet.";
+"重新授权数据目录…" = "Grant Data Directory Access Again…";
+"文件与数据库" = "Files and Database";
+"数据目录与维护" = "Data Directory and Maintenance";
+
+/* Storage privacy clarification */
+"书籍、笔记和智能文件夹默认保存在本机应用目录，也可由你选择自定义数据目录。切换目录前先备份，原数据库保留。自动备份和恢复草稿仍保存在本机应用目录。高级筛选和完整性检查只在本机运行，不上传书库内容。数据库与 JSON 备份未单独加密，请妥善保管。" = "Books, notes, and smart collections are stored in the local app directory by default, or in a custom directory you choose. The app backs up the library before changing its location and retains the original database. Automatic backups and recovery drafts stay in the local app directory. Advanced searches and integrity checks run locally without uploading library content. The database and JSON backups are not separately encrypted; keep them secure.";
+"导入、导出和选择自定义数据目录时，应用访问你明确选择的文件或位置。自定义数据目录的授权保存在本机，以便重启后继续读取和保存书库。应用也会加载自身目录内的解析规则。HTML 在本机解析，不执行脚本、不加载引用资源；应用不会扫描其他文件夹。" = "When importing, exporting, or selecting a custom data directory, the app accesses only the files or locations you choose. Access to a custom data directory is saved locally so the library can be read and saved after restarting. The app also loads parser rules in its own directory. HTML is parsed locally without running scripts or loading referenced resources; other folders are not scanned.";
+"正式发行版通过 Sparkle 检查和安装更新。手动检查或允许自动检查后，会访问 GitHub Pages 上的更新清单，并在下载时访问 GitHub Releases。服务方可收到 IP 地址、应用版本等常规网络信息；不会发送书籍、笔记或书库备份。系统分析默认关闭。手动检查入口位于应用菜单；未启用更新服务的开发版不会发起更新请求。" = "Release versions use Sparkle to check for and install updates. Manual checks or permitted automatic checks access the feed on GitHub Pages; downloads access GitHub Releases. These services may receive your IP address and app version, but no books, notes, or library backups. System profiling is off by default. Manual update checks are available in the app menu. Development builds with updates disabled make no update requests.";
+"最后更新：2026 年 11 月 16 日" = "Last updated: November 16, 2026";
+
+"导出与恢复" = "Export and Restore";
+"重启应用以使用所选语言。" = "Restart the app to use the selected language.";
+"请选择稳定连接的本地空文件夹，避免云同步目录。选择后不会立即移动数据。" = "Choose an empty folder on a reliably connected local disk, outside cloud-synced folders. Selecting a folder does not move data immediately.";

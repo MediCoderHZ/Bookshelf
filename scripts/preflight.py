@@ -37,9 +37,11 @@ try:
     check(entitlements.get("com.apple.security.app-sandbox") is True, "App Sandbox 未开启")
     check(entitlements.get("com.apple.security.network.client") is True, "缺少主动网络访问权限")
     check(entitlements.get("com.apple.security.files.user-selected.read-write") is True, "缺少用户所选文件访问权限")
+    check(entitlements.get("com.apple.security.files.bookmarks.app-scope") is True, "缺少自定义数据目录的持久访问权限")
     check(set(entitlements) == {
         "com.apple.security.app-sandbox", "com.apple.security.network.client",
         "com.apple.security.files.user-selected.read-write",
+        "com.apple.security.files.bookmarks.app-scope",
         "com.apple.security.temporary-exception.mach-lookup.global-name"}, "出现未预期的沙盒权限")
     check(entitlements.get("com.apple.security.temporary-exception.mach-lookup.global-name") == [
         "$(PRODUCT_BUNDLE_IDENTIFIER)-spks", "$(PRODUCT_BUNDLE_IDENTIFIER)-spki"],
