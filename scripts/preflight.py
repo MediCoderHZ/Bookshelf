@@ -91,7 +91,8 @@ try:
         check((framework / "XPCServices/Installer.xpc").is_dir(), "缺少 Sparkle 沙盒安装服务")
         check((app / "Contents/Resources/ThirdPartyNotices.txt").is_file(), "缺少第三方许可声明")
         check((app / "Contents/Resources/relaunch.sh").is_file(), "缺少自动重启组件")
-        check((app / "Contents/Resources/reading-notes.json").is_file(), "缺少阅读笔记示例插件")
+        for name in ("manifest.json", "template.json"):
+            check((app / "Contents/Resources/reading-notes.bookshelfplugin" / name).is_file(), f"阅读笔记插件缺少 {name}")
         for name in ("douban-books", "goodreads-books", "open-library"):
             script = Path("Translators") / (name + ".js")
             source = ROOT / "Bookshelf/Resources" / script

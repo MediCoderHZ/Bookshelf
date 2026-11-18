@@ -1,0 +1,10 @@
+{
+  "zh-Hans": {
+    "title": "《{{title}}》阅读笔记",
+    "body": "# 《{{title}}》阅读笔记\n\n作者：{{authors}}\n\n## 摘录\n\n\n## 思考\n\n\n## 待查问题\n\n"
+  },
+  "en": {
+    "title": "Reading Notes — {{title}}",
+    "body": "# Reading Notes — {{title}}\n\nAuthors: {{authors}}\n\n## Excerpts\n\n\n## Reflections\n\n\n## Questions to Explore\n\n"
+  }
+}

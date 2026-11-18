@@ -73,7 +73,7 @@ struct BookshelfApp: App {
     Window(Text(L10n.tr("插件")), id: PluginCommands.windowID) {
       PluginManagerView().environment(\.locale, L10n.locale)
     }
-    .defaultSize(width: 680, height: 510)
+    .defaultSize(width: 840, height: 560)
 
     Window(Text(L10n.tr("元信息解析器")), id: TranslatorSettingsView.windowID) {
       switch storage {

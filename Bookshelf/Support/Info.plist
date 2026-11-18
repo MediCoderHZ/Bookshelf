@@ -6,6 +6,15 @@
 	<string>$(APP_DISPLAY_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>zh-Hans</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key><string>Bookshelf Plugin</string>
+			<key>CFBundleTypeRole</key><string>None</string>
+			<key>LSItemContentTypes</key><array><string>io.github.medicoderhz.bookshelf.plugin</string></array>
+			<key>LSTypeIsPackage</key><true/>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -50,6 +59,13 @@
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
+		<dict>
+			<key>UTTypeIdentifier</key><string>io.github.medicoderhz.bookshelf.plugin</string>
+			<key>UTTypeDescription</key><string>Bookshelf Plugin</string>
+			<key>UTTypeConformsTo</key><array><string>com.apple.package</string></array>
+			<key>UTTypeTagSpecification</key>
+			<dict><key>public.filename-extension</key><array><string>bookshelfplugin</string></array></dict>
+		</dict>
 		<dict>
 			<key>UTTypeIdentifier</key><string>org.bookshelf.note-drag</string>
 			<key>UTTypeDescription</key><string>Bookshelf note references</string>

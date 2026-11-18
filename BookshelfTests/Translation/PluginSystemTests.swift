@@ -5,10 +5,75 @@ import XCTest
 @MainActor
 final class PluginSystemTests: XCTestCase {
   private func exampleURL() throws -> URL {
-    try XCTUnwrap(L10n.resourceBundle.url(forResource: "reading-notes", withExtension: "json"))
+    try XCTUnwrap(Bundle.module.url(forResource: "reading-notes-v1", withExtension: "json", subdirectory: "Fixtures"))
   }
 
-  private func withStore(_ body: (PluginStore, URL, UserDefaults) throws -> Void) throws {
+  private func packageURL() throws -> URL {
+    try XCTUnwrap(L10n.resourceBundle.url(forResource: "reading-notes", withExtension: "bookshelfplugin"))
+  }
+
+  func testBundledPackageReplacesLegacyPluginAndContributesOnlyWhileEnabled() throws {
+    try withStore { store, root, defaults in
+      let id = NoteTemplatePlugin.readingNotesID
+      store.setEnabled(false, for: id)
+      let source = root.appendingPathComponent("download.bookshelfplugin")
+      try FileManager.default.copyItem(at: packageURL(), to: source)
+      let preview = try NoteTemplatePlugin.read(from: source)
+      XCTAssertEqual(preview.id, id)
+      XCTAssertEqual(preview.icon, "book.closed")
+      XCTAssertEqual(preview.localized(for: .english).name, "Reading Notes")
+      XCTAssertTrue(try XCTUnwrap(preview.localized(for: .chinese).description).contains("摘录"))
+      try store.install(preview)
+      try FileManager.default.removeItem(at: source)
+      let reopened = PluginStore(directory: root, defaults: defaults)
+      XCTAssertTrue(reopened.enabledTemplates.isEmpty)
+      XCTAssertEqual(reopened.noteTemplates.map(\.version), ["1.1.0"])
+      reopened.setEnabled(true, for: id)
+      let active = try XCTUnwrap(reopened.enabledTemplates.first)
+      XCTAssertEqual(active.draft(for: Book(title: "Example"), language: .english).title, "Reading Notes — Example")
+      try reopened.remove(id)
+      XCTAssertTrue(PluginStore(directory: root, defaults: defaults, exampleURL: try packageURL()).noteTemplates.isEmpty)
+    }
+  }
+
+  func testInvalidPackageIsRejectedBeforeReplacement() throws {
+    try withStore { store, root, _ in
+      let source = root.appendingPathComponent("invalid.bookshelfplugin")
+      let manager = FileManager.default
+      try manager.copyItem(at: packageURL(), to: source)
+      let file = source.appendingPathComponent("manifest.json")
+      let original = try Data(contentsOf: file)
+      let manifest = try XCTUnwrap(JSONSerialization.jsonObject(with: original) as? [String: Any])
+      for change: [String: Any] in [
+        ["manifest_version": 2], ["contributes": ["note_template": "../template.json"]],
+        ["contributes": ["note_template": "absent.json"]], ["locales": [:]], ["id": "../other"]
+      ] {
+        try JSONSerialization.data(withJSONObject: manifest.merging(change) { _, new in new }).write(to: file)
+        XCTAssertThrowsError(try store.install(NoteTemplatePlugin.read(from: source)))
+      }
+      try original.write(to: file)
+      let template = source.appendingPathComponent("template.json")
+      try Data(repeating: 32, count: ExtensionFile.sizeLimit).write(to: template)
+      XCTAssertThrowsError(try NoteTemplatePlugin.read(from: source))
+      try manager.removeItem(at: template)
+      try manager.createSymbolicLink(at: template, withDestinationURL: packageURL().appendingPathComponent("template.json"))
+      XCTAssertThrowsError(try NoteTemplatePlugin.read(from: source))
+      XCTAssertEqual(store.enabledTemplates.map(\.version), ["1.0.0"])
+    }
+  }
+
+  func testFirstLaunchInstallsPackagedExampleOnlyOnce() throws {
+    let source = try packageURL()
+    try withStore(bundled: source) { store, directory, defaults in
+      let plugin = try XCTUnwrap(store.enabledTemplates.first)
+      XCTAssertEqual(plugin.version, "1.1.0")
+      XCTAssertTrue(store.diagnostics.isEmpty)
+      try store.remove(plugin.id)
+      XCTAssertTrue(PluginStore(directory: directory, defaults: defaults, exampleURL: source).noteTemplates.isEmpty)
+    }
+  }
+
+  private func withStore(bundled: URL? = nil, _ body: (PluginStore, URL, UserDefaults) throws -> Void) throws {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     let suite = "plugin-tests-" + UUID().uuidString
     let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
@@ -16,7 +81,7 @@ final class PluginSystemTests: XCTestCase {
       try? FileManager.default.removeItem(at: directory)
       defaults.removePersistentDomain(forName: suite)
     }
-    try body(PluginStore(directory: directory, defaults: defaults, exampleURL: exampleURL()), directory, defaults)
+    try body(PluginStore(directory: directory, defaults: defaults, exampleURL: bundled ?? exampleURL()), directory, defaults)
   }
 
   func testSeparateCatalogsMigrateLegacyTemplatesOnceAndKeepSettings() throws {

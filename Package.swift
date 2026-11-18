@@ -23,7 +23,7 @@ let package = Package(
                 "Support/Bookshelf.entitlements",
                 "Support/Info.plist"
             ],
-            resources: [.copy("Resources/ThirdPartyNotices.txt"), .copy("Resources/relaunch.sh"), .copy("Resources/reading-notes.json"), .copy("Resources/Translators"),
+            resources: [.copy("Resources/ThirdPartyNotices.txt"), .copy("Resources/relaunch.sh"), .copy("Resources/reading-notes.bookshelfplugin"), .copy("Resources/Translators"),
                         .process("Resources/zh-Hans.lproj"), .process("Resources/en.lproj")]
         ),
         .testTarget(

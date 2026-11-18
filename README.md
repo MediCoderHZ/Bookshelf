@@ -4,7 +4,7 @@
 
 支持书籍与笔记管理、多层文件夹、标签、搜索与智能文件夹、元信息检索、批量编辑、回收站、撤销重做，以及 JSON 备份与恢复。完整功能说明见[使用手册](Docs/USER-GUIDE.md)。
 
-在「设置 → 文件与数据库 → 元信息解析器」管理书籍来源。豆瓣、Goodreads 和 Open Library 各有一个[默认脚本](Bookshelf/Resources/Translators)。点击「打开解析器目录」可查看与数据库 `default.store` 同级的 `translators/` 文件夹。在菜单栏「插件 → 管理插件…」管理笔记模板。右键一本书，选择「从模板新建笔记 → 阅读笔记」即可试用随附的[示例插件](Bookshelf/Resources/reading-notes.json)。
+在「设置 → 文件与数据库 → 元信息解析器」管理书籍来源。豆瓣、Goodreads 和 Open Library 各有一个[默认脚本](Bookshelf/Resources/Translators)。点击「打开解析器目录」可查看与数据库 `default.store` 同级的 `translators/` 文件夹。在菜单栏「插件 → 管理插件…」管理笔记模板。右键一本书，选择「从模板新建笔记 → 阅读笔记」即可试用随附的[示例插件](Bookshelf/Resources/reading-notes.bookshelfplugin)。
 
 ## 下载与更新
 

@@ -5,7 +5,7 @@ import Observation
 @Observable
 final class PluginStore {
   static let shared = PluginStore(legacyDirectory: LibraryTranslatorDirectory.legacy,
-    exampleURL: L10n.resourceBundle.url(forResource: "reading-notes", withExtension: "json"))
+    exampleURL: L10n.resourceBundle.url(forResource: "reading-notes", withExtension: "bookshelfplugin"))
   private(set) var noteTemplates: [NoteTemplatePlugin] = []
   private(set) var diagnostics: [String] = []
   private let directory: URL
