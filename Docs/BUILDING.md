@@ -2,7 +2,7 @@
 
 本项目需要完整版 Xcode，既用于 SwiftData/SwiftUI 宏展开，也用于 XCTest 测试、Asset Catalog 编译和原生应用打包。单独安装 Command Line Tools 不足以验证本项目。
 
-首次源码版已在 Xcode 27.2 从公开 ZIP 构建。GitHub CI 选择 Xcode 26.6；Xcode 16.4 的 SDK 会在撤销管理相关代码中报告并发隔离错误。应用的最低运行系统为 macOS 14。
+首次源码版已在 Xcode 27.2 从公开 ZIP 构建。GitHub CI 使用 `xcode-27` 镜像。Xcode 16.4 会在撤销管理相关代码中报告并发隔离错误，Intel 上的 Xcode 26.6 在为书库视图生成代码时会触发 Swift 编译器内部错误。应用的最低运行系统为 macOS 14。
 
 ## 常用命令
 

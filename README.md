@@ -6,7 +6,7 @@
 
 **当前提供 0.1.0 源码版，支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载源码并解压后，需要完整版 Xcode 才能构建应用。正式安装包将在完成 Developer ID 签名和 Apple 公证后发布。[下载此版源码 ZIP](https://github.com/MediCoderHZ/Bookshelf/archive/refs/tags/v0.1.0-source.zip) · [查看发行页面](https://github.com/MediCoderHZ/Bookshelf/releases)
 
-首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开书架，请先正常退出。
+源码构建请使用完整版 Xcode 27。首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开书架，请先正常退出。
 
 ```sh
 bash scripts/install-local.sh
