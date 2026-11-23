@@ -61,8 +61,8 @@ struct TrashCommands {
   func purge(_ plan: TrashPlan) throws {
     try validate(plan)
     try LibraryRepository.apply([], removing: Set(plan.books.keys), removingNoteIDs: Set(plan.notes.keys), into: context)
-    // Older undo entries must not resurrect permanently deleted records.
-    undoManager?.removeAllActions(withTarget: LibraryServices.forContext(context).history)
+    defer { undoManager?.removeAllActions(withTarget: LibraryServices.forContext(context).history) }
+    try BookAttachmentCommands.cleanUnreferenced(Set(plan.books.values.flatMap { $0.attachmentIDs ?? [] }), context: context)
   }
 
   private func validate(_ plan: TrashPlan) throws {

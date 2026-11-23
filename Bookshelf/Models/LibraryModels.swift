@@ -23,6 +23,7 @@ final class Book {
   var metadataFieldSourcesJSON: String?
   var deletedAt: Date?
   var mergedIntoID: UUID?
+  var attachmentIDs: [UUID]?
   var notes: String?
   var addedAt: Date = Date()
   var createdAt: Date = Date()

@@ -76,6 +76,26 @@ final class LibraryStorageTests: XCTestCase {
     XCTAssertEqual(try copy.mainContext.fetch(FetchDescriptor<LibraryNote>()).first?.body, "新位置最新正文")
   }
 
+  func testManagedAttachmentsMoveWithLibraryAndRemainInVerifiedUpgradeBackup() throws {
+    let root = try root(), first = controller(root), backup = backups(root)
+    let original = try first.openLibrary(backups: backup), ctx = original.mainContext
+    try seed(ctx)
+    let book = try XCTUnwrap(ctx.fetch(FetchDescriptor<Book>()).first)
+    let file = root.appendingPathComponent("source.pdf"), data = Data("PDF contents".utf8)
+    try data.write(to: file)
+    try BookAttachmentCommands(book: book, context: ctx).add([file], linked: false, rule: .init(pattern: "{title}"))
+    let id = try XCTUnwrap(book.attachmentIDs?.first)
+    let target = try directory(root, "migrated")
+    try first.requestDirectory(target)
+    let reopened = controller(root)
+    let dest = try reopened.openLibrary(backups: backup)
+    XCTAssertEqual(reopened.currentStoreURL.deletingLastPathComponent().path, target.path)
+    XCTAssertEqual(try BookAttachmentStore(context: dest.mainContext).portable(id).contents, data)
+    XCTAssertEqual(try BookAttachmentStore(context: ctx).portable(id).contents, data)
+    let snapshot = try XCTUnwrap(backup.store.entries().first { $0.kind == .beforeMigration })
+    XCTAssertTrue(snapshot.files.keys.contains { $0.hasPrefix("attachments/" + id.uuidString + "/file/") })
+  }
+
   func testPendingMoveOnUpgradeCarriesEditedTranslatorAndRulesToEachNewLibraryDirectory() throws {
     let root = try root(), first = controller(root)
     let original = try first.openLibrary(backups: backups(root))

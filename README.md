@@ -1,12 +1,12 @@
-# 书架 · Bookshelf
+# Bookshelf
 
-书架是一款为 macOS 开发的开源个人藏书管理软件，参考 Zotero 用文件夹、条目列表和详情面板整理资料的方式。你可以按书名或 ISBN 查找一本书，把不同译本分别归档，再把摘录和想法记在对应的书下。书目和笔记保存在自己的 Mac 上，界面支持简体中文和英文。
+Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zotero 用文件夹、条目列表和详情面板整理资料的方式。你可以按书名或 ISBN 查找一本书，把不同译本分别归档，再把摘录和想法记在对应的书下。书目和笔记保存在自己的 Mac 上，界面支持简体中文和英文。
 
 ## 下载与运行
 
 **当前提供 0.1.0 源码版，支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载源码并解压后，需要完整版 Xcode 才能构建应用。正式安装包将在完成 Developer ID 签名和 Apple 公证后发布。[下载此版源码 ZIP](https://github.com/MediCoderHZ/Bookshelf/archive/refs/tags/v0.1.0-source.zip) · [查看发行页面](https://github.com/MediCoderHZ/Bookshelf/releases)
 
-源码构建请使用完整版 Xcode 27。首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开书架，请先正常退出。
+源码构建请使用完整版 Xcode 27。首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开 Bookshelf，请先正常退出。
 
 ```sh
 bash scripts/install-local.sh
@@ -15,16 +15,16 @@ open ~/Applications/Bookshelf.app
 
 安装脚本会构建应用、在本机签名并安装到 `~/Applications/Bookshelf.app`。以后从这个位置打开即可。此源码版的在线更新尚未启用。[构建与测试说明](Docs/BUILDING.md)
 
-## 用书架管理一本书
+## 用 Bookshelf 管理一本书
 
 1. **添加书目。** 输入书名、ISBN 或支持的图书详情页地址，从豆瓣读书、Goodreads 或 Open Library 获取候选记录。核对作者、译者和出版信息后保存，也可以手动录入。
 2. **整理藏书。** 把书放进文件夹，添加主题标签。经常使用的筛选条件可以保存成智能文件夹，新加入且符合条件的书会出现在其中。
-3. **写阅读笔记。** 右键一本书，选择「从模板新建笔记 → 阅读笔记」，即可在书下记录摘录、思考和待查问题。在「插件 → 管理插件…」可以安装或停用笔记模板。[阅读笔记示例](Bookshelf/Resources/reading-notes.bookshelfplugin)
+3. **写阅读笔记。** 右键一本书，选择「新建笔记 → 从模板新建笔记 → 阅读笔记」，即可在书下记录摘录、思考和待查问题。在「插件 → 管理插件…」可以安装或停用笔记模板。[阅读笔记示例](Bookshelf/Resources/reading-notes.bookshelfplugin)
 4. **备份书库。** 应用默认每小时自动备份，并单独保留升级前的快照。可在「设置 → 备份与恢复」查看历史版本，在「文件与数据库」选择数据目录或检查数据库完整性。[使用手册](Docs/USER-GUIDE.md)
 
 ## 致谢 Zotero
 
-感谢 Zotero 项目及其维护者、插件作者和文档贡献者。书架的三栏布局、保存搜索、元信息解析器和插件管理面板，都参考了 Zotero 的设计和公开文档。书架由本项目独立开发，专注于个人藏书与阅读笔记。[Zotero 官网](https://www.zotero.org/) · [Zotero 开发者文档](https://www.zotero.org/support/dev/start) · [Zotero 源码](https://github.com/zotero/zotero)
+感谢 Zotero 项目及其维护者、插件作者和文档贡献者。Bookshelf 的三栏布局、保存搜索、元信息解析器和插件管理面板，都参考了 Zotero 的设计和公开文档。Bookshelf 由本项目独立开发，专注于个人藏书与阅读笔记。[Zotero 官网](https://www.zotero.org/) · [Zotero 开发者文档](https://www.zotero.org/support/dev/start) · [Zotero 源码](https://github.com/zotero/zotero)
 
 ## 项目目录
 
@@ -73,7 +73,7 @@ bash scripts/build-release.sh
 
 此脚本生成未签名的本地验证产物。正式发行采用 Developer ID 签名、公证和 Sparkle 更新包签名，见[分发流程](Docs/DISTRIBUTION.md)。首次构建需要联网下载固定版本的 Sparkle；运行本地测试无需真实更新服务器。
 
-本机日常使用统一安装到 `~/Applications/Bookshelf.app`。退出当前“书架”后运行 `bash scripts/install-local.sh`，再打开这个固定入口；后续更新沿用同一应用身份与书库，不再启动多个验证副本。安装已编译产物的方式见[本机固定应用入口](Docs/BUILDING.md#本机固定应用入口)。
+本机日常使用统一安装到 `~/Applications/Bookshelf.app`。退出当前“Bookshelf”后运行 `bash scripts/install-local.sh`，再打开这个固定入口；后续更新沿用同一应用身份与书库，不再启动多个验证副本。安装已编译产物的方式见[本机固定应用入口](Docs/BUILDING.md#本机固定应用入口)。
 
 ## 文档导航
 

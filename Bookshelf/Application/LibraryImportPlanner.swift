@@ -38,6 +38,7 @@ struct LibraryImportPlan: Identifiable {
   var smartCollections: [SmartCollectionArchive] = []
   var existingSmartIDs: Set<UUID> = []
   var manualCollections: [ManualCollectionRecord] = []
+  var attachmentFiles: [PortableAttachment] = []
   var notes: [NoteRecord] = []
   var collectionBaseline: [UUID: ManualCollectionRecord] = [:]
   var noteBaseline: [UUID: NoteRecord] = [:]
@@ -68,7 +69,7 @@ enum LibraryImportPlanner {
       else { knownNames.insert(name) }
     }
     return LibraryImportPlan(items: items, smartCollections: smart, existingSmartIDs: existing,
-      manualCollections: archive.collections ?? [], notes: archive.libraryNotes ?? [],
+      manualCollections: archive.collections ?? [], attachmentFiles: archive.attachmentFiles ?? [], notes: archive.libraryNotes ?? [],
       collectionBaseline: try OrganizationStore.collections(in: context), noteBaseline: try OrganizationStore.notes(in: context))
   }
 
@@ -134,7 +135,9 @@ enum LibraryImportPlanner {
     let notes = try OrganizationImport.notes(includeOrganization ? plan.notes : [],
       existingIDs: Set(OrganizationStore.notes(in: context).keys), bookMap: bookMap, collectionMap: organization.idMap)
     if !records.isEmpty || !smart.isEmpty || !organization.records.isEmpty || !notes.isEmpty {
-      try LibraryRepository.apply(records, smartCollections: smart, manualCollections: organization.records, notes: notes, into: context)
+      try BookAttachmentStore.commitImport(records, files: plan.attachmentFiles, context: context) { restored in
+        try LibraryRepository.apply(restored, smartCollections: smart, manualCollections: organization.records, notes: notes, into: context)
+      }
       let ids = Set(records.map(\.id))
       let after = try context.fetch(FetchDescriptor<Book>()).filter { ids.contains($0.id) }
       LibraryServices.forContext(context).history.register(L10n.tr("导入备份"), before: before, after: LibraryHistory.snapshots(after),

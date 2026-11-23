@@ -68,13 +68,15 @@ final class InterfaceLanguageTests: XCTestCase {
     XCTAssertEqual(defaults.stringArray(forKey: "AppleLanguages"), ["en"])
   }
 
-  func testNativeApplicationNamesAndSettingsTitleAreFullyLocalized() throws {
-    for (language, name, title) in [(InterfaceLanguage.chinese, "书架", "书架设置"), (.english, "Bookshelf", "Bookshelf Settings")] {
+  func testApplicationNameIsFixedAndWindowTitlesFollowTheLanguage() throws {
+    XCTAssertEqual(AppReleaseInfo.displayName, "Bookshelf")
+    for (language, title, about) in [(InterfaceLanguage.chinese, "Bookshelf 设置", "关于 Bookshelf"), (.english, "Bookshelf Settings", "About Bookshelf")] {
       let url = try XCTUnwrap(L10n.resourceBundle.url(forResource: "InfoPlist", withExtension: "strings", subdirectory: nil, localization: language.rawValue))
       let info = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil) as? [String: String])
-      XCTAssertEqual(info["CFBundleName"], name)
-      XCTAssertEqual(info["CFBundleDisplayName"], name)
-      XCTAssertEqual(L10n.render("书架设置", language: language), title)
+      XCTAssertEqual(info["CFBundleName"], AppReleaseInfo.displayName)
+      XCTAssertEqual(info["CFBundleDisplayName"], AppReleaseInfo.displayName)
+      XCTAssertEqual(L10n.render("Bookshelf 设置", language: language), title)
+      XCTAssertEqual(L10n.render(SettingsGroup.about.titleKey, language: language), about)
     }
   }
 

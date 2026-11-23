@@ -6,6 +6,7 @@ struct LibraryArchive: Codable {
   let books: [BookArchive]
   var smartCollections: [SmartCollectionArchive]? = nil
   var collections: [ManualCollectionRecord]? = nil
+  var attachmentFiles: [PortableAttachment]? = nil
   var libraryNotes: [NoteRecord]? = nil
 }
 
@@ -30,6 +31,7 @@ struct BookArchive: Codable, Equatable {
   var metadataFieldSourcesJSON: String?
   var deletedAt: Date?
   var mergedIntoID: UUID?
+  var attachmentIDs: [UUID]?
   var notes: String?
   var addedAt: Date
   var createdAt: Date
@@ -62,6 +64,7 @@ struct BookArchive: Codable, Equatable {
     metadataFieldSourcesJSON = RetiredReadingData.cleanFieldOrigins(book.metadataFieldSourcesJSON)
     deletedAt = book.deletedAt
     mergedIntoID = book.mergedIntoID
+    attachmentIDs = book.attachmentIDs
     notes = book.notes
     addedAt = book.addedAt
     createdAt = book.createdAt

@@ -103,6 +103,28 @@ def create_backup(source, directory, version, now=None, recovery_root=None):
         finally:
             src.close()
         files = {"default.store": digest(staging / "default.store")}
+        attachments = source.parent / "attachments"
+        if attachments.is_symlink():
+            raise ValueError("Symbolic-link attachment directory rejected")
+        if attachments.exists():
+            for obj in attachments.iterdir():
+                if obj.name.startswith("."):
+                    continue
+                uuid.UUID(obj.name)
+                if obj.is_symlink() or not obj.is_dir():
+                    raise ValueError("Invalid attachment directory")
+                for item in obj.rglob("*"):
+                    if item.is_symlink():
+                        raise ValueError("Symbolic-link attachment rejected")
+                    if item.is_dir():
+                        continue
+                    if not item.is_file():
+                        raise ValueError("Invalid attachment file")
+                    relative = item.relative_to(source.parent).as_posix()
+                    target = staging / relative
+                    target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+                    shutil.copyfile(item, target)
+                    files[relative] = digest(item)
         for name in ("NoteDraftRecovery", "MetadataDraftRecovery"):
             recovery = (Path(recovery_root) if recovery_root else source.parent / "Bookshelf") / name
             if not recovery.exists():

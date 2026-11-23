@@ -220,6 +220,8 @@ struct SettingsView: View {
           Text(message).foregroundStyle(.red).textSelection(.enabled)
         }
       }
+    case .attachments:
+      AttachmentNamingSettings()
     case .automaticBackup:
       AutomaticBackupSettings(backups: backups, onHistory: { isShowingBackupHistory = true })
     case .restore:
@@ -251,7 +253,7 @@ struct SettingsView: View {
   private var defaultBackupFileName: String {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
-    return L10n.tr("书架备份-\(formatter.string(from: Date()))")
+    return L10n.tr("Bookshelf 备份-\(formatter.string(from: Date()))")
   }
 
   private var licenseText: String {

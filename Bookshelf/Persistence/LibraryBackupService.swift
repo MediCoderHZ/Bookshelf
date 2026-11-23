@@ -26,12 +26,20 @@ enum LibraryBackupService {
     let books = try modelContext.fetch(
       FetchDescriptor<Book>(sortBy: [SortDescriptor(\Book.addedAt, order: .reverse)])
     )
+    let ids = Set(books.flatMap { $0.attachmentIDs ?? [] })
+    let files: [PortableAttachment]?
+    if ids.isEmpty { files = nil }
+    else {
+      let store = try BookAttachmentStore(context: modelContext)
+      files = try ids.sorted { $0.uuidString < $1.uuidString }.map(store.portable)
+    }
     let archive = LibraryArchive(
-      schemaVersion: 9,
+      schemaVersion: files.map { $0.contains(where: { $0.webURL != nil }) ? 11 : 10 } ?? 9,
       exportedAt: Date(),
       books: books.map { BookArchive(book: $0) },
       smartCollections: try SmartCollectionService.snapshots(in: modelContext).values.sorted { $0.name < $1.name },
       collections: try OrganizationStore.collections(in: modelContext).values.sorted { $0.name < $1.name },
+      attachmentFiles: files,
       libraryNotes: try OrganizationStore.notes(in: modelContext).values.sorted { $0.id.uuidString < $1.id.uuidString }
     )
 
@@ -45,9 +53,19 @@ enum LibraryBackupService {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     let archive = try decoder.decode(LibraryArchive.self, from: RetiredReadingData.cleanBackup(data))
-    guard [1, 2, 3, 4, 5, 6, 7, 8, 9].contains(archive.schemaVersion) else { throw LibraryBackupError.unsupportedSchema(archive.schemaVersion) }
+    guard (1...11).contains(archive.schemaVersion) else { throw LibraryBackupError.unsupportedSchema(archive.schemaVersion) }
     guard Set(archive.books.map(\.id)).count == archive.books.count,
       archive.books.allSatisfy({ !$0.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+    else { throw LibraryBackupError.invalidDocument }
+    let files = archive.attachmentFiles ?? []
+    let attachmentIDs = files.map(\.id)
+    for file in files {
+      try file.validate()
+      if file.webURL != nil && archive.schemaVersion < 11 { throw LibraryBackupError.invalidDocument }
+    }
+    guard Set(attachmentIDs).count == files.count,
+      Set(attachmentIDs) == Set(archive.books.flatMap { $0.attachmentIDs ?? [] }),
+      archive.books.allSatisfy({ Set($0.attachmentIDs ?? []).count == ($0.attachmentIDs?.count ?? 0) })
     else { throw LibraryBackupError.invalidDocument }
     let smart = archive.smartCollections ?? []
     guard Set(smart.map(\.id)).count == smart.count, smart.allSatisfy(\.isValid) else { throw SmartCollectionError.invalidRules }
@@ -82,6 +100,10 @@ enum LibraryBackupService {
         isbn != nil && isbn == (ISBN.identity($0.isbn13) ?? ISBN.identity($0.isbn10))
       }
       if let match, !BookRecordMerge.differentEditions(record, BookArchive(book: match)) {
+        let incoming = record.attachmentIDs ?? []
+        let local = match.attachmentIDs ?? []
+        let ids = local + incoming.filter { !local.contains($0) }
+        record.attachmentIDs = ids.isEmpty ? nil : ids
         record.id = match.id
         updated += 1
       } else if existing.contains(where: { $0.id == record.id }) {
@@ -93,7 +115,9 @@ enum LibraryBackupService {
     let smart = try LibraryImportPlanner.newSmartCollections(archive.smartCollections ?? [], context: modelContext)
     let notes = try OrganizationImport.notes(archive.libraryNotes ?? [], existingIDs: Set(OrganizationStore.notes(in: modelContext).keys),
       bookMap: bookMap, collectionMap: organization.idMap)
-    try LibraryRepository.apply(records, smartCollections: smart, manualCollections: organization.records, notes: notes, into: modelContext)
+    try BookAttachmentStore.commitImport(records, files: archive.attachmentFiles ?? [], context: modelContext) { restored in
+      try LibraryRepository.apply(restored, smartCollections: smart, manualCollections: organization.records, notes: notes, into: modelContext)
+    }
     return LibraryImportSummary(createdCount: records.count - updated, updatedCount: updated,
       createdSmartCount: smart.count, skippedSmartCount: (archive.smartCollections?.count ?? 0) - smart.count,
       createdCollectionCount: organization.records.count, keptCollectionCount: (archive.collections?.count ?? 0) - organization.records.count,
@@ -117,7 +141,7 @@ enum LibraryBackupError: LocalizedError {
     case .invalidDocument:
       L10n.tr("无法读取这个备份文件。")
     case .unsupportedSchema(let version):
-      L10n.tr("暂不支持版本为 \(version) 的书架备份。")
+      L10n.tr("暂不支持版本为 \(version) 的 Bookshelf 备份。")
     }
   }
 }

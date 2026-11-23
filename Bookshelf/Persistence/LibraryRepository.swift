@@ -182,6 +182,7 @@ enum LibraryRepository {
     book.metadataFieldSourcesJSON = RetiredReadingData.cleanFieldOrigins(record.metadataFieldSourcesJSON)
     book.deletedAt = record.deletedAt
     book.mergedIntoID = record.mergedIntoID
+    book.attachmentIDs = record.attachmentIDs
     book.notes = record.notes
     book.addedAt = record.addedAt
     book.createdAt = record.createdAt

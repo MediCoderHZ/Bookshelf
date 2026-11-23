@@ -27,9 +27,9 @@ DEVELOPER_DIR="/path/to/Xcode.app/Contents/Developer" bash scripts/build-release
 
 ## 本机固定应用入口
 
-日常使用与界面检查统一使用 `~/Applications/Bookshelf.app`，显示名称为“书架”，Bundle Identifier 固定为 `io.github.medicoderhz.bookshelf`。后续更新替换这个应用，继续使用同一个书库，不再创建或启动多个验证版本。
+日常使用与界面检查统一使用 `~/Applications/Bookshelf.app`，显示名称为“Bookshelf”，Bundle Identifier 固定为 `io.github.medicoderhz.bookshelf`。后续更新替换这个应用，继续使用同一个书库，不再创建或启动多个验证版本。
 
-先正常退出“书架”，再运行：
+先正常退出“Bookshelf”，再运行：
 
 ```sh
 # 编译、临时签名并安装到固定位置
@@ -80,7 +80,7 @@ bash scripts/verify-project.sh --disable-sandbox
 
 ## 界面语言资源
 
-`Bookshelf/Resources/zh-Hans.lproj/Localizable.strings` 与 `en.lproj/Localizable.strings` 分别保存中文和英文界面文字；Xcode 和 SwiftPM 均打包这两份资源，各语言目录下的 `InfoPlist.strings` 同时本地化应用名称。应用文字通过 `L10n.tr` 读取，插值转换为 `{0}`、`{1}` 等编号，译文可调整参数顺序，参数内容本身不会再次参与翻译或格式解析。
+`Bookshelf/Resources/zh-Hans.lproj/Localizable.strings` 与 `en.lproj/Localizable.strings` 分别保存中文和英文界面文字；Xcode 和 SwiftPM 均打包这两份资源，各语言目录下的 `InfoPlist.strings` 均使用固定应用名 Bookshelf。应用文字通过 `L10n.tr` 读取，插值转换为 `{0}`、`{1}` 等编号，译文可调整参数顺序，参数内容本身不会再次参与翻译或格式解析。
 
 应用进程使用 `Bundle.main.preferredLocalizations` 对应的启动语言。设置只保存 `requestedLanguage`，正常退出获准后才同步 `AppleLanguages`，避免当前进程新打开的系统面板提前改变语言；下次启动统一应用。设置标题由应用完整指定，不使用系统缓存后缀拼接。非应用测试进程固定中文基线，双语用例单独指定语言。
 

@@ -19,6 +19,7 @@ struct BookInspectorView: View {
   @Binding var expandedPanels: Set<InspectorPanel>
   var navigationRequest: InspectorNavigationRequest? = nil
   let readingPositions: InspectorReadingPositionStore
+  @State private var showsAttachments = false
   @State private var newTag = ""
   @State private var showsTagInput = false
   @State private var tagFocusToken: UUID?
@@ -34,7 +35,15 @@ struct BookInspectorView: View {
   var body: some View {
     ScrollViewReader { proxy in
       VStack(spacing: 0) {
-        header
+        HStack(spacing: 0) {
+          header
+          Button { showsAttachments = true } label: {
+            HStack(spacing: 3) {
+              Image(systemName: "paperclip")
+              if let count = book.attachmentIDs?.count, count > 0 { Text(count, format: .number) }
+            }
+          }.buttonStyle(.plain).help(L10n.tr("管理附件…")).accessibilityLabel(L10n.tr("管理附件…")).padding(.trailing, 14)
+        }
         Divider()
         ScrollView {
           VStack(spacing: 0) {
@@ -90,6 +99,7 @@ struct BookInspectorView: View {
         }
     }
     .font(display.font)
+    .sheet(isPresented: $showsAttachments) { BookAttachmentView(book: book) }
     .onChange(of: metadataEditing.focusRequest?.token) { _, _ in revealRequestedField() }
     .onAppear {
       isOnScreen = true

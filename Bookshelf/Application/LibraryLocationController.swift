@@ -88,6 +88,7 @@ final class LibraryLocationController: ObservableObject {
     guard directory.resolvingSymlinksInPath().standardizedFileURL != currentStoreURL.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL else {
       throw LibraryStorageError.sameDirectory
     }
+    try BookAttachmentStore(database: currentStoreURL).requireOutside(directory)
     try LibraryTranslatorDirectory.requireOutside(directory, source: translatorDirectory)
     try requireEmptyDirectory(directory)
     var next = configuration
@@ -158,11 +159,18 @@ final class LibraryLocationController: ObservableObject {
     let stagedStore = staging.appendingPathComponent("default.store")
     try AutomaticBackupStore.snapshotSQLite(from: currentStoreURL, to: stagedStore)
     try LibraryIntegrity.checkSQLite(at: stagedStore)
+    let attachmentStore = BookAttachmentStore(database: currentStoreURL)
+    try attachmentStore.requireOutside(directory)
+    let stagedAttachments = BookAttachmentStore(database: stagedStore).root
+    let files = try attachmentStore.snapshot(to: stagedAttachments)
     let stagedTranslators = LibraryTranslatorDirectory.beside(stagedStore)
     let hasTranslators = try LibraryTranslatorDirectory.snapshot(from: translatorDirectory, to: stagedTranslators)
     let destination = directory.appendingPathComponent("default.store")
     // moveItem never overwrites a destination that appeared after selection.
     try FileManager.default.moveItem(at: stagedStore, to: destination)
+    if !files.isEmpty {
+      try FileManager.default.moveItem(at: stagedAttachments, to: BookAttachmentStore(database: destination).root)
+    }
     let container = try LibraryDatabase.open(at: destination)
     _ = try LibraryIntegrity.checkRecords(in: container.mainContext)
     if hasTranslators {

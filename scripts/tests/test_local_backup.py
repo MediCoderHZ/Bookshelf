@@ -22,6 +22,15 @@ class LocalUpgradeBackupTests(unittest.TestCase):
         self.db.executescript("PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0; CREATE TABLE notes(body TEXT); INSERT INTO notes VALUES('newest');")
         self.db.commit()
 
+    def test_preinstall_backup_preserves_managed_files_and_checksums(self):
+        relative = "attachments/44D6213D-FCEA-4A88-9333-0DBA34B2C2C7/file/book.epub"
+        attachment = self.root / relative
+        attachment.parent.mkdir(parents=True)
+        attachment.write_bytes(b"book contents")
+        path = backup.create_backup(self.source, self.output, "2")
+        self.assertEqual((path / relative).read_bytes(), attachment.read_bytes())
+        self.assertEqual(backup.validate(path)["files"][relative], backup.digest(attachment))
+
     def test_snapshot_includes_wal_and_preserves_source_and_recovery(self):
         draft = self.root / "Bookshelf/NoteDraftRecovery/test.json"
         draft.parent.mkdir(parents=True)

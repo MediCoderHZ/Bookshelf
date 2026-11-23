@@ -143,7 +143,7 @@ final class BookshelfLifecycleDelegate: NSObject, NSApplicationDelegate {
         let alert = NSAlert()
         alert.messageText = L10n.tr("升级前备份未完成")
         alert.informativeText = error.localizedDescription
-        alert.addButton(withTitle: L10n.tr("返回书架"))
+        alert.addButton(withTitle: L10n.tr("返回 Bookshelf"))
         alert.runModal()
         return .terminateCancel
       }

@@ -178,6 +178,9 @@ enum BookRecordMerge {
       }
     }
     result.metadataFieldSourcesJSON = encodeOrigins(origins)
+    var seenAttachments = Set<UUID>()
+    let attachments = records.flatMap { $0.attachmentIDs ?? [] }.filter { seenAttachments.insert($0).inserted }
+    result.attachmentIDs = attachments.isEmpty ? nil : attachments
     result.tags = uniqueNames(records.flatMap(\.tags))
     result.collections = uniqueNames(records.flatMap(\.collections))
     var seriesKeys = Set<String>()

@@ -83,6 +83,8 @@ try:
     if args.app:
         app = args.app.resolve()
         info = load_plist(app / "Contents/Info.plist")
+        for key in ("CFBundleName", "CFBundleDisplayName"):
+            check(info.get(key) == "Bookshelf", f"产物的 {key} 应为 Bookshelf")
         check((app / "Contents/Resources/AppIcon.icns").is_file(), "产物缺少编译后的图标")
         embedded = load_plist(app / "Contents/Resources/PrivacyInfo.xcprivacy")
         check(embedded == privacy, "产物缺少或使用了旧版隐私清单")

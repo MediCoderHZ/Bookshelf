@@ -8,6 +8,8 @@ struct LibraryView: View {
   @Environment(\.modelContext) private var modelContext
   @Environment(NoteEditingSession.self) private var noteEditing
   @AppStorage("libraryTableColumnCustomization.v1") private var savedColumns = Data()
+  @State private var webLinkBook: Book?
+  @State private var attachmentError: String?
   let books: [Book]
   let notes: [NoteRecord]
   let isTrash: Bool
@@ -33,7 +35,11 @@ struct LibraryView: View {
 
   var body: some View {
     // Keep the same native table and column state when there are no rows.
-    table
+    table.sheet(item: $webLinkBook) { WebAttachmentEditor(book: $0) }
+      .alert(L10n.tr("添加附件"), isPresented: Binding(get: { attachmentError != nil },
+        set: { if !$0 { attachmentError = nil } })) {
+        Button(L10n.tr("好"), role: .cancel) {}
+      } message: { Text(attachmentError ?? "") }
   }
 
   private var rows: [LibraryItemRow] {
@@ -225,19 +231,24 @@ struct LibraryView: View {
     let selected = books.filter { ids.contains($0.id) }
     if selected.count == 1, let book = selected.first, book.deletedAt == nil {
       Button(L10n.tr("编辑书籍…")) { appState.presentEditor(for: book) }
-      Button(L10n.tr("新建笔记…")) { onNewNote(book.id) }
-      let templates = PluginStore.shared.enabledTemplates
-      if !templates.isEmpty {
-        Menu(L10n.tr("从模板新建笔记")) {
-          ForEach(templates) { template in
-            Button(template.displayName) {
-              guard let current = PluginStore.shared.enabledTemplates.first(where: { $0.id == template.id })
-              else { return }
-              onTemplateNote(current.draft(for: book, language: InterfaceLanguagePreferences.shared.language))
+      Menu(L10n.tr("新建笔记")) {
+        Button(L10n.tr("空白笔记")) { onNewNote(book.id) }
+        let templates = PluginStore.shared.enabledTemplates
+        if !templates.isEmpty {
+          Divider()
+          Menu(L10n.tr("从模板新建笔记")) {
+            ForEach(templates) { template in
+              Button(template.displayName) {
+                guard let current = PluginStore.shared.enabledTemplates.first(where: { $0.id == template.id })
+                else { return }
+                onTemplateNote(current.draft(for: book, language: InterfaceLanguagePreferences.shared.language))
+              }
             }
           }
         }
       }
+      AddAttachmentMenu(commands: BookAttachmentCommands(book: book, context: modelContext),
+        onWebLink: { webLinkBook = book }, onFileError: { attachmentError = $0 })
       Divider()
     }
     if !selected.isEmpty {

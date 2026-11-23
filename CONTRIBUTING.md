@@ -9,7 +9,7 @@
 3. 阅读 [目录约定](Docs/PROJECT-STRUCTURE.md) 和 [架构说明](Docs/ARCHITECTURE.md)，将修改放入相应功能目录。
 4. 提交前运行 `bash scripts/verify-project.sh` 和 `python3 -m unittest discover -s scripts/tests`；改动应用、配置或资源时，再运行 `bash scripts/build-release.sh`。
 
-具体工具链与缓存设置见 [构建与测试](Docs/BUILDING.md)。本机日常体验先退出“书架”，运行 `bash scripts/install-local.sh` 更新固定的 `~/Applications/Bookshelf.app`，再打开同一入口，继续使用现有书库。Debug 配置使用独立的 `.debug` 数据容器，日常验证不另外启动它；自动测试使用临时数据。数据迁移前应先备份，具体兼容说明见 [分发与更新](Docs/DISTRIBUTION.md#数据兼容)。
+具体工具链与缓存设置见 [构建与测试](Docs/BUILDING.md)。本机日常体验先退出“Bookshelf”，运行 `bash scripts/install-local.sh` 更新固定的 `~/Applications/Bookshelf.app`，再打开同一入口，继续使用现有书库。Debug 配置使用独立的 `.debug` 数据容器，日常验证不另外启动它；自动测试使用临时数据。数据迁移前应先备份，具体兼容说明见 [分发与更新](Docs/DISTRIBUTION.md#数据兼容)。
 
 ## 修改与反馈
 

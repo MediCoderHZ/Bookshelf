@@ -75,6 +75,8 @@ struct AutomaticBackupStore {
     if let storeURL {
       try Self.snapshotSQLite(from: storeURL, to: staging.appendingPathComponent("default.store"))
       try record("default.store")
+      let files = try BookAttachmentStore(database: storeURL).snapshot(to: staging.appendingPathComponent("attachments"))
+      for file in files { try record("attachments/" + file) }
     }
     if let recoveryRoot {
       for name in ["NoteDraftRecovery", "MetadataDraftRecovery"] {

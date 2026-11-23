@@ -72,7 +72,7 @@ struct SidebarView: View {
         onRename: { prepareTag($0, removing: false) },
         onDelete: { prepareTag($0, removing: true) })
     }
-    .navigationTitle(L10n.tr("书架"))
+    .navigationTitle(AppReleaseInfo.displayName)
     .onChange(of: selection) { _, _ in
       expandSelectedAncestors()
     }

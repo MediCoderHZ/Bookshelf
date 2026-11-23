@@ -86,7 +86,7 @@ struct AutomaticBackupHistoryView: View {
     .padding(20).frame(width: 700, height: 500)
     .onAppear { backups.refresh() }
     .fileExporter(isPresented: $isExporting, document: exportDocument, contentType: .json,
-      defaultFilename: L10n.tr("书架历史备份")) { result in
+      defaultFilename: L10n.tr("Bookshelf 历史备份")) { result in
       if case .failure(let error) = result { errorMessage = error.localizedDescription }
     }
   }

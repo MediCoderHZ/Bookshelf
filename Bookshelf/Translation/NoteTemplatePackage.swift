@@ -18,7 +18,7 @@ enum NoteTemplatePackage {
   static func read(from directory: URL) throws -> NoteTemplatePlugin {
     let values = try directory.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
     guard values.isDirectory == true, values.isSymbolicLink != true else {
-      throw WebMetadataError.invalidConfiguration(L10n.tr("请选择有效的书架插件包。"))
+      throw WebMetadataError.invalidConfiguration(L10n.tr("请选择有效的 Bookshelf 插件包。"))
     }
     let manifestData = try ExtensionFile.readData(from: directory.appendingPathComponent("manifest.json"))
     let decoder = JSONDecoder()
