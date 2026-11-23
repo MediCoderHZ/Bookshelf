@@ -1,6 +1,6 @@
 # 开源准备与 Sparkle 接入验证
 
-日期：2026-11-15。基于本地基准提交 `78041e4`，使用 Xcode 27.2、Swift 6.4.2。当前分发路线为 GitHub Releases + GitHub Pages + Sparkle，不要求上架 Mac App Store。
+日期：2026-11-15。基于本地基准提交 `78041e4`，使用 Xcode 27.2、Swift 6.4.2。本次验证覆盖 GitHub Releases、GitHub Pages 与 Sparkle 的本地接入。
 
 ## 已完成
 

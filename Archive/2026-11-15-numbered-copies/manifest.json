@@ -1,13 +1,13 @@
 {
   "date": "2026-11-15",
-  "reason": "Numbered copies found alongside active files; preserved without merging or deleting.",
+  "reason": "Numbered copies originally found alongside active files. Sizes and hashes describe the retained archive files.",
   "files": [
     {
       "original_path": "README 2.md",
       "archived_path": "Archive/2026-11-15-numbered-copies/README 2.md",
       "canonical_path_at_archive": "README.md",
-      "sha256": "9b6ef858d04506a504c7f6a4787b3442bc372802dd836ba703b598b4fa79a51a",
-      "size_bytes": 13841,
+      "sha256": "ce9a017bf2256a36a32779926989ffc12e49adfdd9e27c6f7c6afc8fc5732394",
+      "size_bytes": 13290,
       "identical_to_canonical": false
     },
     {
@@ -30,16 +30,16 @@
       "original_path": "README 3.md",
       "archived_path": "Archive/2026-11-15-numbered-copies/README 3.md",
       "canonical_path_at_archive": "README.md",
-      "sha256": "da629f144a3ba696f06986580eea4fb3a86a358c1b46abafdbcae9606258d93d",
-      "size_bytes": 21832,
+      "sha256": "453a6ec9888e42cf55192fdb70c6be7544d219b3d150a72be128705aa29435b9",
+      "size_bytes": 21281,
       "identical_to_canonical": false
     },
     {
       "original_path": "README 4.md",
       "archived_path": "Archive/2026-11-15-numbered-copies/README 4.md",
       "canonical_path_at_archive": "README.md",
-      "sha256": "0b4f315a480aa1559a134e5c04a7ba89e763500e818d980bfddd5be761f0f401",
-      "size_bytes": 37908,
+      "sha256": "4bfd0ba164d17b463eb861f5a73d6b50665d1df272132009a786a9799ff5ba82",
+      "size_bytes": 37357,
       "identical_to_canonical": false
     },
     {
@@ -48,62 +48,6 @@
       "canonical_path_at_archive": "INTERCHANGE.md",
       "sha256": "995a437156cef480e6bdd61737419242b42d4fdf0f8947af5567122201ae786a",
       "size_bytes": 5478,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/VALIDATION 3.md",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/VALIDATION 3.md",
-      "canonical_path_at_archive": "AppStore/VALIDATION.md",
-      "sha256": "5b5816fbd44245c5bddb56d2c18ccf51a356f336e572d1eee67c86eec03a0cd8",
-      "size_bytes": 24850,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/REVIEW-NOTES 3.md",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/REVIEW-NOTES 3.md",
-      "canonical_path_at_archive": "AppStore/REVIEW-NOTES.md",
-      "sha256": "b26abeca667aa2fa6b0ac71f3a2abcb88e6b0d27daefb9d53702d2b22dbd5e86",
-      "size_bytes": 9644,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/metadata.zh-Hans 2.json",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/metadata.zh-Hans 2.json",
-      "canonical_path_at_archive": "AppStore/metadata.zh-Hans.json",
-      "sha256": "7c6631d6ff78e05352d1c2e42291bf573180c62058320b537c0f4d7dd5ff6e8c",
-      "size_bytes": 1946,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/VALIDATION 2.md",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/VALIDATION 2.md",
-      "canonical_path_at_archive": "AppStore/VALIDATION.md",
-      "sha256": "6dd609723864fa8c86932ef64529b3ea9e979c55cfebefc841f31b23e9595d32",
-      "size_bytes": 22581,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/REVIEW-NOTES 2.md",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/REVIEW-NOTES 2.md",
-      "canonical_path_at_archive": "AppStore/REVIEW-NOTES.md",
-      "sha256": "ccca454c51531a83454b1247ff243a85cedf74685dcbc0dd9e4aee9e57eb1519",
-      "size_bytes": 9139,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/RELEASE-READINESS 2.md",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/RELEASE-READINESS 2.md",
-      "canonical_path_at_archive": "AppStore/RELEASE-READINESS.md",
-      "sha256": "aa98fbf07891295416dc817425229c2eba51ba60a292ac7110a72f5dba99e72b",
-      "size_bytes": 11651,
-      "identical_to_canonical": false
-    },
-    {
-      "original_path": "AppStore/SUPPORT-DRAFT 2.md",
-      "archived_path": "Archive/2026-11-15-numbered-copies/AppStore/SUPPORT-DRAFT 2.md",
-      "canonical_path_at_archive": "AppStore/SUPPORT-DRAFT.md",
-      "sha256": "e80a5f36d3727a3ac074a8e1cc72c546358126118fcc8e76268c735e5fbdf62e",
-      "size_bytes": 8944,
       "identical_to_canonical": false
     },
     {

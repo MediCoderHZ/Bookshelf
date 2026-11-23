@@ -14,10 +14,9 @@
 | `Docs/` | 当前维护的使用、架构、专题与隐私文档 |
 | `Distribution/Updates/` | GitHub Pages 发布的 Sparkle 更新清单 |
 | `.github/` | 构建验证、手动 Pages 发布及协作模板 |
-| `AppStore/` | 历史商店元数据与验收记录，不作为 GitHub 分发要求 |
 | `Examples/` | 可供手动体验和测试复用的 JSON 与 HTML 示例 |
 | `scripts/` | 架构检查、项目验证、Release 构建和发布前检查；`lib/` 共用工具链与构建目录设置 |
-| `Archive/` | 整理时发现的编号副本，保留原文件内容、原相对路径和校验清单 |
+| `Archive/` | 历史编号副本、原相对路径和校验清单 |
 | `work/` | 本地构建、缓存、原始设计图片和操作前快照，由 Git 忽略 |
 
 根目录的 [README](../README.md) 是统一入口。应用文件夹与笔记功能仍在 [ORGANIZATION.md](ORGANIZATION.md) 中说明，项目文件组织以本文为准。
@@ -78,13 +77,10 @@ SwiftPM 递归发现测试文件，`Fixtures/` 仍通过 `.copy("Fixtures")` 打
 - [BUILD-VALIDATION.md](BUILD-VALIDATION.md)：目录整理后的完整编译、测试与本机运行结果。
 - [UPDATE-VALIDATION.md](UPDATE-VALIDATION.md)：开源准备与 Sparkle 集成的实测结果。
 - [DISTRIBUTION.md](DISTRIBUTION.md)：当前 GitHub 开源分发、签名、公证与自动更新流程。
-- [AppStore](../AppStore/RELEASE-READINESS.md)：保留的历史商店材料，不参与当前分发流程。
 
 ## 编号副本与本地工作区
 
-2026-11-15 整理时发现 42 个带 ` 2`、` 3` 或 ` 4` 后缀的文件：17 个应用源码、12 个测试和 13 个文档或商店元数据文件。所有副本均与对应主文件不同；应用副本未被 Xcode Sources 引用，却位于 SwiftPM 会扫描的目录内。
-
-这些文件已原样移入 [Archive/2026-11-15-numbered-copies](../Archive/2026-11-15-numbered-copies/)，保持原来的目录层级。[manifest.json](../Archive/2026-11-15-numbered-copies/manifest.json) 记录原位置、归档位置、文件大小和 SHA-256。没有合并或删除其中的差异；当前构建使用无编号的主文件。归档位于两个 SwiftPM target 路径之外。
+[2026-11-15 编号副本归档](../Archive/2026-11-15-numbered-copies/) 现存 35 个文件，包括 17 个应用源码、12 个测试和 6 个文档。归档保留原目录层级，位于两个 SwiftPM target 路径之外，当前构建使用无编号的主文件。[校验清单](../Archive/2026-11-15-numbered-copies/manifest.json) 记录每个现存文件的原位置、归档位置、大小和 SHA-256。
 
 `work/` 中已有的 `DerivedData/`、`SwiftPMBuild/`、`build/`、缓存、`PreBookTypes/` 和 `RecoveredDuplicateSources/` 保留原位置，避免破坏构建路径或历史快照。该目录同时包含可重建产物和不可直接丢弃的原始资料，清理前应逐项区分。
 
@@ -101,7 +97,7 @@ SwiftPM 递归发现测试文件，`Fixtures/` 仍通过 `.copy("Fixtures")` 打
 
 ## 本次整理验证（2026-11-15）
 
-- 整理前记录的 227 个文件均可在原位置、迁移位置或归档中找到；42 个编号副本的 SHA-256 与整理前一致。应用 Swift 源码及版本迁移样本内容未改动。
+- 整理当日核对了 227 个文件的位置，并验证了当时 42 个编号副本的 SHA-256。应用 Swift 源码及版本迁移样本内容未改动。
 - 架构检查通过，检查脚本已递归覆盖新子目录；本地发布技术预检通过，原有正式发布待办仍保留。
 - Xcode 工程语法检查通过，所有文件引用可解析，96 个应用 Swift 文件均有且只有一个 Sources 编译条目。
 - SwiftPM 成功解析 Package.swift，并识别全部 96 个应用源码、40 个测试文件及 Fixtures 资源。

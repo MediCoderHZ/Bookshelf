@@ -2,10 +2,6 @@
 
 本文保留原 README 中的完整功能与交互说明。项目入口见 [README](../README.md)，文件位置见[目录结构与维护约定](PROJECT-STRUCTURE.md)，当前工具链与验证命令见[构建与测试](BUILDING.md)。下列开发命令均在项目根目录执行。
 
-上架准备入口：[发布准备与待办](../AppStore/RELEASE-READINESS.md)。商店文案、审核说明和支持页草案位于 AppStore 目录。名称和定价尚未确定，材料均为草案。
-
-运行 `bash scripts/build-release.sh` 可检查未签名的双架构 Release 产物；正式包还需通过 `python3 scripts/preflight.py --app "/path/to/Bookshelf.app" --submission`。脚本不上传或发布，也不替代 Organizer 验证。
-
 一款本地优先、使用 SwiftUI 与 SwiftData 构建的 macOS 原生书籍元信息管理器。
 
 ## 核心架构
@@ -202,13 +198,11 @@ Sparkle 发现可安装更新时先备份，安装重启及等待退出安装时
 
 - macOS 14 或更高版本
 - Swift 6
-- 完整版 Xcode（用于运行 macOS App 和 App Store 签名）
+- 完整版 Xcode 27（用于编译应用和运行测试）
 
-可先运行 `swift test` 验证模型和源码。安装 Xcode 后，打开 `Bookshelf.xcodeproj` 运行应用。
+在项目根目录运行 `bash scripts/verify-project.sh` 执行测试。日常使用可按[本机安装说明](BUILDING.md#本机固定应用入口)从源码安装 Bookshelf。
 
 如果 `xcode-select -p` 仍指向 `CommandLineTools`，安装 Xcode 后可在 Xcode 的 Settings > Locations 中选择对应的 Command Line Tools，再进行构建。
-
-提交 App Store 前，需要替换 Bundle Identifier、开发团队和版权信息，并将 [Docs/PRIVACY.md](PRIVACY.md) 发布到可公开访问的网址后填入 App Store Connect。
 
 封面功能移除后，新备份不再保存图片；旧版备份和解析规则仍可导入，其封面字段会被忽略。升级清理数据库中的封面字段、资源实体和相关筛选规则，不读取或复制旧图片。此前导出的备份与外部图片不受影响。
 

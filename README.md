@@ -4,7 +4,7 @@ Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zo
 
 ## 下载与运行
 
-**当前提供 0.1.0 源码版，支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载源码并解压后，需要完整版 Xcode 才能构建应用。正式安装包将在完成 Developer ID 签名和 Apple 公证后发布。[下载此版源码 ZIP](https://github.com/MediCoderHZ/Bookshelf/archive/refs/tags/v0.1.0-source.zip) · [查看发行页面](https://github.com/MediCoderHZ/Bookshelf/releases)
+**当前提供 0.1.0 源码版，支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载源码后，可直接用完整版 Xcode 在自己的 Mac 上构建和使用。[下载此版源码 ZIP](https://github.com/MediCoderHZ/Bookshelf/archive/refs/tags/v0.1.0-source.zip) · [查看发行页面](https://github.com/MediCoderHZ/Bookshelf/releases)
 
 源码构建请使用完整版 Xcode 27。首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开 Bookshelf，请先正常退出。
 
@@ -45,10 +45,9 @@ Config/                 Release 配置与本地配置示例
 Docs/                   使用手册、架构与专题文档
 Distribution/           GitHub Pages 更新清单
 .github/                CI、手动更新清单发布、Issue 与 PR 模板
-AppStore/               历史商店材料（不参与当前 GitHub 发布）
 Examples/               网页解析器示例
 scripts/                架构检查、构建与发布前检查
-Archive/                带编号副本的原样归档及校验清单
+Archive/                历史编号副本及校验清单
 work/                   本地构建、缓存与备份（Git 忽略）
 Package.swift           Swift Package Manager 构建与测试入口
 ```

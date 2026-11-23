@@ -1,8 +1,6 @@
 # Bookshelf
 
-上架准备入口：[发布准备与待办](AppStore/RELEASE-READINESS.md)。商店文案、审核说明和支持页草案位于 AppStore 目录。名称和定价尚未确定，材料均为草案。
-
-运行 `bash scripts/build-release.sh` 可检查未签名的双架构 Release 产物；正式包还需通过 `python3 scripts/preflight.py --app "/path/to/Bookshelf.app" --submission`。脚本不上传或发布，也不替代 Organizer 验证。
+运行 `bash scripts/build-release.sh` 可检查未签名的双架构 Release 产物。
 
 一款本地优先、使用 SwiftUI 与 SwiftData 构建的 macOS 原生书籍元信息管理器。
 
@@ -126,10 +124,8 @@ Goodreads 示例：`https://www.goodreads.com/book/show/13634490-the-great-gatsb
 
 - macOS 14 或更高版本
 - Swift 6
-- 完整版 Xcode（用于运行 macOS App 和 App Store 签名）
+- 完整版 Xcode（用于运行 macOS App）
 
 可先运行 `swift test` 验证模型和源码。安装 Xcode 后，打开 `Bookshelf.xcodeproj` 运行应用。
 
 如果 `xcode-select -p` 仍指向 `CommandLineTools`，安装 Xcode 后可在 Xcode 的 Settings > Locations 中选择对应的 Command Line Tools，再进行构建。
-
-提交 App Store 前，需要替换 Bundle Identifier、开发团队和版权信息，并将 `PRIVACY.md` 发布到可公开访问的网址后填入 App Store Connect。

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only checks. --submission also checks decisions/signing, not App Review."""
+"""Check Bookshelf resources and entitlements, and optionally inspect a built app."""
 import argparse
 import json
 import plistlib
@@ -10,9 +10,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--app", type=Path, help="Built .app to inspect")
-parser.add_argument("--submission", action="store_true")
 args = parser.parse_args()
 errors, pending = [], []
 
@@ -67,18 +66,6 @@ try:
         check(struct.unpack(">II", image[16:24]) == (size * scale, size * scale),
               "AppIcon 像素尺寸不匹配：" + item["filename"])
     check(expected <= actual, "AppIcon 尺寸集不完整")
-    # Historical App Store material is not a requirement for GitHub distribution.
-    if args.submission:
-        metadata = json.loads((ROOT / "AppStore/metadata.zh-Hans.json").read_text())
-        for key, maximum in {"name": 30, "subtitle": 30, "promotionalText": 170,
-                             "description": 4000, "keywords": 100}.items():
-            check(bool(metadata.get(key)) and len(metadata[key]) <= maximum,
-                  f"商店文案 {key} 为空或超长")
-        check(len(metadata["keywords"].encode("utf-8")) <= 100, "关键词超过保守的 100 字节限制")
-        checklist = json.loads((ROOT / "AppStore/submission-checklist.json").read_text())
-        for key, item in checklist.items():
-            if item["confirmed"] is not True:
-                pending.append(item["description"])
 
     if args.app:
         app = args.app.resolve()
@@ -118,7 +105,7 @@ try:
         print("版本:", info.get("CFBundleShortVersionString"), "构建:", info.get("CFBundleVersion"))
         bundle_id = info.get("CFBundleIdentifier", "")
         if bundle_id.startswith("com.example.") or not real_value(bundle_id):
-            pending.append("替换占位 Bundle ID，并在开发者账号中注册")
+            pending.append("配置稳定的应用 Bundle Identifier")
         for key, label in (("BookshelfSupportURL", "配置公开支持网址"),
                            ("BookshelfPrivacyURL", "配置公开隐私政策网址")):
             if not public_url(info.get(key, "")):
@@ -129,29 +116,6 @@ try:
         contact = info.get("BookshelfMetadataContact", "")
         if not real_value(contact) or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", contact):
             pending.append("配置 Open Library 请求中的开发者联系邮箱")
-        if args.submission:
-            result = subprocess.run(["codesign", "--verify", "--deep", "--strict", str(app)],
-                                    capture_output=True, text=True)
-            check(result.returncode == 0, "签名验证失败")
-            signature = subprocess.run(["codesign", "-dv", "--verbose=4", str(app)],
-                                       capture_output=True, text=True)
-            details = signature.stderr + signature.stdout
-            check("Signature=adhoc" not in details and "TeamIdentifier=not set" not in details,
-                  "临时签名不能用于商店提交")
-            check("Authority=Apple Distribution:" in details
-                  or "Authority=3rd Party Mac Developer Application:" in details,
-                  "未检测到 Mac App Store 分发签名")
-            signed = subprocess.run(["codesign", "-d", "--entitlements", ":-", str(app)],
-                                    capture_output=True)
-            start = signed.stdout.find(b"<?xml")
-            if start >= 0:
-                signed_plist = plistlib.loads(signed.stdout[start:])
-                check(signed_plist.get("com.apple.security.app-sandbox") is True, "实际签名未包含沙盒权限")
-                check(not signed_plist.get("com.apple.security.get-task-allow"), "分发包允许调试")
-            else:
-                errors.append("未能读取实际签名权限")
-    elif args.submission:
-        errors.append("--submission 必须传入待提交的 --app")
 except (OSError, ValueError, KeyError, subprocess.SubprocessError, plistlib.InvalidFileException) as exc:
     errors.append(str(exc))
 
@@ -159,7 +123,7 @@ for message in errors:
     print("FAIL:", message)
 for message in dict.fromkeys(pending):
     print("待办:", message)
-if errors or (args.submission and pending):
+if errors:
     print("技术检查未通过。")
     raise SystemExit(1)
 print("本地技术检查通过；正式 GitHub 分发另需运行 check-update-config.py --distribution。")

@@ -1,6 +1,6 @@
 # GitHub 分发与 Sparkle 更新
 
-源码仓库：[MediCoderHZ/Bookshelf](https://github.com/MediCoderHZ/Bookshelf)。本项目采用 MIT 许可证，通过 GitHub Releases 分发应用，通过 GitHub Pages 提供 Sparkle 更新清单。
+Bookshelf 采用 MIT 许可证，目前通过 GitHub 发布源码。发布源码和在自己的 Mac 上构建均无需 Developer ID 证书。用户可按[构建说明](BUILDING.md)安装。[源码仓库](https://github.com/MediCoderHZ/Bookshelf)
 
 ## 已配置的身份与渠道
 
@@ -17,7 +17,7 @@
 
 `BOOKSHELF_UPDATES_ENABLED` 暂为 `NO`，因为线上清单尚未发布；应用可正常使用，“检查更新…”会说明更新服务尚未启用。配置完整且该值为 `YES` 时，应用启动 Sparkle，自动检查前由 Sparkle 请求用户许可，默认不静默安装、不上传系统分析。用户可以从应用菜单选择“检查更新…”。
 
-## 第一次发布
+## 首次通过 GitHub 发布预编译应用
 
 1. 将审核后的源码推送至仓库的默认分支 `main`。本地历史原为 `master`；可以在确认后重命名，也可以明确推送 `master:main`。不要强推覆盖已有远程历史。保留基准标签 `baseline-2026-11-15`。
 2. GitHub 仓库 Settings → Pages → Source 选择 **GitHub Actions**。在 Actions 中手动运行 **Publish update feed**，仅发布 `Distribution/Updates/`。初始 `appcast.xml` 是空清单，不含虚构安装包。
@@ -36,7 +36,7 @@
 7. 创建 `v0.1.0` 对应的 GitHub Release，将生成的 ZIP 与 SHA256SUMS.txt 作为附件上传，填写更新说明。GitHub 自动生成的 Source code ZIP 是源码，不是应用安装包。
 8. 确认安装包下载地址有效后，将生成的 `appcast.xml` 替换 `Distribution/Updates/appcast.xml`，提交并推送，再手动运行 **Publish update feed**。不要先发布指向尚不存在附件的更新条目。
 
-`build-release.sh` 只做本地未签名构建，不是正式发布脚本。历史 `preflight.py --submission` 面向 Mac App Store，不适用于本发布路线；GitHub 正式分发使用 `check-update-config.py --distribution`。
+`build-release.sh` 生成本地双架构应用，并自动运行 `preflight.py --app` 检查产物。为 GitHub Releases 准备可直接下载的应用时，再使用 `check-update-config.py --distribution` 验证 Developer ID 签名、公证票据和 Sparkle 配置。
 
 ## 后续版本
 
