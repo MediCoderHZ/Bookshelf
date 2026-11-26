@@ -6,7 +6,7 @@ Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zo
 
 **[下载 Bookshelf for Mac（DMG）](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.0/Bookshelf-0.1.0-macOS.dmg)**
 
-Bookshelf 0.1.0（构建 9）支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。双击打开 DMG，将左侧的 Bookshelf 拖到右侧的「应用程序」。复制完成后，推出磁盘映像，从「应用程序」打开 Bookshelf。应用和磁盘映像均已通过 Apple 公证。[发行说明与 SHA-256 校验值](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0) · [备用 ZIP 下载](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.0/Bookshelf-0.1.0-macOS.zip)
+Bookshelf 0.1.0（构建 9）支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。双击打开 DMG，将左侧的 Bookshelf 拖到右侧的「应用程序」。复制完成后，推出磁盘映像，从「应用程序」打开 Bookshelf。应用和磁盘映像均已通过 Apple 公证。[发行说明与 SHA-256 校验值](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0)
 
 这个版本通过 GitHub Releases 手动更新。以后安装新版时，先退出 Bookshelf，再用新版替换原位置的应用。
 

@@ -1,6 +1,6 @@
 # GitHub 分发与 Sparkle 更新
 
-Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.1.0（构建 9）的通用版经过 Developer ID 签名与 Apple 公证，并已附加公证票据。此版本通过 Releases 手动下载更新。[下载与校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0) · [从源码构建](BUILDING.md)
+Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.1.0（构建 9）以 DMG 提供手动安装与更新。应用和磁盘映像均经过 Developer ID 签名、Apple 公证并附有公证票据。[下载与校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0) · [从源码构建](BUILDING.md)
 
 ## 已配置的身份与渠道
 
@@ -29,11 +29,11 @@ Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.
    ```sh
    python3 scripts/preflight.py --app /path/to/Bookshelf.app
    python3 scripts/check-update-config.py --app /path/to/Bookshelf.app --distribution
-   bash scripts/prepare-update.sh /path/to/Bookshelf.app dist/v0.1.0
+   bash scripts/prepare-update.sh /path/to/Bookshelf.app dist/sparkle-release
    ```
 
    打包脚本要求新的输出目录，会验证公钥与钥匙串匹配，使用 `ditto` 保留框架符号链接，生成 ZIP、SHA256SUMS.txt 和带更新包签名的 appcast，并再次验证签名。脚本不会上传或发布。
-7. 创建 `v0.1.0` 对应的 GitHub Release，将生成的 ZIP 与 SHA256SUMS.txt 作为附件上传，填写更新说明。GitHub 自动生成的 Source code ZIP 是源码，不是应用安装包。
+7. 在启用 Sparkle 的版本所对应的 GitHub Release 中上传更新清单引用的 ZIP 和校验文件，填写更新说明。用户手动安装时下载 DMG。
 8. 确认安装包下载地址有效后，将生成的 `appcast.xml` 替换 `Distribution/Updates/appcast.xml`，提交并推送，再手动运行 **Publish update feed**。不要先发布指向尚不存在附件的更新条目。
 
 `build-release.sh` 生成本地双架构应用，并自动运行 `preflight.py --app` 检查产物。为 GitHub Releases 准备可直接下载的应用时，再使用 `check-update-config.py --distribution` 验证 Developer ID 签名、公证票据和 Sparkle 配置。
