@@ -459,7 +459,7 @@ struct ContentView: View {
     .environment(metadataEditing)
     .environment(\.noteNavigation, NoteNavigationActions(create: { createNote(parentID: $0) }, open: openNote))
     .safeAreaInset(edge: .bottom) {
-      VStack(spacing: 0) { recoveryBanner; metadataRecoveryBanner }
+      VStack(spacing: 0) { MCPReviewBanner(); recoveryBanner; metadataRecoveryBanner }
     }
     .onChange(of: libraryNotes.map(\.id)) { _, ids in
       if !isRestoringWorkspace {

@@ -9,7 +9,7 @@ struct BookshelfApp: App {
   @StateObject private var backups: AutomaticBackupController
   @StateObject private var relauncher: AppRelaunchController
   @StateObject private var locations: LibraryLocationController
-  private let storage: Result<(container: ModelContainer, translators: TranslatorStore), Error>
+  private let storage: Result<(container: ModelContainer, translators: TranslatorStore, ai: AIMetadataWorkspace), Error>
 
   init() {
     _ = PluginStore.shared // Separate legacy note templates before the translator catalog opens.
@@ -26,7 +26,7 @@ struct BookshelfApp: App {
       let container = try locations.openLibrary(backups: backups)
       try SmartCollectionService.retireBookTypeDefaults(in: container.mainContext)
       let translators = TranslatorStore(directory: locations.translatorDirectory, prepareDirectory: locations.migrateLegacyTranslatorsIfNeeded)
-      return (container, translators)
+      return (container, translators, AIMetadataWorkspace(context: container.mainContext))
     }
     _updater = StateObject(wrappedValue: AppUpdater(backups: backups))
     _relauncher = StateObject(wrappedValue: AppRelaunchController(prepare: {
@@ -42,6 +42,7 @@ struct BookshelfApp: App {
         switch storage {
         case .success(let library):
           LibraryWindowRoot(container: library.container)
+            .environment(library.ai)
             .environment(library.translators)
             .safeAreaInset(edge: .bottom) {
               VStack(spacing: 0) {
@@ -89,7 +90,7 @@ struct BookshelfApp: App {
       switch storage {
       case .success(let library):
         LibraryUndoScope {
-          SettingsView().environmentObject(backups).environmentObject(relauncher)
+          SettingsView().environment(library.ai).environmentObject(backups).environmentObject(relauncher)
             .environmentObject(locations)
             .environment(\.locale, L10n.locale)
             .environment(library.translators)

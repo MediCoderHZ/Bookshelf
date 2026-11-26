@@ -1,6 +1,6 @@
 # GitHub 分发与 Sparkle 更新
 
-Bookshelf 采用 MIT 许可证，目前通过 GitHub 发布源码。发布源码和在自己的 Mac 上构建均无需 Developer ID 证书。用户可按[构建说明](BUILDING.md)安装。[源码仓库](https://github.com/MediCoderHZ/Bookshelf)
+Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.1.0（构建 9）的通用版经过 Developer ID 签名与 Apple 公证，并已附加公证票据。此版本通过 Releases 手动下载更新。[下载与校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0) · [从源码构建](BUILDING.md)
 
 ## 已配置的身份与渠道
 
@@ -17,7 +17,7 @@ Bookshelf 采用 MIT 许可证，目前通过 GitHub 发布源码。发布源码
 
 `BOOKSHELF_UPDATES_ENABLED` 暂为 `NO`，因为线上清单尚未发布；应用可正常使用，“检查更新…”会说明更新服务尚未启用。配置完整且该值为 `YES` 时，应用启动 Sparkle，自动检查前由 Sparkle 请求用户许可，默认不静默安装、不上传系统分析。用户可以从应用菜单选择“检查更新…”。
 
-## 首次通过 GitHub 发布预编译应用
+## 首次发布支持 Sparkle 自动更新的应用
 
 1. 将审核后的源码推送至仓库的默认分支 `main`。本地历史原为 `master`；可以在确认后重命名，也可以明确推送 `master:main`。不要强推覆盖已有远程历史。保留基准标签 `baseline-2026-11-15`。
 2. GitHub 仓库 Settings → Pages → Source 选择 **GitHub Actions**。在 Actions 中手动运行 **Publish update feed**，仅发布 `Distribution/Updates/`。初始 `appcast.xml` 是空清单，不含虚构安装包。

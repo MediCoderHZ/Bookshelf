@@ -8,6 +8,7 @@ struct LibraryView: View {
   @Environment(\.modelContext) private var modelContext
   @Environment(NoteEditingSession.self) private var noteEditing
   @AppStorage("libraryTableColumnCustomization.v1") private var savedColumns = Data()
+  @State private var aiBook: Book?
   @State private var webLinkBook: Book?
   @State private var attachmentError: String?
   let books: [Book]
@@ -35,7 +36,8 @@ struct LibraryView: View {
 
   var body: some View {
     // Keep the same native table and column state when there are no rows.
-    table.sheet(item: $webLinkBook) { WebAttachmentEditor(book: $0) }
+    table.sheet(item: $aiBook) { AIBookCompletionView(book: $0) }
+      .sheet(item: $webLinkBook) { WebAttachmentEditor(book: $0) }
       .alert(L10n.tr("添加附件"), isPresented: Binding(get: { attachmentError != nil },
         set: { if !$0 { attachmentError = nil } })) {
         Button(L10n.tr("好"), role: .cancel) {}
@@ -231,6 +233,7 @@ struct LibraryView: View {
     let selected = books.filter { ids.contains($0.id) }
     if selected.count == 1, let book = selected.first, book.deletedAt == nil {
       Button(L10n.tr("编辑书籍…")) { appState.presentEditor(for: book) }
+      Button(L10n.tr("用 AI 补全元信息…")) { aiBook = book }
       Menu(L10n.tr("新建笔记")) {
         Button(L10n.tr("空白笔记")) { onNewNote(book.id) }
         let templates = PluginStore.shared.enabledTemplates

@@ -27,10 +27,11 @@ struct SettingsWindowTitle: NSViewRepresentable {
 }
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-  case general, backups, storage, about
+  case general, backups, storage, ai, about
   var id: Self { self }
   var titleKey: InterfaceText {
     switch self {
+    case .ai: "AI 与 MCP"
     case .general: "通用"
     case .backups: "备份与恢复"
     case .storage: "文件与数据库"
@@ -40,6 +41,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
   var title: String { L10n.tr(titleKey) }
   var symbol: String {
     switch self {
+    case .ai: "sparkles"
     case .general: "gearshape"
     case .backups: "clock.arrow.circlepath"
     case .storage: "externaldrive"
@@ -51,10 +53,11 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
 /// Search the settings themselves in either language, independently of library data.
 enum SettingsGroup: String, CaseIterable, Identifiable {
-  case appearance, automaticBackup, restore, storage, attachments, translators, about
+  case appearance, automaticBackup, restore, storage, attachments, translators, model, mcp, about
   var id: Self { self }
   var pane: SettingsPane {
     switch self {
+    case .model, .mcp: .ai
     case .appearance: .general
     case .automaticBackup, .restore: .backups
     case .storage, .attachments, .translators: .storage
@@ -63,6 +66,8 @@ enum SettingsGroup: String, CaseIterable, Identifiable {
   }
   var titleKey: InterfaceText {
     switch self {
+    case .model: "模型服务"
+    case .mcp: "外部 AI 客户端"
     case .appearance: "界面语言"
     case .automaticBackup: "自动备份"
     case .restore: "备份文件"
@@ -75,6 +80,8 @@ enum SettingsGroup: String, CaseIterable, Identifiable {
   var title: String { L10n.tr(titleKey) }
   private var keywords: [InterfaceText] {
     switch self {
+    case .model: ["模型名称", "服务地址", "API Key"]
+    case .mcp: ["MCP", "stdio"]
     case .appearance: ["界面语言", "简体中文", "English", "Language", "中文", "英文"]
     case .automaticBackup: ["定期备份书籍和笔记", "备份频率", "保留定时与手动备份", "最近成功备份", "立即备份", "查看历史备份…", "每小时", "每天", "升级", "历史", "频率", "History", "Retention", "Interval", "Update"]
     case .restore: ["保存 JSON 备份…", "从备份恢复…", "JSON", "Restore"]

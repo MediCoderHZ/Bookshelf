@@ -76,6 +76,8 @@ struct SettingsView: View {
     .font(.system(size: 13))
     .background(Color(nsColor: .windowBackgroundColor))
     .background(SettingsWindowTitle())
+    .onAppear(perform: handleAISettings)
+    .onReceive(NotificationCenter.default.publisher(for: AISettingsNavigation.request)) { _ in handleAISettings() }
     .fileExporter(
       isPresented: $isExporting,
       document: exportDocument,
@@ -137,6 +139,13 @@ struct SettingsView: View {
     } message: {
       Text(errorMessage ?? history.errorMessage ?? resultMessage ?? "")
     }
+  }
+
+  private func handleAISettings() {
+    guard AISettingsNavigation.requested else { return }
+    AISettingsNavigation.requested = false
+    selectedPane = .ai
+    searchText = ""
   }
 
   private var isSearching: Bool { !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -207,6 +216,8 @@ struct SettingsView: View {
 
   @ViewBuilder private func settingsContent(_ group: SettingsGroup) -> some View {
     switch group {
+    case .model: AIModelSettings()
+    case .mcp: MCPConnectionSettings()
     case .appearance:
       Picker(L10n.tr("界面语言"), selection: $languagePreferences.requestedLanguage) {
         ForEach(InterfaceLanguage.allCases) { Text($0.title).tag($0) }

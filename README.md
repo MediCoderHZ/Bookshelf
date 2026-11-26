@@ -4,7 +4,11 @@ Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zo
 
 ## 下载与运行
 
-**当前提供 0.1.0 源码版，支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载源码后，可直接用完整版 Xcode 在自己的 Mac 上构建和使用。[下载此版源码 ZIP](https://github.com/MediCoderHZ/Bookshelf/archive/refs/tags/v0.1.0-source.zip) · [查看发行页面](https://github.com/MediCoderHZ/Bookshelf/releases)
+**Bookshelf 0.1.0（构建 9）支持 macOS 14 及以上的 Apple 芯片和 Intel Mac。** 下载 ZIP，双击解压，将 `Bookshelf.app` 拖入「应用程序」后打开。应用已经过 Developer ID 签名和 Apple 公证。[下载 Mac 应用](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.0/Bookshelf-0.1.0-macOS.zip) · [发行说明与 SHA-256 校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0)
+
+这个版本通过 GitHub Releases 手动更新。以后安装新版时，先退出 Bookshelf，再用新版替换原位置的应用。
+
+### 从源码构建
 
 源码构建请使用完整版 Xcode 27。首次打开 Xcode 并完成组件安装，然后在解压后的项目目录运行以下命令。首次构建会联网下载 Sparkle 依赖。如果已经打开 Bookshelf，请先正常退出。
 
@@ -13,7 +17,7 @@ bash scripts/install-local.sh
 open ~/Applications/Bookshelf.app
 ```
 
-安装脚本会构建应用、在本机签名并安装到 `~/Applications/Bookshelf.app`。以后从这个位置打开即可。此源码版的在线更新尚未启用。[构建与测试说明](Docs/BUILDING.md)
+安装脚本会构建应用、在本机签名并安装到 `~/Applications/Bookshelf.app`。以后从这个位置打开即可。[构建与测试说明](Docs/BUILDING.md)
 
 ## 用 Bookshelf 管理一本书
 
@@ -70,7 +74,7 @@ bash scripts/verify-project.sh
 bash scripts/build-release.sh
 ```
 
-此脚本生成未签名的本地验证产物。正式发行采用 Developer ID 签名、公证和 Sparkle 更新包签名，见[分发流程](Docs/DISTRIBUTION.md)。首次构建需要联网下载固定版本的 Sparkle；运行本地测试无需真实更新服务器。
+此脚本生成未签名的本地验证产物。GitHub 下载版采用 Developer ID 签名及 Apple 公证。启用应用内更新时还需要为 Sparkle 更新包签名。[分发流程](Docs/DISTRIBUTION.md)
 
 本机日常使用统一安装到 `~/Applications/Bookshelf.app`。退出当前“Bookshelf”后运行 `bash scripts/install-local.sh`，再打开这个固定入口；后续更新沿用同一应用身份与书库，不再启动多个验证副本。安装已编译产物的方式见[本机固定应用入口](Docs/BUILDING.md#本机固定应用入口)。
 

@@ -251,7 +251,8 @@ struct MetadataUpdateProposal: Identifiable {
 struct MetadataUpdateView: View {
   @Environment(\.dismiss) private var dismiss
   let proposal: MetadataUpdateProposal
-  let onApply: (Set<BookField>) -> Void
+  let onApply: (Set<BookField>) throws -> Void
+  @State private var applyError: String?
   @State private var selected = Set<BookField>()
   @State private var versionConfirmed = false
   private var versionChanged: Bool { BookRecordMerge.differentEditions(proposal.current, proposal.incoming) }
@@ -296,11 +297,17 @@ struct MetadataUpdateView: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { dismiss() } }
         ToolbarItem(placement: .confirmationAction) {
-          Button(L10n.tr("应用所选字段")) { onApply(selected); dismiss() }
+          Button(L10n.tr("应用所选字段")) {
+            do { try onApply(selected); dismiss() }
+            catch { applyError = error.localizedDescription }
+          }
             .disabled(selected.isEmpty || (versionChanged && !versionConfirmed)).keyboardShortcut(.defaultAction)
         }
       }
     }.frame(width: 850, height: 650).onAppear(perform: selectEmpty)
+      .alert(L10n.tr("书籍信息"), isPresented: Binding(get: { applyError != nil }, set: { if !$0 { applyError = nil } })) {
+        Button(L10n.tr("好"), role: .cancel) {}
+      } message: { Text(applyError ?? "") }
   }
   private func selectEmpty() {
     selected = BookRecordMerge.defaultMetadataFields(current: proposal.current, incoming: proposal.incoming)

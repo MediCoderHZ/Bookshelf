@@ -19,6 +19,7 @@ struct PrivacyPolicyView: View {
             L10n.tr("数据收集"),
             L10n.tr("开发者不运营接收书库数据的服务器，应用不内置广告或行为分析 SDK。本地书库、个人备注、标签和阅读记录不会自动上传。在线检索涉及的第三方数据处理见下文。")
           )
+          policySection(L10n.tr("AI 与 MCP"), L10n.tr("通过右键补全时，所选书籍的书目字段会发送到你配置的模型服务。启用 MCP 后，本机客户端可查询书目并提交建议。两个入口均需在 Bookshelf 中核对后保存，笔记与附件不会发送。"))
           policySection(
             L10n.tr("在线书籍检索"),
             L10n.tr("仅在点击搜索后，应用将书名或 ISBN 发送至所选来源：豆瓣 www.douban.com、Goodreads www.goodreads.com 或 Open Library openlibrary.org。选择全部来源会分别请求全部已启用来源，停用的解析器不参与。选择候选后读取详情（豆瓣详情来自 book.douban.com）；ISBN 搜索有时直接返回详情。服务方会收到请求内容、IP 地址及应用版本等网络信息，可能按其政策保留日志。本地书库和个人备注不会随请求发送。可以取消任务；已经发出的请求无法撤回。")
