@@ -4,12 +4,12 @@ Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zo
 
 ## 下载与运行
 
-- **Apple 芯片（M 系列）**　[下载 arm64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.2/Bookshelf-0.1.2-macos-arm64.dmg)
-- **Intel 处理器**　[下载 x64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.2/Bookshelf-0.1.2-macos-x64.dmg)
+- **Apple 芯片（M 系列）**　[下载 arm64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.3/Bookshelf-0.1.3-macos-arm64.dmg)
+- **Intel 处理器**　[下载 x64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.3/Bookshelf-0.1.3-macos-x64.dmg)
 
-Bookshelf 0.1.2（构建 11）需要 macOS 14 或更高版本。在苹果菜单  →「关于本机」查看芯片型号。打开对应的 DMG，将 Bookshelf 拖到「应用程序」，推出磁盘映像后再打开应用。[发行说明与 SHA-256 校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.2)
+Bookshelf 0.1.3（构建 12）需要 macOS 14 或更高版本。在苹果菜单  →「关于本机」查看芯片型号。打开对应的 DMG，将 Bookshelf 拖到「应用程序」，推出磁盘映像后再打开应用。[发行说明与 SHA-256 校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.3)
 
-**已安装 0.1.1** 的用户可打开「Bookshelf → 检查更新…」升级到 0.1.2。使用 **0.1.0** 的用户请先退出 Bookshelf，再用对应芯片的 DMG 替换原位置的应用，打开后会继续使用原有书库。[分发与更新说明](Docs/DISTRIBUTION.md)
+**已安装 0.1.1 或 0.1.2** 的用户可打开「Bookshelf → 检查更新…」升级到 0.1.3。使用 **0.1.0** 的用户请先退出 Bookshelf，再用对应芯片的 DMG 替换原位置的应用，打开后会继续使用原有书库。[分发与更新说明](Docs/DISTRIBUTION.md)
 
 ### 从源码构建
 
