@@ -4,12 +4,12 @@ Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zo
 
 ## 下载与运行
 
-- **Apple 芯片（M 系列）**　[下载 arm64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.1/Bookshelf-0.1.1-macos-arm64.dmg)
-- **Intel 处理器**　[下载 x64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.1/Bookshelf-0.1.1-macos-x64.dmg)
+- **Apple 芯片（M 系列）**　[下载 arm64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.2/Bookshelf-0.1.2-macos-arm64.dmg)
+- **Intel 处理器**　[下载 x64 版 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.2/Bookshelf-0.1.2-macos-x64.dmg)
 
-Bookshelf 0.1.1（构建 10）需要 macOS 14 或更高版本。在苹果菜单  →「关于本机」查看芯片型号。打开对应的 DMG，将 Bookshelf 拖到「应用程序」，推出磁盘映像后再打开应用。[发行说明与 SHA-256 校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.1)
+Bookshelf 0.1.2（构建 11）需要 macOS 14 或更高版本。在苹果菜单  →「关于本机」查看芯片型号。打开对应的 DMG，将 Bookshelf 拖到「应用程序」，推出磁盘映像后再打开应用。[发行说明与 SHA-256 校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.2)
 
-**从 0.1.0 升级**时，请先退出 Bookshelf，再用对应芯片的 0.1.1 DMG 替换原位置的应用。打开后会继续使用原有书库。自 0.1.1 起，可在「Bookshelf → 检查更新…」查看后续版本。[分发与更新说明](Docs/DISTRIBUTION.md)
+**已安装 0.1.1** 的用户可打开「Bookshelf → 检查更新…」升级到 0.1.2。使用 **0.1.0** 的用户请先退出 Bookshelf，再用对应芯片的 DMG 替换原位置的应用，打开后会继续使用原有书库。[分发与更新说明](Docs/DISTRIBUTION.md)
 
 ### 从源码构建
 
@@ -27,7 +27,8 @@ open ~/Applications/Bookshelf.app
 1. **添加书目。** 在「＋」菜单选择中文原版书、英文原版书或中文译本。可手动录入，也可按书名、ISBN 或支持的图书详情页地址检索。选定版本后，在「核对元信息」中查看有变化的字段，勾选要采用的内容后保存。
 2. **整理藏书。** 把书放进文件夹，添加主题标签。经常使用的筛选条件可以保存成智能文件夹，新加入且符合条件的书会出现在其中。
 3. **写阅读笔记。** 右键一本书，选择「新建笔记 → 从模板新建笔记 → 阅读笔记」，即可在书下记录摘录、思考和待查问题。在「插件 → 管理插件…」可以安装或停用笔记模板。[阅读笔记示例](Bookshelf/Resources/reading-notes.bookshelfplugin)
-4. **备份书库。** 应用默认每小时自动备份，并单独保留升级前的快照。可在「设置 → 备份与恢复」查看历史版本，在「文件与数据库」选择数据目录或检查数据库完整性。[使用手册](Docs/USER-GUIDE.md)
+4. **管理附件。** 从访达把一个或多个文件拖到书名上，书籍会展开并显示新附件。双击附件可打开，右键选择「管理附件…」可重命名、定位或移除文件。
+5. **备份书库。** 应用默认每小时自动备份，并单独保留升级前的快照。可在「设置 → 备份与恢复」查看历史版本，在「文件与数据库」选择数据目录或检查数据库完整性。[使用手册](Docs/USER-GUIDE.md)
 
 ## 致谢 Zotero
 
