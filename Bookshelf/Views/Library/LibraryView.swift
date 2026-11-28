@@ -8,9 +8,8 @@ struct LibraryView: View {
   @Environment(\.modelContext) private var modelContext
   @Environment(NoteEditingSession.self) private var noteEditing
   @AppStorage("libraryTableColumnCustomization.v1") private var savedColumns = Data()
-  @State private var aiBook: Book?
-  @State private var webLinkBook: Book?
   @State private var managingAttachments: AttachmentManagementTarget?
+  @State private var attachmentAction: AttachmentActionRequest?
   @State private var attachmentError: String?
   @State private var attachmentItems: [UUID: AttachmentItem] = [:]
   let books: [Book]
@@ -39,11 +38,11 @@ struct LibraryView: View {
 
   var body: some View {
     // Keep the same native table and column state when there are no rows.
-    table.sheet(item: $aiBook) { AIBookCompletionView(book: $0) }
-      .sheet(item: $webLinkBook) { WebAttachmentEditor(book: $0) }
+    table
       .sheet(item: $managingAttachments) { target in
         BookAttachmentView(book: target.book, initialAttachmentID: target.attachmentID)
       }
+      .sheet(item: $attachmentAction) { AttachmentFileActionSheet(request: $0) }
       .onChange(of: visibleAttachmentRows, initial: true) { _, visible in
         selectedAttachmentIDs.formIntersection(visible)
         refreshAttachmentItems(for: visible)
@@ -318,7 +317,6 @@ struct LibraryView: View {
     let selected = books.filter { ids.contains($0.id) }
     if selected.count == 1, let book = selected.first, book.deletedAt == nil {
       Button(L10n.tr("编辑书籍…")) { appState.presentEditor(for: book) }
-      Button(L10n.tr("用 AI 补全元信息…")) { aiBook = book }
       Menu(L10n.tr("新建笔记")) {
         Button(L10n.tr("空白笔记")) { onNewNote(book.id) }
         let templates = PluginStore.shared.enabledTemplates
@@ -335,8 +333,9 @@ struct LibraryView: View {
           }
         }
       }
-      AddAttachmentMenu(commands: BookAttachmentCommands(book: book, context: modelContext),
-        onWebLink: { webLinkBook = book }, onFileError: { attachmentError = $0 })
+      AttachmentManagementMenu(commands: BookAttachmentCommands(book: book, context: modelContext),
+        onAction: { attachmentAction = $0 }, onError: { attachmentError = $0 },
+        onAdded: { expandedBookIDs.insert(book.id) })
       Divider()
     }
     if !selected.isEmpty {

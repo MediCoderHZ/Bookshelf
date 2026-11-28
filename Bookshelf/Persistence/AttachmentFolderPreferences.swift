@@ -46,8 +46,21 @@ struct AttachmentFolderPreferences {
   }
 
   func set(_ directory: URL) throws {
+    let ref = try reference(for: directory)
+    _ = try hasConfiguration()
+    try save(ref)
+  }
+
+  /// A one-time move gets its own grant without changing the library's default.
+  func reference(for directory: URL) throws -> LibraryDirectoryReference {
     let access = directory.startAccessingSecurityScopedResource()
     defer { if access { directory.stopAccessingSecurityScopedResource() } }
+    try validateDestination(directory)
+    let bookmark = try directory.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+    return LibraryDirectoryReference(path: directory.standardizedFileURL.path, bookmark: bookmark)
+  }
+
+  func validateDestination(_ directory: URL) throws {
     guard directory.isFileURL else { throw FolderError.invalidLocation }
     let values = try directory.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey, .isWritableKey, .isPackageKey])
     guard values.isDirectory == true, values.isSymbolicLink != true, values.isWritable == true,
@@ -59,10 +72,6 @@ struct AttachmentFolderPreferences {
     let path = Self.path(directory)
     guard path != Self.path(library), !reserved.contains(where: { Self.contains($0, path: path) })
     else { throw FolderError.invalidLocation }
-    let bookmark = try directory.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
-    let ref = LibraryDirectoryReference(path: directory.standardizedFileURL.path, bookmark: bookmark)
-    _ = try hasConfiguration()
-    try save(ref)
   }
 
   func reset() throws {

@@ -7,6 +7,33 @@ import XCTest
 final class AIMetadataTests: XCTestCase {
   typealias Object = [String: Any]
 
+  func testReviewedAIFieldsStayInEditorDraftUntilSave() throws {
+    let db = try LibraryDatabase.open(inMemory: true)
+    let book = Book(title: "Saved title")
+    db.mainContext.insert(book)
+    try db.mainContext.save()
+    let baseline = BookArchive(book: book)
+    var draft = baseline
+    draft.title = "Edited title"
+    draft.publisher = "Edited imprint"
+    draft = BookRecordMerge.markingManualChanges(draft, comparedTo: baseline)
+
+    let proposal = try AIMetadata.proposal(["publisher": "Suggested imprint", "pageCount": 120],
+      current: draft, source: "AI · test")
+    XCTAssertEqual(proposal.current.title, "Edited title")
+    XCTAssertEqual(proposal.defaultSelection, [.pageCount])
+    let reviewed = BookRecordMerge.applyingMetadata(proposal.incoming, to: draft, fields: [.pageCount])
+    XCTAssertEqual(BookArchive(book: book), baseline)
+
+    try LibraryCommands(context: db.mainContext, undoManager: nil).save(reviewed, expected: baseline)
+    XCTAssertEqual(book.title, "Edited title")
+    XCTAssertEqual(book.publisher, "Edited imprint")
+    XCTAssertEqual(book.pageCount, 120)
+    let origins = BookRecordMerge.origins(BookArchive(book: book))
+    XCTAssertEqual(origins["publisher"]?.name, "手动编辑")
+    XCTAssertEqual(origins["pageCount"]?.name, "AI · test")
+  }
+
   func testModelRequestAndReviewPreservePrivateContentAndUnselectedFields() throws {
     let db = try LibraryDatabase.open(inMemory: true)
     let book = Book(title: "An edition")

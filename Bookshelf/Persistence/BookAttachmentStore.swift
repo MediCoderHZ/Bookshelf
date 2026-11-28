@@ -56,20 +56,24 @@ struct PendingExternalAttachment {
   let name: String
   let copied: stat
 
+  static func matches(_ url: URL, snapshot: stat) -> Bool {
+    var current = stat()
+    return lstat(url.path, &current) == 0 && current.st_dev == snapshot.st_dev && current.st_ino == snapshot.st_ino
+      && current.st_size == snapshot.st_size && current.st_mtimespec.tv_sec == snapshot.st_mtimespec.tv_sec
+      && current.st_mtimespec.tv_nsec == snapshot.st_mtimespec.tv_nsec
+  }
+
   func discard() throws {
     try AttachmentFolderPreferences.withDirectory(directory) { folder in
       let url = folder.appendingPathComponent(name)
-      var current = stat()
-      guard lstat(url.path, &current) == 0, current.st_dev == copied.st_dev, current.st_ino == copied.st_ino,
-        current.st_size == copied.st_size, current.st_mtimespec.tv_sec == copied.st_mtimespec.tv_sec,
-        current.st_mtimespec.tv_nsec == copied.st_mtimespec.tv_nsec else { return }
+      guard Self.matches(url, snapshot: copied) else { return }
       try FileManager.default.removeItem(at: url)
     }
   }
 }
 
 enum AttachmentError: LocalizedError {
-  case invalidFile, unavailable, invalidName, duplicate, invalidTemplate, invalidWebURL, cannotOpenWebLink
+  case invalidFile, unavailable, invalidName, duplicate, invalidTemplate, invalidWebURL, cannotOpenWebLink, sharedFile
   var errorDescription: String? {
     switch self {
     case .invalidFile: L10n.tr("请选择普通文件。")
@@ -79,6 +83,7 @@ enum AttachmentError: LocalizedError {
     case .invalidTemplate: L10n.tr("命名格式须包含受支持的字段。")
     case .invalidWebURL: L10n.tr("请输入有效的 HTTP 或 HTTPS 网址。")
     case .cannotOpenWebLink: L10n.tr("无法打开网页链接。")
+    case .sharedFile: L10n.tr("另一个附件也指向这个文件。请先解除重复的文件链接。")
     }
   }
 }
@@ -237,7 +242,8 @@ struct BookAttachmentStore {
   }
 
   /// Claim the destination with O_EXCL, including on volumes shared with other applications.
-  private func copyExternal(_ source: URL, name: String, folder: URL, directory: LibraryDirectoryReference) throws -> PendingExternalAttachment {
+  private func copyExternal(_ source: URL, name: String, folder: URL, directory: LibraryDirectoryReference,
+    allowSuffix: Bool = true) throws -> PendingExternalAttachment {
     let input = open(source.path, O_RDONLY | O_NOFOLLOW)
     guard input >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
     defer { close(input) }
@@ -249,6 +255,7 @@ struct BookAttachmentStore {
       let output = open(target.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR)
       if output < 0 {
         guard errno == EEXIST else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        guard allowSuffix else { throw AttachmentError.duplicate }
         filename = try AttachmentNaming.filename(stem: "\(stem) (\(suffix))", original: name)
         suffix += 1
         continue
@@ -340,6 +347,68 @@ struct BookAttachmentStore {
       }
       NotificationCenter.default.post(name: .bookAttachmentFilesDidChange, object: id)
     }
+  }
+
+  func move(_ item: AttachmentItem, to destination: LibraryDirectoryReference, stem: String?, grantedParent: URL?) throws {
+    guard try self.item(item.id) == item else { throw LibraryOperationError.changedSincePreview }
+    if case .web = item.kind { throw AttachmentError.invalidFile }
+    let access = grantedParent?.startAccessingSecurityScopedResource() == true
+    defer { if access { grantedParent?.stopAccessingSecurityScopedResource() } }
+    try withFile(item.id) { source in
+      guard source.lastPathComponent == item.name else { throw LibraryOperationError.changedSincePreview }
+      let parent = source.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL
+      try AttachmentFolderPreferences.withDirectory(destination) { directory in
+        try folderPreferences.validateDestination(directory)
+        let targetFolder = directory.resolvingSymlinksInPath().standardizedFileURL
+        if parent == targetFolder {
+          if let stem { try rename(item.id, stem: stem, grantedParent: directory) }
+          return
+        }
+        if item.kind == .linkedFile {
+          guard grantedParent?.resolvingSymlinksInPath().standardizedFileURL == parent else { throw AttachmentError.unavailable }
+          // A linked file can point into a library. Never take files out of its managed directories.
+          try folderPreferences.validateDestination(parent)
+        }
+        let name = try stem.map { try AttachmentNaming.filename(stem: $0, original: item.name) } ?? item.name
+        guard AttachmentNaming.validName(name) else { throw AttachmentError.invalidName }
+        var original = stat()
+        guard lstat(source.path, &original) == 0 else { throw AttachmentError.unavailable }
+        let object = folder(item.id)
+        let staged = root.appendingPathComponent(".pending-move-" + UUID().uuidString)
+        try fm.createDirectory(at: staged, withIntermediateDirectories: false)
+        var keepStaging = false
+        defer { if !keepStaging { try? fm.removeItem(at: staged) } }
+        let copy = try copyExternal(source, name: name, folder: directory, directory: destination, allowSuffix: false)
+        let target = directory.appendingPathComponent(name)
+        // Publish the new link atomically, after verifying the file. The old object stays available for rollback.
+        func swapObjects() throws {
+          guard renamex_np(staged.path, object.path, UInt32(RENAME_SWAP)) == 0
+          else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        }
+        do {
+          try writeExternalLink(in: staged, target: target, directory: destination)
+          guard fm.contentsEqual(atPath: source.path, andPath: target.path),
+            PendingExternalAttachment.matches(source, snapshot: original),
+            PendingExternalAttachment.matches(target, snapshot: copy.copied)
+          else { throw LibraryOperationError.changedSincePreview }
+          try swapObjects()
+        } catch { try copy.discard(); throw error }
+        do {
+          let previous = item.kind == .stored ? staged.appendingPathComponent("file").appendingPathComponent(item.name) : source
+          guard PendingExternalAttachment.matches(previous, snapshot: original),
+            PendingExternalAttachment.matches(target, snapshot: copy.copied) else { throw LibraryOperationError.changedSincePreview }
+          if item.kind != .stored { try fm.removeItem(at: source) }
+        } catch {
+          // If the filesystem fails during rollback, retain both the old object and the verified target.
+          keepStaging = true
+          try swapObjects()
+          keepStaging = false
+          try copy.discard()
+          throw error
+        }
+      }
+    }
+    NotificationCenter.default.post(name: .bookAttachmentFilesDidChange, object: item.id)
   }
 
   func relink(_ id: UUID, to url: URL) throws {
@@ -521,6 +590,27 @@ struct BookAttachmentCommands {
 
   func addWebLink(address: String, title: String) throws {
     try append { store, created, _ in created.append(try store.addWebLink(address: address, title: title)) }
+  }
+
+  func organize(_ item: AttachmentItem, stem: String?, destination: LibraryDirectoryReference?, grantedParent: URL?) throws {
+    guard book.modelContext === context, !book.isDeleted, book.deletedAt == nil, book.attachmentIDs?.contains(item.id) == true
+    else { throw LibraryOperationError.invalidSelection }
+    let store = try BookAttachmentStore(context: context)
+    guard try store.item(item.id) == item else { throw LibraryOperationError.changedSincePreview }
+    if case .web = item.kind { throw AttachmentError.invalidFile }
+    let source = try store.withFile(item.id) { $0.resolvingSymlinksInPath().standardizedFileURL }
+    guard source.lastPathComponent == item.name else { throw LibraryOperationError.changedSincePreview }
+    // Another ID (including one in the trash) can independently reference the same physical path.
+    let others = Set(try context.fetch(FetchDescriptor<Book>()).flatMap { $0.attachmentIDs ?? [] }).subtracting([item.id])
+    for id in others {
+      guard let other = try? store.item(id), other.kind == .linkedFile || other.kind == .externalFile else { continue }
+      if (try? store.withFile(id) { $0.resolvingSymlinksInPath().standardizedFileURL }) == source { throw AttachmentError.sharedFile }
+    }
+    if let destination {
+      try store.move(item, to: destination, stem: stem, grantedParent: grantedParent)
+    } else if let stem {
+      try store.rename(item.id, stem: stem, grantedParent: grantedParent)
+    } else { throw LibraryOperationError.invalidSelection }
   }
 
   private func append(_ create: (BookAttachmentStore, inout [UUID], inout [PendingExternalAttachment]) throws -> Void) throws {

@@ -18,6 +18,7 @@
 		A10000000000000000000007 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* LibraryView.swift */; };
 		A10000000000000000000008 /* BookInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* BookInspectorView.swift */; };
 		A49FA715269A4793BE91AC59 /* BookAttachmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31139DCAE543A39A9B20E1 /* BookAttachmentView.swift */; };
+		CCEB96EDF0D84F6D91BCB467 /* AttachmentManagementMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4364461ADFF44B4AD9474CD /* AttachmentManagementMenu.swift */; };
 		A10000000000000000000009 /* BookEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* BookEditorView.swift */; };
 		A1000000000000000000000A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* SettingsView.swift */; };
 		A1000000000000000000000B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* Assets.xcassets */; };
@@ -152,6 +153,7 @@
 		B10000000000000000000007 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		B10000000000000000000008 /* BookInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookInspectorView.swift; sourceTree = "<group>"; };
 		CC31139DCAE543A39A9B20E1 /* BookAttachmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookAttachmentView.swift; sourceTree = "<group>"; };
+		A4364461ADFF44B4AD9474CD /* AttachmentManagementMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentManagementMenu.swift; sourceTree = "<group>"; };
 		B10000000000000000000009 /* BookEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookEditorView.swift; sourceTree = "<group>"; };
 		B1000000000000000000000A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B1000000000000000000000B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -357,6 +359,7 @@
 				B10000000000000000000009 /* BookEditorView.swift */,
 				B10000000000000000000008 /* BookInspectorView.swift */,
 				CC31139DCAE543A39A9B20E1 /* BookAttachmentView.swift */,
+				A4364461ADFF44B4AD9474CD /* AttachmentManagementMenu.swift */,
 				D4C8D1741DE7B71C7DFCAC32 /* BookTypePicker.swift */,
 				08EF6856D785F47CAD73B77E /* ContributorListField.swift */,
 				EE8883B37417D5DA097B56E0 /* ContributorNameInput.swift */,
@@ -737,6 +740,7 @@
 				A10000000000000000000060 /* TagInputView.swift in Sources */,
 				A10000000000000000000008 /* BookInspectorView.swift in Sources */,
 				A49FA715269A4793BE91AC59 /* BookAttachmentView.swift in Sources */,
+				CCEB96EDF0D84F6D91BCB467 /* AttachmentManagementMenu.swift in Sources */,
 				C67E83546AE648A89C925210 /* InspectorReadingPosition.swift in Sources */,
 				23D6BDCBC55C4236B2AAA120 /* NoteEditorPosition.swift in Sources */,
 				A10000000000000000000009 /* BookEditorView.swift in Sources */,

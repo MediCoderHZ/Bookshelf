@@ -1,46 +1,36 @@
 import SwiftUI
-import SwiftData
 
 struct AIBookCompletionView: View {
-  let book: Book
+  let draft: BookArchive
+  let onSuggestion: (MetadataUpdateProposal) -> Void
   @Environment(\.dismiss) private var dismiss
   @Environment(\.openSettings) private var openSettings
-  @Environment(\.modelContext) private var context
-  @Environment(\.libraryUndoManager) private var undoManager
-  @State private var proposal: MetadataUpdateProposal?
   @State private var error: String?
 
   var body: some View {
-    Group {
-      if let proposal {
-        MetadataUpdateView(proposal: proposal) { fields in
-          try AIMetadata.apply(proposal, fields: fields, context: context, undoManager: undoManager)
-        }
-      } else {
-        VStack(alignment: .leading, spacing: 16) {
-          Text(L10n.tr("AI 补全元信息")).font(.title2.weight(.semibold))
-          Text(book.title).lineLimit(2)
-          if let error { Text(error).foregroundStyle(.secondary).textSelection(.enabled) }
-          else { ProgressView(L10n.tr("正在请求模型…")).controlSize(.small) }
-          HStack {
-            if error != nil {
-              Button(L10n.tr("打开 AI 设置…")) {
-                dismiss()
-                AISettingsNavigation.open(openSettings)
-              }
-            }
-            Spacer()
-            Button(L10n.tr("关闭")) { dismiss() }.keyboardShortcut(.cancelAction)
+    VStack(alignment: .leading, spacing: 16) {
+      Text(L10n.tr("AI 补全元信息")).font(.title2.weight(.semibold))
+      Text(draft.title).lineLimit(2)
+      if let error { Text(error).foregroundStyle(.secondary).textSelection(.enabled) }
+      else { ProgressView(L10n.tr("正在请求模型…")).controlSize(.small) }
+      HStack {
+        if error != nil {
+          Button(L10n.tr("打开 AI 设置…")) {
+            dismiss()
+            AISettingsNavigation.open(openSettings)
           }
-        }.padding(22).frame(width: 460)
+        }
+        Spacer()
+        Button(L10n.tr("关闭")) { dismiss() }.keyboardShortcut(.cancelAction)
       }
-    }.task {
+    }.padding(22).frame(width: 460)
+    .task {
       do {
         let config = try AIModelConfiguration.saved()
-        let baseline = BookArchive(book: try AIMetadata.book(book.id, context: context))
-        let suggestion = try await AIModelClient.complete(baseline, configuration: config, key: AIModelCredential.read(config.base))
+        let suggestion = try await AIModelClient.complete(draft, configuration: config, key: AIModelCredential.read(config.base))
         try Task.checkCancellation()
-        proposal = suggestion
+        onSuggestion(suggestion)
+        dismiss()
       } catch { if !Task.isCancelled { self.error = error.localizedDescription } }
     }
   }

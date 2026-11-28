@@ -919,6 +919,14 @@
 "请选择书库管理目录以外的可写文件夹。" = "Choose a writable folder outside the library’s managed directories.";
 "附件文件夹无法访问。请检查磁盘连接或重新选择文件夹。" = "The attachment folder is unavailable. Check that the drive is connected or choose the folder again.";
 "重命名磁盘上的原文件" = "Rename Original File on Disk";
+"附件管理" = "Manage Attachments";
+"添加新文件" = "Attach New File";
+"重命名并移动附件" = "Rename and Move Attachment";
+"移动附件" = "Move Attachment";
+"目标文件夹" = "Destination Folder";
+"此操作会更改磁盘上的原文件。" = "This changes the original file on disk.";
+"另一个附件也指向这个文件。请先解除重复的文件链接。" = "Another attachment points to this file. Remove the duplicate link first.";
+"请选择原文件所在的文件夹，以允许移动。" = "Choose the folder containing the original file to allow it to be moved.";
 "重命名附件" = "Rename Attachment";
 "新文件名（保留扩展名）" = "New name (keeps file extension)";
 "使用书籍信息" = "Use Book Metadata";
@@ -993,7 +1001,7 @@
 "请输入 HTTPS 服务地址。本机模型也可使用 HTTP 回环地址。" = "Enter an HTTPS service URL. Local models can also use an HTTP loopback address.";
 "模型未返回有效的元信息 JSON。" = "The model did not return valid metadata JSON.";
 "忽略" = "Dismiss";
-"通过右键补全时，所选书籍的书目字段会发送到你配置的模型服务。启用 MCP 后，本机客户端可查询书目并提交建议。两个入口均需在 Bookshelf 中核对后保存，笔记与附件不会发送。" = "When you request a completion, bibliographic fields for the selected book are sent to your chosen model service. With MCP enabled, local clients can search book metadata and suggest changes. You review suggestions in Bookshelf before saving. Notes and attachments are never sent.";
+"在编辑书籍页面请求 AI 补全时，当前表单中的书目字段会发送到你配置的模型服务。启用 MCP 后，本机客户端可查询书目并提交建议。两个入口均需在 Bookshelf 中核对后保存，笔记与附件不会发送。" = "When you request AI completion in the book editor, the bibliographic fields in the form are sent to your chosen model service. With MCP enabled, local clients can search book metadata and suggest changes. You review suggestions in Bookshelf before saving. Notes and attachments are never sent.";
 "核对元信息" = "Review Metadata";
 "显示字段" = "Fields to Show";
 "有变化（{0}）" = "Changes ({0})";

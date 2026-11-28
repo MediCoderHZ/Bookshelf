@@ -30,6 +30,7 @@ struct BookEditorView: View {
   @State private var languageCode = ""
   @State private var hasLoaded = false
   @State private var isShowingMetadataSearch = false
+  @State private var isShowingAICompletion = false
   @State private var metadataSourceName: String?
   @State private var metadataSourceURL: String?
   @State private var metadataRetrievedAt: Date?
@@ -63,10 +64,20 @@ struct BookEditorView: View {
     NavigationStack {
       ScrollView {
         VStack(alignment: .leading, spacing: 18) {
-          Button {
-            isShowingMetadataSearch = true
-          } label: {
-            Label(L10n.tr("按书名或 ISBN 搜索元信息…"), systemImage: "magnifyingglass")
+          HStack(spacing: 8) {
+            Button {
+              isShowingMetadataSearch = true
+            } label: {
+              Label(L10n.tr("按书名或 ISBN 搜索元信息…"), systemImage: "magnifyingglass")
+            }
+            if book != nil {
+              Button {
+                guard NSApp.keyWindow?.makeFirstResponder(nil) != false else { return }
+                isShowingAICompletion = true
+              } label: {
+                Label(L10n.tr("用 AI 补全元信息…"), systemImage: "sparkles")
+              }
+            }
           }
 
           VStack(alignment: .leading, spacing: display.fieldSpacing) {
@@ -125,6 +136,9 @@ struct BookEditorView: View {
       BookMetadataSearchView(initialQuery: isbn.nilIfBlank ?? title) { result in
         pendingMetadata = MetadataUpdateProposal(current: draftRecord(), incoming: BookArchive(metadata: result))
       }
+    }
+    .sheet(isPresented: $isShowingAICompletion, onDismiss: presentMetadataReview) {
+      AIBookCompletionView(draft: draftRecord()) { pendingMetadata = $0 }
     }
     .sheet(item: $metadataProposal) { proposal in
       MetadataUpdateView(proposal: proposal) { fields in applyMetadata(proposal, fields: fields) }
@@ -242,21 +256,25 @@ struct BookEditorView: View {
 
   private func applyMetadata(_ proposal: MetadataUpdateProposal, fields: Set<BookField>) {
     let record = BookRecordMerge.applyingMetadata(proposal.incoming, to: proposal.current, fields: fields)
-    if book == nil && !hasSelectedBookType {
-      bookType = proposal.incoming.bookType
-    } else { bookType = record.bookType }
-    originalLanguageCode = record.originalLanguageCode ?? ""
-    title = record.title
-    subtitle = record.subtitle ?? ""
-    originalTitle = record.originalTitle ?? ""
-    authors = ContributorListDraft(people: record.contributors.filter { $0.roleRaw == "author" })
-    translators = ContributorListDraft(people: record.contributors.filter { $0.roleRaw == "translator" })
-    publisher = record.publisher ?? ""
-    publicationDate = record.publicationDate ?? ""
-    edition = record.edition ?? ""
-    isbn = record.isbn13 ?? record.isbn10 ?? ""
-    pageCount = record.pageCount
-    languageCode = record.languageCode ?? ""
+    for field in fields {
+      switch field {
+      case .bookType: bookType = record.bookType
+      case .originalLanguage: originalLanguageCode = record.originalLanguageCode ?? ""
+      case .title: title = record.title
+      case .subtitle: subtitle = record.subtitle ?? ""
+      case .originalTitle: originalTitle = record.originalTitle ?? ""
+      case .authors: authors = ContributorListDraft(people: record.contributors.filter { $0.roleRaw == "author" })
+      case .translators: translators = ContributorListDraft(people: record.contributors.filter { $0.roleRaw == "translator" })
+      case .publisher: publisher = record.publisher ?? ""
+      case .publicationDate: publicationDate = record.publicationDate ?? ""
+      case .edition: edition = record.edition ?? ""
+      case .isbn: isbn = record.isbn13 ?? record.isbn10 ?? ""
+      case .pageCount: pageCount = record.pageCount
+      case .language: languageCode = record.languageCode ?? ""
+      case .description: break
+      }
+    }
+    if book == nil && !hasSelectedBookType { bookType = proposal.incoming.bookType }
     metadataSourceName = record.metadataSourceName
     metadataSourceURL = record.metadataSourceURL
     metadataRetrievedAt = record.metadataRetrievedAt

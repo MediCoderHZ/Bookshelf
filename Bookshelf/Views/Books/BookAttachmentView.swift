@@ -16,15 +16,22 @@ struct AddAttachmentMenu: View {
   }
 
   private func chooseFiles(linked: Bool) {
-    let panel = NSOpenPanel()
-    panel.title = linked ? L10n.tr("链接文件") : L10n.tr("添加附件")
-    panel.allowsMultipleSelection = true
-    guard panel.runModal() == .OK else { return }
-    do {
-      let result = try commands.add(panel.urls, linked: linked, rule: .load(), authorize: chooseAttachmentDirectory)
-      if result.skipped > 0 { onFileError(L10n.tr("链接文件已添加。") + result.message) }
-    } catch { onFileError(error.localizedDescription) }
+    chooseBookAttachmentFiles(commands, linked: linked, onError: onFileError)
   }
+}
+
+@MainActor
+func chooseBookAttachmentFiles(_ commands: BookAttachmentCommands, linked: Bool, onError: (String) -> Void,
+  onAdded: () -> Void = {}) {
+  let panel = NSOpenPanel()
+  panel.title = linked ? L10n.tr("链接文件") : L10n.tr("添加附件")
+  panel.allowsMultipleSelection = true
+  guard panel.runModal() == .OK else { return }
+  do {
+    let result = try commands.add(panel.urls, linked: linked, rule: .load(), authorize: chooseAttachmentDirectory)
+    onAdded()
+    if result.skipped > 0 { onError(L10n.tr("链接文件已添加。") + result.message) }
+  } catch { onError(error.localizedDescription) }
 }
 
 struct WebAttachmentEditor: View {
@@ -352,10 +359,15 @@ struct BookAttachmentInspector: View {
 
 @MainActor
 func chooseAttachmentDirectory(_ folder: URL) -> URL? {
+  chooseAttachmentDirectory(folder, moving: false)
+}
+
+@MainActor
+func chooseAttachmentDirectory(_ folder: URL, moving: Bool) -> URL? {
   let panel = NSOpenPanel()
   panel.canChooseFiles = false
   panel.canChooseDirectories = true
   panel.directoryURL = folder
-  panel.message = L10n.tr("请选择原文件所在的文件夹，以允许重命名。")
+  panel.message = moving ? L10n.tr("请选择原文件所在的文件夹，以允许移动。") : L10n.tr("请选择原文件所在的文件夹，以允许重命名。")
   return panel.runModal() == .OK ? panel.url : nil
 }
