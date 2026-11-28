@@ -10,12 +10,15 @@ struct LibraryView: View {
   @AppStorage("libraryTableColumnCustomization.v1") private var savedColumns = Data()
   @State private var aiBook: Book?
   @State private var webLinkBook: Book?
+  @State private var managingAttachments: AttachmentManagementTarget?
   @State private var attachmentError: String?
+  @State private var attachmentItems: [UUID: AttachmentItem] = [:]
   let books: [Book]
   let notes: [NoteRecord]
   let isTrash: Bool
   @Binding var selectedBookIDs: Set<UUID>
   @Binding var selectedNoteIDs: Set<UUID>
+  @Binding var selectedAttachmentIDs: Set<LibraryItemID>
   @Binding var selectedTrashItemIDs: Set<LibraryItemID>
   @Binding var expandedBookIDs: Set<UUID>
   @Binding var sortOrder: [KeyPathComparator<Book>]
@@ -38,24 +41,60 @@ struct LibraryView: View {
     // Keep the same native table and column state when there are no rows.
     table.sheet(item: $aiBook) { AIBookCompletionView(book: $0) }
       .sheet(item: $webLinkBook) { WebAttachmentEditor(book: $0) }
-      .alert(L10n.tr("添加附件"), isPresented: Binding(get: { attachmentError != nil },
+      .sheet(item: $managingAttachments) { target in
+        BookAttachmentView(book: target.book, initialAttachmentID: target.attachmentID)
+      }
+      .onChange(of: visibleAttachmentRows, initial: true) { _, visible in
+        selectedAttachmentIDs.formIntersection(visible)
+        refreshAttachmentItems(for: visible)
+      }
+      .onReceive(NotificationCenter.default.publisher(for: .bookAttachmentFilesDidChange)) { notification in
+        if let id = notification.object as? UUID {
+          refreshAttachmentItems(for: visibleAttachmentRows, reloading: [id])
+        }
+      }
+      .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+        refreshAttachmentItems(for: visibleAttachmentRows, reloading: Set(attachmentItems.keys))
+      }
+      .alert(L10n.tr("附件"), isPresented: Binding(get: { attachmentError != nil },
         set: { if !$0 { attachmentError = nil } })) {
         Button(L10n.tr("好"), role: .cancel) {}
       } message: { Text(attachmentError ?? "") }
   }
 
   private var rows: [LibraryItemRow] {
-    LibraryItemTree.rows(books: books, notes: notes, inTrash: isTrash)
+    LibraryItemTree.rows(books: books, notes: notes, inTrash: isTrash, attachmentItems: attachmentItems)
       .sorted(using: sortOrder.map { LibraryItemSort(bookComparator: $0) })
   }
+
+  private var visibleAttachmentRows: Set<LibraryItemID> {
+    guard !isTrash else { return [] }
+    var visible: Set<LibraryItemID> = []
+    for book in books where book.deletedAt == nil && expandedBookIDs.contains(book.id) {
+      for id in book.attachmentIDs ?? [] { visible.insert(.attachment(bookID: book.id, id: id)) }
+    }
+    return visible
+  }
+
+  private func refreshAttachmentItems(for visible: Set<LibraryItemID>, reloading: Set<UUID> = []) {
+    let ids = Set(visible.compactMap { $0.attachmentReference?.id })
+    var items = attachmentItems.filter { ids.contains($0.key) && !reloading.contains($0.key) }
+    if let store = try? BookAttachmentStore(context: modelContext) {
+      for id in ids where items[id] == nil { items[id] = try? store.item(id) }
+    }
+    if items != attachmentItems { attachmentItems = items }
+  }
+
   private var selectedItemIDs: Set<LibraryItemID> {
     Set(selectedBookIDs.map(LibraryItemID.book)).union(selectedNoteIDs.map(LibraryItemID.note))
+      .union(selectedAttachmentIDs)
   }
   private var tableSelection: Binding<Set<LibraryItemID>> {
     if isTrash { return $selectedTrashItemIDs }
     return Binding(get: { selectedItemIDs }, set: { proposed in
       let value = LibraryItemTree.selection(proposed, previous: selectedItemIDs)
       selectedBookIDs = value.books; selectedNoteIDs = value.notes
+      selectedAttachmentIDs = value.attachments
     })
   }
   private var tableSortOrder: Binding<[LibraryItemSort]> {
@@ -76,6 +115,10 @@ struct LibraryView: View {
             selectedNoteIDs.subtract(hidden)
             if selectedNoteIDs.isEmpty { selectedBookIDs = [book.id] }
           }
+          if selectedAttachmentIDs.contains(where: { $0.attachmentReference?.bookID == book.id }) {
+            selectedAttachmentIDs = selectedAttachmentIDs.filter { $0.attachmentReference?.bookID != book.id }
+            if selectedAttachmentIDs.isEmpty { selectedBookIDs = [book.id] }
+          }
         }
       }
     })
@@ -95,7 +138,7 @@ struct LibraryView: View {
     Table(of: LibraryItemRow.self, selection: tableSelection, sortOrder: tableSortOrder, columnCustomization: columnCustomization) {
       TableColumn(LibraryTableColumn.title.title, sortUsing: LibraryItemSort(bookComparator: KeyPathComparator(\Book.title))) { row in
         HStack(spacing: 8) {
-          LibraryIcon(systemName: row.note == nil ? "book.closed" : "note.text")
+          LibraryIcon(systemName: row.symbolName)
             .foregroundStyle(row.note == nil ? Color.secondary : Color.orange)
           Text(row.title).lineLimit(1)
         }.frame(minHeight: display.tableCellHeight).help(row.title)
@@ -119,9 +162,7 @@ struct LibraryView: View {
       } else {
         ForEach(rows) { row in
           if let book = row.book, book.deletedAt == nil {
-            itemRow(row).dropDestination(for: NoteDragBatch.self) { payloads in
-              onMoveNote(payloads, .book(book.id))
-            }
+            itemRow(row).dropDestination(for: LibraryBookDrop.self) { receive($0, on: book) }
           } else { itemRow(row) }
         }.dropDestination(for: NoteDragBatch.self) { _, payloads in
           // Insertion targets mean library root placement; column sorting still
@@ -141,6 +182,12 @@ struct LibraryView: View {
           TrashSelectionActions(canRestore: canRestoreItems(ids),
             onRestore: { onRestoreItems(ids) }, onPurge: { onPurgeItems(ids) })
         }
+      } else if ids.count == 1, let ref = ids.first?.attachmentReference,
+        let book = books.first(where: { $0.id == ref.bookID && $0.deletedAt == nil }) {
+        Button(L10n.tr("打开附件")) { openAttachment(ref.id, of: book) }
+        Button(L10n.tr("管理附件…")) {
+          managingAttachments = AttachmentManagementTarget(book: book, attachmentID: ref.id)
+        }
       } else if ids.count == 1, let id = ids.first?.noteID, let note = notes.first(where: { $0.id == id }) {
         Button(L10n.tr("查看笔记")) { selectedBookIDs.removeAll(); selectedNoteIDs = [id] }
         if books.first(where: { $0.id == note.parentBookID })?.deletedAt == nil {
@@ -154,7 +201,9 @@ struct LibraryView: View {
     } primaryAction: { ids in
       if isTrash { selectedTrashItemIDs = ids }
       else if ids.count == 1, let id = ids.first {
-        if let noteID = id.noteID, let note = notes.first(where: { $0.id == noteID }) {
+        if let ref = id.attachmentReference, let book = books.first(where: { $0.id == ref.bookID }) {
+          openAttachment(ref.id, of: book)
+        } else if let noteID = id.noteID, let note = notes.first(where: { $0.id == noteID }) {
           selectedBookIDs.removeAll(); selectedNoteIDs = [noteID]
           if !isTrash, books.first(where: { $0.id == note.parentBookID })?.deletedAt == nil { onEditNote(note) }
         } else if let book = books.first(where: { $0.id == id.bookID }), book.deletedAt == nil {
@@ -173,10 +222,43 @@ struct LibraryView: View {
     } else {
       DisclosureTableRow(row, isExpanded: expansion(for: row)) {
         ForEach(row.children) { child in
-          noteRow(child)
+          if child.id.attachmentReference != nil { TableRow(child) }
+          else { noteRow(child) }
         }
       }.itemProvider { dragProvider(for: row) }
     }
+  }
+
+  private func receive(_ items: [LibraryBookDrop], on book: Book) {
+    guard !isTrash, book.deletedAt == nil, !items.isEmpty else { return }
+    var urls: [URL] = []
+    var batches: [NoteDragBatch] = []
+    for item in items {
+      switch item {
+      case .file(let file): urls.append(file.url)
+      case .notes(let batch): batches.append(batch)
+      }
+    }
+    if urls.isEmpty {
+      onMoveNote(batches, .book(book.id))
+      return
+    }
+    do {
+      guard batches.isEmpty else { throw LibraryOperationError.invalidSelection }
+      let previous = Set(book.attachmentIDs ?? [])
+      try BookAttachmentCommands(book: book, context: modelContext).add(urls, linked: false, rule: .load())
+      expandedBookIDs.insert(book.id)
+      selectedBookIDs.removeAll()
+      selectedNoteIDs.removeAll()
+      let added = Set(book.attachmentIDs ?? []).subtracting(previous)
+      selectedAttachmentIDs = Set(added.map { .attachment(bookID: book.id, id: $0) })
+    } catch { attachmentError = error.localizedDescription }
+  }
+
+  private func openAttachment(_ id: UUID, of book: Book) {
+    guard !isTrash, book.deletedAt == nil, book.attachmentIDs?.contains(id) == true else { return }
+    do { try openBookAttachment(id, context: modelContext) }
+    catch { attachmentError = error.localizedDescription }
   }
 
   @TableRowBuilder<LibraryItemRow>
@@ -268,6 +350,12 @@ struct LibraryView: View {
       }
     }
   }
+}
+
+private struct AttachmentManagementTarget: Identifiable {
+  let book: Book
+  let attachmentID: UUID
+  var id: LibraryItemID { .attachment(bookID: book.id, id: attachmentID) }
 }
 
 /// All trash entry points share the same two actions and parent-restoration rule.

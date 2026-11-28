@@ -25,6 +25,11 @@ struct AttachmentItem: Identifiable, Equatable {
   let kind: Kind
 }
 
+extension Notification.Name {
+  /// A file or link changed on disk without changing the book's attachment IDs.
+  static let bookAttachmentFilesDidChange = Notification.Name("Bookshelf.bookAttachmentFilesDidChange")
+}
+
 private struct AttachmentLink: Codable {
   var name: String
   var bookmark: Data?
@@ -79,6 +84,7 @@ struct BookAttachmentStore {
   }
 
   static func requireFile(_ url: URL) throws {
+    guard url.isFileURL else { throw AttachmentError.invalidFile }
     let value = try url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .isPackageKey])
     guard value.isRegularFile == true, value.isSymbolicLink != true, value.isPackage != true else { throw AttachmentError.invalidFile }
   }
@@ -180,6 +186,7 @@ struct BookAttachmentStore {
   func updateWebLink(_ id: UUID, address: String, title: String) throws {
     guard try link(id)?.webURL != nil else { throw AttachmentError.unavailable }
     try writeLink(AttachmentLink.web(address: address, title: title), at: marker(id))
+    NotificationCenter.default.post(name: .bookAttachmentFilesDidChange, object: id)
   }
 
   func rename(_ id: UUID, stem: String, grantedParent: URL? = nil) throws {
@@ -206,6 +213,7 @@ struct BookAttachmentStore {
         do { try writeLink(bookmark(target), at: marker(id)) }
         catch { try fm.moveItem(at: target, to: old); throw error }
       }
+      NotificationCenter.default.post(name: .bookAttachmentFilesDidChange, object: id)
     }
   }
 
@@ -214,6 +222,7 @@ struct BookAttachmentStore {
     let access = url.startAccessingSecurityScopedResource()
     defer { if access { url.stopAccessingSecurityScopedResource() } }
     try writeLink(bookmark(url), at: marker(id))
+    NotificationCenter.default.post(name: .bookAttachmentFilesDidChange, object: id)
   }
 
   func remove(_ id: UUID) throws {
@@ -320,6 +329,7 @@ struct BookAttachmentCommands {
   @discardableResult
   func add(_ urls: [URL], linked: Bool, rule: AttachmentRenameRule,
     authorize: (URL) -> URL? = { _ in nil }) throws -> AttachmentRenamePlan.Result {
+    guard !urls.isEmpty else { throw AttachmentError.invalidFile }
     var linkedChanges: [AttachmentRenameChange] = []
     try append { store, created in
       var names = Set(try (book.attachmentIDs ?? []).compactMap { id -> String? in
@@ -355,7 +365,7 @@ struct BookAttachmentCommands {
   }
 
   private func append(_ create: (BookAttachmentStore, inout [UUID]) throws -> Void) throws {
-    guard book.modelContext === context, book.deletedAt == nil else { throw LibraryOperationError.invalidSelection }
+    guard book.modelContext === context, !book.isDeleted, book.deletedAt == nil else { throw LibraryOperationError.invalidSelection }
     let store = try BookAttachmentStore(context: context)
     var created: [UUID] = []
     do {

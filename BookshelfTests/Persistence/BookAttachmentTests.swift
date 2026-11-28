@@ -1,3 +1,5 @@
+import AppKit
+import CoreTransferable
 import Foundation
 import SwiftData
 import XCTest
@@ -12,6 +14,40 @@ final class BookAttachmentTests: XCTestCase {
     return dir
   }
   private func database(in dir: URL) throws -> ModelContainer { try LibraryDatabase.open(at: dir.appendingPathComponent("default.store")) }
+
+  private func readBookDrop(_ provider: NSItemProvider) async throws -> LibraryBookDrop {
+    try await withCheckedThrowingContinuation { continuation in
+      _ = provider.loadTransferable(type: LibraryBookDrop.self) { continuation.resume(with: $0) }
+    }
+  }
+
+  func testBookRowReadsFinderFilesAndInternalNotes() async throws {
+    let dir = try directory()
+    let urls = ["读书 笔记.pdf", "Cover #2.epub"].map { dir.appendingPathComponent($0) }
+    var received: [URL] = []
+    for url in urls {
+      try Data().write(to: url)
+      guard case let .file(file) = try await readBookDrop(NSItemProvider(object: url as NSURL))
+      else { return XCTFail("Expected a Finder file") }
+      received.append(file.url)
+    }
+    XCTAssertEqual(received, urls)
+
+    let note = NoteRecord(title: "Read next"), provider = NSItemProvider()
+    let batch = NoteDragBatch.selection(libraryID: UUID(), dragging: note, selected: [], available: [note])
+    provider.register(batch)
+    guard case let .notes(decoded) = try await readBookDrop(provider)
+    else { return XCTFail("Expected an internal note drop") }
+    XCTAssertEqual(decoded, batch)
+  }
+
+  func testBookRowDoesNotImportWebURLsAsFiles() async throws {
+    let url = try XCTUnwrap(URL(string: "https://example.org/book.pdf"))
+    do {
+      _ = try await readBookDrop(NSItemProvider(object: url as NSURL))
+      XCTFail("A web URL should not match either book-row drop type")
+    } catch {}
+  }
 
   func testStoredAttachmentsBackupRestoreRenameAndRemove() throws {
     let dir = try directory(), db = try database(in: dir)
@@ -83,6 +119,38 @@ final class BookAttachmentTests: XCTestCase {
     var created: [UUID] = []
     XCTAssertThrowsError(try store.importFile(PortableAttachment(id: UUID(), name: "../x", contents: Data()), created: &created))
     XCTAssertThrowsError(try store.requireOutside(store.root.appendingPathComponent("new")))
+  }
+
+  func testFileDropBatchBelongsToItsTargetAndPreservesAnEarlierDropOnFailure() throws {
+    let dir = try directory(), db = try database(in: dir), context = db.mainContext
+    let target = Book(title: "Target"), other = Book(title: "Other")
+    context.insert(target)
+    context.insert(other)
+    try context.save()
+    let first = dir.appendingPathComponent("chapter.pdf"), second = dir.appendingPathComponent("appendix.pdf")
+    try Data("chapter".utf8).write(to: first)
+    try Data("appendix".utf8).write(to: second)
+    let commands = BookAttachmentCommands(book: target, context: context)
+    let rule = AttachmentRenameRule(pattern: "{title}")
+    try commands.add([first, second], linked: false, rule: rule)
+
+    let store = try BookAttachmentStore(context: context)
+    let ids = try XCTUnwrap(target.attachmentIDs)
+    XCTAssertEqual(try ids.map { try store.item($0).name }, ["Target.pdf", "Target (2).pdf"])
+    XCTAssertEqual(try ids.map { try store.withFile($0) { try String(contentsOf: $0, encoding: .utf8) } }, ["chapter", "appendix"])
+    XCTAssertThrowsError(try commands.add([second, dir], linked: false, rule: rule))
+    XCTAssertThrowsError(try commands.add([], linked: false, rule: rule))
+    XCTAssertThrowsError(try commands.add([URL(string: "https://example.org/book.pdf")!], linked: false, rule: rule))
+
+    target.deletedAt = Date()
+    try context.save()
+    XCTAssertThrowsError(try commands.add([first], linked: false, rule: rule))
+    let saved = try ModelContext(db).fetch(FetchDescriptor<Book>())
+    XCTAssertEqual(saved.first { $0.id == target.id }?.attachmentIDs, ids)
+    XCTAssertTrue(try XCTUnwrap(saved.first { $0.id == other.id }).attachmentIDs?.isEmpty ?? true)
+    XCTAssertEqual(Set(try FileManager.default.contentsOfDirectory(atPath: store.root.path)), Set(ids.map(\.uuidString)))
+    XCTAssertEqual(try String(contentsOf: first, encoding: .utf8), "chapter")
+    XCTAssertEqual(try String(contentsOf: second, encoding: .utf8), "appendix")
   }
 
   func testRestoringConflictingFileTwiceKeepsBothVersionsOnce() throws {

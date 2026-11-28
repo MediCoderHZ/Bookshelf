@@ -43,6 +43,9 @@ enum LibraryTableColumn: String, CaseIterable, Identifiable {
     if self == .addedAt { return (row.book?.addedAt ?? row.note?.createdAt)?.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)) ?? "" }
     if self == .updatedAt { return (row.book?.updatedAt ?? row.note?.updatedAt)?.formatted(Date.FormatStyle(date: .numeric, time: .shortened).locale(L10n.locale)) ?? "" }
     if self == .bookType, row.note != nil { return L10n.tr("笔记") }
+    if self == .bookType, row.id.attachmentReference != nil {
+      return row.attachment?.kind.label ?? L10n.tr("附件")
+    }
     guard let book = row.book else { return "" }
     switch self {
     case .title: return book.title

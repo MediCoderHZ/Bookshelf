@@ -627,7 +627,7 @@
 "结束段落格式" = "End Paragraph Formatting";
 "绘者" = "Illustrator";
 "统一设置标签与出版信息，或加入文件夹。" = "Set tags and publication details together, or add books to a collection.";
-"统计当前筛选结果中的书籍与独立显示的笔记，不重复计入书籍下的笔记。" = "Counts books and standalone notes in the current results, without counting child notes again.";
+"统计当前视图中顶层显示的书籍和笔记。" = "Counts the books and notes shown at the top level of this view.";
 "编辑" = "Edit";
 "编辑书籍" = "Edit Book";
 "编辑书籍…" = "Edit Book…";
@@ -906,6 +906,8 @@
 "添加附件…" = "Add Attachment…";
 "打开附件" = "Open Attachment";
 "暂无附件" = "No attachments";
+"将文件拖到此处以添加附件" = "Drop files here to add attachments";
+"已选择 {0} 个附件" = "{0} attachments selected";
 "附件操作" = "Attachment Actions";
 "链接文件" = "Linked File";
 "书库副本" = "Stored Copy";

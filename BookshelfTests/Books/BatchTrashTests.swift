@@ -191,6 +191,7 @@ final class BatchTrashTests: XCTestCase {
     XCTAssertThrowsError(try commands.preview([.note(a.id), .note(b.id)]))
     XCTAssertThrowsError(try commands.preview([.book(active.id), .note(b.id)]))
     XCTAssertThrowsError(try commands.preview([.note(UUID())]))
+    XCTAssertThrowsError(try commands.preview([.attachment(bookID: active.id, id: UUID()), .note(b.id)]))
     XCTAssertThrowsError(try commands.preview([]))
     XCTAssertEqual(try records(context).count, 2)
   }

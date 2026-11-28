@@ -2,6 +2,29 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
+struct DroppedAttachmentFile: Transferable {
+  let url: URL
+
+  static var transferRepresentation: some TransferRepresentation {
+    DataRepresentation(importedContentType: .fileURL) { data in
+      guard let url = URL(dataRepresentation: data, relativeTo: nil), url.isFileURL
+      else { throw AttachmentError.invalidFile }
+      return Self(url: (url as NSURL).filePathURL ?? url)
+    }
+  }
+}
+
+// A book has one native row drop target for both Finder files and library notes.
+enum LibraryBookDrop: Transferable {
+  case file(DroppedAttachmentFile)
+  case notes(NoteDragBatch)
+
+  static var transferRepresentation: some TransferRepresentation {
+    ProxyRepresentation(importing: { Self.file($0) })
+    ProxyRepresentation(importing: { Self.notes($0) })
+  }
+}
+
 enum BookDragTransfer {
   static let type = UTType(exportedAs: "org.bookshelf.book-drag", conformingTo: .data)
 

@@ -29,6 +29,7 @@ struct ContentView: View {
   @State private var pendingMovedNoteIDs: Set<UUID>?
   @State private var selectedBookIDs = Set<UUID>()
   @State private var selectedNoteIDs = Set<UUID>()
+  @State private var selectedAttachmentIDs = Set<LibraryItemID>()
   // Single-note routing and workspace restoration keep using the focused note;
   // a batch has no editable inspector, avoiding edits to an arbitrary member.
   private var selectedNoteID: UUID? {
@@ -178,8 +179,16 @@ struct ContentView: View {
   private var sidebarSelection: Binding<LibrarySelection?> {
     Binding(get: { navigationSelection }, set: { value in
       mergeRequest = nil
-      selectedBookIDs.removeAll(); selectedNoteID = nil; selectedTrashItemIDs.removeAll(); navigationSelection = value
+      clearItemSelection()
+      navigationSelection = value
     })
+  }
+
+  private func clearItemSelection() {
+    selectedBookIDs.removeAll()
+    selectedNoteIDs.removeAll()
+    selectedAttachmentIDs.removeAll()
+    selectedTrashItemIDs.removeAll()
   }
 
   private var currentCollectionID: UUID? {
@@ -257,7 +266,8 @@ struct ContentView: View {
         LibraryView(
           books: visibleBooks, notes: listNotes,
           isTrash: isTrashScope, selectedBookIDs: libraryBookSelection,
-          selectedNoteIDs: $selectedNoteIDs, selectedTrashItemIDs: $selectedTrashItemIDs, expandedBookIDs: $expandedBookIDs, sortOrder: $sortOrder,
+          selectedNoteIDs: $selectedNoteIDs, selectedAttachmentIDs: $selectedAttachmentIDs,
+          selectedTrashItemIDs: $selectedTrashItemIDs, expandedBookIDs: $expandedBookIDs, sortOrder: $sortOrder,
           collections: manualCollections, currentCollectionID: currentCollectionID,
           onNewNote: { createNote(parentID: $0) },
           onTemplateNote: { createNote($0) }, onEditNote: { openNote($0.id) },
@@ -381,7 +391,7 @@ struct ContentView: View {
   private func beginSmartCollection(query: AdvancedBookQuery, preview: AdvancedBookQuery? = nil) {
     smartRuleEdit = SmartRuleEdit(original: nil, name: "", query: query, preview: preview)
     searchText = ""; selectedTagIDs.removeAll(); advancedQuery = AdvancedBookQuery()
-    selectedBookIDs.removeAll(); selectedNoteID = nil; selectedTrashItemIDs.removeAll()
+    clearItemSelection()
     navigationSelection = .all
     isAdvancedSearchCollapsed = false
     showsAdvancedSearch = true
@@ -393,7 +403,8 @@ struct ContentView: View {
     // Preview against the whole library, not the intersection with the saved
     // collection's previous rules. Keep its sidebar selection and identity.
     smartRuleEdit?.preview = edit.query
-    searchText = ""; selectedTagIDs.removeAll(); selectedBookIDs.removeAll(); selectedNoteID = nil
+    searchText = ""; selectedTagIDs.removeAll()
+    clearItemSelection()
   }
 
   private func beginSavingAdvancedSearch(_ query: AdvancedBookQuery) {
@@ -417,7 +428,8 @@ struct ContentView: View {
 
   private func applyAdvancedSearch(_ query: AdvancedBookQuery, savedID: UUID? = nil) {
     guard query.validationMessage == nil else { return }
-    searchText = ""; selectedTagIDs.removeAll(); selectedBookIDs.removeAll(); selectedNoteID = nil
+    searchText = ""; selectedTagIDs.removeAll()
+    clearItemSelection()
     advancedQuery = savedID == nil ? query : AdvancedBookQuery()
     if let savedID {
       showsAdvancedSearch = false
@@ -493,13 +505,20 @@ struct ContentView: View {
     .onChange(of: searchScope) { _, _ in expandSearchMatches() }
     .onChange(of: selectedNoteIDs) { _, ids in
       if !ids.isEmpty {
+        selectedAttachmentIDs.removeAll()
         mergeRequest = nil
         if !isRestoringWorkspace { showsInspector = true }
       }
     }
     .onChange(of: selectedBookIDs) { _, ids in
-      if !ids.isEmpty { selectedNoteID = nil }
+      if !ids.isEmpty { selectedNoteID = nil; selectedAttachmentIDs.removeAll() }
       if let request = mergeRequest, request.bookIDs != ids { mergeRequest = nil }
+    }
+    .onChange(of: selectedAttachmentIDs) { _, ids in
+      if !ids.isEmpty {
+        mergeRequest = nil
+        showsInspector = true
+      }
     }
 
   }
@@ -522,7 +541,7 @@ struct ContentView: View {
     .onChange(of: navigationSelection) { _, value in
       guard !isRestoringWorkspace else { return }
       mergeRequest = nil
-      selectedBookIDs.removeAll(); selectedNoteID = nil; selectedTrashItemIDs.removeAll()
+      clearItemSelection()
       selectedTagIDs.removeAll()
       if case .smart = value { advancedQuery = AdvancedBookQuery(); searchText = "" }
       if value == .trash || value == .noteTrash { advancedQuery = AdvancedBookQuery(); searchText = "" }
@@ -639,6 +658,13 @@ struct ContentView: View {
         TrashSelectionActions(canRestore: canRestoreTrashItems(selectedTrashItemIDs),
           onRestore: { restoreTrashItems(selectedTrashItemIDs) }, onPurge: { confirmTrashPurge(selectedTrashItemIDs) })
       }.padding(24).frame(maxWidth: .infinity, maxHeight: .infinity)
+    } else if !isTrashScope, selectedAttachmentIDs.count == 1,
+      let selection = selectedAttachmentIDs.first, let ref = selection.attachmentReference,
+      let book = visibleBooks.first(where: { $0.id == ref.bookID && $0.attachmentIDs?.contains(ref.id) == true }) {
+      BookAttachmentInspector(book: book, attachmentID: ref.id).id(selection)
+    } else if !isTrashScope && selectedAttachmentIDs.count > 1 {
+      Label(L10n.tr("已选择 \(selectedAttachmentIDs.count) 个附件"), systemImage: "paperclip")
+        .foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
     } else if !isTrashScope && selectedNoteIDs.count > 1 {
       VStack(spacing: 16) {
         Image(systemName: "note.text").font(.system(size: 36)).foregroundStyle(.secondary)
@@ -668,7 +694,7 @@ struct ContentView: View {
         .multilineTextAlignment(.center)
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .help(L10n.tr("统计当前筛选结果中的书籍与独立显示的笔记，不重复计入书籍下的笔记。"))
+        .help(L10n.tr("统计当前视图中顶层显示的书籍和笔记。"))
         .accessibilityIdentifier("libraryViewItemCount")
     }
   }

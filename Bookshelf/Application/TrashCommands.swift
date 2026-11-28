@@ -80,7 +80,8 @@ struct TrashCommands {
     let ids = emptiesTrash
       ? Set(deletedBookIDs.map(LibraryItemID.book)).union(deletedNoteIDs.map(LibraryItemID.note)) : requested
     let bookIDs = Set(ids.compactMap(\.bookID)), selectedNoteIDs = Set(ids.compactMap(\.noteID))
-    guard !ids.isEmpty, bookIDs.isSubset(of: deletedBookIDs), selectedNoteIDs.isSubset(of: deletedNoteIDs)
+    guard !ids.isEmpty, !ids.contains(where: { $0.attachmentReference != nil }),
+      bookIDs.isSubset(of: deletedBookIDs), selectedNoteIDs.isSubset(of: deletedNoteIDs)
     else { throw LibraryOperationError.invalidSelection }
     let notes = allNotes.filter { selectedNoteIDs.contains($0.key) || $0.value.parentBookID.map(bookIDs.contains) == true }
     let parentIDs = Set(notes.values.compactMap(\.parentBookID)).subtracting(bookIDs)

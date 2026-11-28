@@ -90,13 +90,17 @@ struct BookAttachmentView: View {
   @Environment(\.dismiss) private var dismiss
   @AppStorage(AttachmentNaming.preference) private var pattern = AttachmentNaming.defaultPattern
   let book: Book
+  var initialAttachmentID: UUID? = nil
   @State private var rows: [AttachmentItem] = []
+  @State private var selectedAttachmentID: UUID?
+  @State private var revealedInitialAttachment = false
   @State private var errorMessage: String?
   @State private var renaming: AttachmentItem?
   @State private var removing: AttachmentItem?
   @State private var proposedStem = ""
   @State private var editingLink: AttachmentItem?
   @State private var showsWebEditor = false
+  @State private var isDropTarget = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
@@ -112,24 +116,31 @@ struct BookAttachmentView: View {
             .fixedSize()
         }
       }
-      List(rows) { item in
-        HStack {
-          icon(for: item).foregroundStyle(.secondary)
-          Button(item.name) { open(item) }.buttonStyle(.plain).lineLimit(2)
-            .help({ if case let .web(url) = item.kind { return url.absoluteString }; return L10n.tr("打开附件") }())
-          Spacer()
-          Menu { actions(item) } label: { Image(systemName: "ellipsis.circle") }
-            .menuStyle(.borderlessButton).fixedSize().accessibilityLabel(L10n.tr("附件操作"))
-        }
-        .contextMenu { actions(item) }
-      }.overlay {
-        if rows.isEmpty && errorMessage == nil { Text(L10n.tr("暂无附件")).foregroundStyle(.secondary) }
+      if book.deletedAt == nil {
+        attachmentList
+          .dropDestination(for: DroppedAttachmentFile.self) { files, _ in
+            do {
+              try BookAttachmentCommands(book: book, context: context).add(files.map(\.url), linked: false, rule: .load())
+              errorMessage = nil
+              return true
+            } catch { errorMessage = error.localizedDescription; return false }
+          } isTargeted: { isDropTarget = $0 }
+          .overlay {
+            if isDropTarget {
+              RoundedRectangle(cornerRadius: 6).strokeBorder(Color.accentColor, lineWidth: 2).allowsHitTesting(false)
+            }
+          }
+      } else {
+        attachmentList
       }
       if let errorMessage { Text(errorMessage).foregroundStyle(.red).textSelection(.enabled) }
       HStack { Spacer(); Button(L10n.tr("完成")) { dismiss() }.keyboardShortcut(.cancelAction) }
     }.padding(20).frame(minWidth: 510, idealWidth: 590, minHeight: 320)
       .onAppear { reload() }
       .onChange(of: book.attachmentIDs) { _, _ in reload() }
+      .onReceive(NotificationCenter.default.publisher(for: .bookAttachmentFilesDidChange)) { change in
+        if let id = change.object as? UUID, book.attachmentIDs?.contains(id) == true { reload() }
+      }
       .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in reload() }
       .sheet(isPresented: $showsWebEditor, onDismiss: reload) { WebAttachmentEditor(book: book, item: editingLink) }
       .sheet(item: $renaming) { item in
@@ -163,11 +174,31 @@ struct BookAttachmentView: View {
       }
   }
 
-  @ViewBuilder private func icon(for item: AttachmentItem) -> some View {
-    switch item.kind {
-    case .web: Image(systemName: "globe").accessibilityLabel(L10n.tr("网页链接"))
-    case .linkedFile: Image(systemName: "link").accessibilityLabel(L10n.tr("链接文件"))
-    case .stored: Image(systemName: "doc").accessibilityLabel(L10n.tr("书库副本"))
+  private var attachmentList: some View {
+    ScrollViewReader { scroll in
+      List(rows, selection: $selectedAttachmentID) { item in
+        HStack {
+          Image(systemName: item.kind.symbolName).accessibilityLabel(item.kind.label).foregroundStyle(.secondary)
+          Button(item.name) { open(item) }.buttonStyle(.plain).lineLimit(2)
+            .help({ if case let .web(url) = item.kind { return url.absoluteString }; return L10n.tr("打开附件") }())
+          Spacer()
+          Menu { actions(item) } label: { Image(systemName: "ellipsis.circle") }
+            .menuStyle(.borderlessButton).fixedSize().accessibilityLabel(L10n.tr("附件操作"))
+        }
+        .contextMenu { actions(item) }
+        .tag(item.id).id(item.id)
+      }
+      .onChange(of: rows.map(\.id), initial: true) { _, ids in
+        guard !revealedInitialAttachment, let initialAttachmentID, ids.contains(initialAttachmentID) else { return }
+        revealedInitialAttachment = true
+        selectedAttachmentID = initialAttachmentID
+        scroll.scrollTo(initialAttachmentID, anchor: .center)
+      }
+    }.overlay {
+      if rows.isEmpty && errorMessage == nil {
+        Text(book.deletedAt == nil ? L10n.tr("将文件拖到此处以添加附件") : L10n.tr("暂无附件"))
+          .foregroundStyle(.secondary).allowsHitTesting(false)
+      }
     }
   }
 
@@ -224,16 +255,7 @@ struct BookAttachmentView: View {
   }
 
   private func open(_ item: AttachmentItem) {
-    perform {
-      let store = try BookAttachmentStore(context: context)
-      if case let .web(url) = try store.item(item.id).kind {
-        guard NSWorkspace.shared.open(url) else { throw AttachmentError.cannotOpenWebLink }
-      } else {
-        try store.withFile(item.id) { url in
-          guard NSWorkspace.shared.open(url) else { throw AttachmentError.unavailable }
-        }
-      }
-    }
+    perform { try openBookAttachment(item.id, context: context) }
   }
 
   private func reload() {
@@ -255,6 +277,58 @@ struct BookAttachmentView: View {
   }
 }
 
+@MainActor
+func openBookAttachment(_ id: UUID, context: ModelContext) throws {
+  let store = try BookAttachmentStore(context: context)
+  if case let .web(url) = try store.item(id).kind {
+    guard NSWorkspace.shared.open(url) else { throw AttachmentError.cannotOpenWebLink }
+  } else {
+    try store.withFile(id) { url in
+      guard NSWorkspace.shared.open(url) else { throw AttachmentError.unavailable }
+    }
+  }
+}
+
+struct BookAttachmentInspector: View {
+  @Environment(\.modelContext) private var context
+  let book: Book
+  let attachmentID: UUID
+  @State private var item: AttachmentItem?
+  @State private var errorMessage: String?
+  @State private var managesAttachments = false
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      if let item {
+        Label(item.kind.label, systemImage: item.kind.symbolName).foregroundStyle(.secondary)
+        Text(item.name).font(.title3.bold()).textSelection(.enabled)
+      }
+      Text(book.title).foregroundStyle(.secondary)
+      Divider()
+      if item != nil {
+        Button(L10n.tr("打开附件")) {
+          do { try openBookAttachment(attachmentID, context: context); errorMessage = nil }
+          catch { errorMessage = error.localizedDescription }
+        }
+      }
+      Button(L10n.tr("管理附件…")) { managesAttachments = true }
+      if let errorMessage { Text(errorMessage).foregroundStyle(.secondary).textSelection(.enabled) }
+      Spacer()
+    }
+    .padding(18).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .onAppear(perform: reload)
+    .onReceive(NotificationCenter.default.publisher(for: .bookAttachmentFilesDidChange)) { change in
+      if change.object as? UUID == attachmentID { reload() }
+    }
+    .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in reload() }
+    .sheet(isPresented: $managesAttachments) { BookAttachmentView(book: book, initialAttachmentID: attachmentID) }
+  }
+
+  private func reload() {
+    do { item = try BookAttachmentStore(context: context).item(attachmentID); errorMessage = nil }
+    catch { item = nil; errorMessage = error.localizedDescription }
+  }
+}
 
 @MainActor
 func chooseAttachmentDirectory(_ folder: URL) -> URL? {

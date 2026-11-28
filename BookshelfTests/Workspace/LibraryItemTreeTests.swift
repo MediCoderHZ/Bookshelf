@@ -33,6 +33,51 @@ final class LibraryItemTreeTests: XCTestCase {
     XCTAssertEqual(LibraryItemTree.rows(books: [], notes: [standalone, deletedStandalone, outside]).map(\.id), [.note(standalone.id)])
   }
 
+  func testAttachmentsAreChildrenOfEachReferencingBookInTheirStoredOrder() {
+    let first = Book(title: "First"), second = Book(title: "Second")
+    let note = NoteRecord(title: "Note", parentBookID: first.id)
+    let stored = AttachmentItem(id: note.id, name: "Appendix.pdf", kind: .stored)
+    let web = AttachmentItem(id: UUID(), name: "Companion site", kind: .web(URL(string: "https://example.org")!))
+    first.attachmentIDs = [web.id, stored.id]
+    second.attachmentIDs = [stored.id]
+    let items = [web.id: web, stored.id: stored]
+    let rows = LibraryItemTree.rows(books: [first, second], notes: [note], attachmentItems: items)
+
+    XCTAssertEqual(rows.map(\.id), [.book(first.id), .book(second.id)])
+    XCTAssertEqual(rows[0].children.map(\.id), [.note(note.id),
+      .attachment(bookID: first.id, id: web.id), .attachment(bookID: first.id, id: stored.id)])
+    XCTAssertEqual(rows[1].children.map(\.id), [.attachment(bookID: second.id, id: stored.id)])
+    XCTAssertEqual(rows[0].children.map(\.title), ["Note", web.name, stored.name])
+    XCTAssertEqual(rows[0].children.map(\.symbolName), ["note.text", "globe", "doc"])
+    XCTAssertEqual(LibraryTableColumn.bookType.text(for: rows[0].children[1]), L10n.tr("网页链接"))
+    XCTAssertEqual(LibraryTableColumn.author.text(for: rows[1].children[0]), "")
+    XCTAssertEqual(rows[1].children.first?.id.attachmentReference?.bookID, second.id)
+
+    let unresolved = LibraryItemTree.rows(books: [second], notes: [])
+    XCTAssertEqual(unresolved[0].children.first?.id, rows[1].children.first?.id)
+    XCTAssertEqual(unresolved[0].children.first?.title, L10n.tr("附件"))
+    first.deletedAt = Date()
+    XCTAssertEqual(LibraryItemTree.rows(books: [first], notes: [note], inTrash: true,
+      attachmentItems: items)[0].children.map(\.id), [.note(note.id)])
+  }
+
+  func testSelectingAnAttachmentNeverSelectsItsParentForBookActions() {
+    let book = UUID(), note = UUID()
+    let attachment = LibraryItemID.attachment(bookID: book, id: note)
+    let other = LibraryItemID.attachment(bookID: book, id: UUID())
+    let fromBook = LibraryItemTree.selection([.book(book), attachment], previous: [.book(book)])
+    XCTAssertEqual(fromBook.attachments, [attachment])
+    XCTAssertTrue(fromBook.books.isEmpty && fromBook.notes.isEmpty)
+    let extended = LibraryItemTree.selection([attachment, other], previous: [attachment])
+    XCTAssertEqual(extended.attachments, [attachment, other])
+    let toBook = LibraryItemTree.selection([attachment, .book(book)], previous: [attachment])
+    XCTAssertEqual(toBook.books, [book])
+    XCTAssertTrue(toBook.attachments.isEmpty)
+    let toNote = LibraryItemTree.selection([attachment, .note(note)], previous: [attachment])
+    XCTAssertEqual(toNote.notes, [note])
+    XCTAssertTrue(toNote.attachments.isEmpty)
+  }
+
   func testStandaloneNotesSortBetweenBooksWithoutDetachingChildren() {
     let first = Book(title: "A book"), last = Book(title: "C book")
     let child = NoteRecord(title: "A child", parentBookID: last.id)
