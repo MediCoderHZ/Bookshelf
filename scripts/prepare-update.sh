@@ -3,8 +3,15 @@
 set -euo pipefail
 project_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$project_root"
+if [[ "${1:-}" == --dmgs ]]; then
+  shift
+  source "$project_root/scripts/lib/build-environment.sh"
+  bookshelf_prepare_build_environment
+  exec python3 scripts/lib/prepare_dmg_update.py "$@"
+fi
 if [[ $# -ne 2 || "${1:-}" == --help ]]; then
   printf 'Usage: bash scripts/prepare-update.sh /path/to/Bookshelf.app /path/to/new-output-directory\n'
+  printf '   or: bash scripts/prepare-update.sh --dmgs ARM64.dmg X64.dmg /path/to/new-output-directory\n'
   printf 'Requires a Developer ID-signed, stapled app with updates enabled. Output must not exist.\n'
   if [[ "${1:-}" == --help ]]; then exit 0; else exit 2; fi
 fi

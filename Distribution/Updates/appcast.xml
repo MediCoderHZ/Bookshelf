@@ -1,9 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
   <channel>
     <title>Bookshelf Updates</title>
     <link>https://github.com/MediCoderHZ/Bookshelf/releases</link>
     <description>Bookshelf for macOS release feed</description>
     <language>zh-Hans</language>
+    <item>
+      <title>Bookshelf 0.1.1</title>
+      <link>https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.1</link>
+      <pubDate>Sat, 28 Nov 2026 00:58:59 GMT</pubDate>
+      <sparkle:version>10</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+      <enclosure url="https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.1/Bookshelf-0.1.1-macos-arm64.dmg" length="5749718" type="application/octet-stream" sparkle:edSignature="1yTVpCjv7aqfgBTdRHYkemMsFzeDROMefNmUQaw96wpJOdRd2kbVCY3OGMMUANvCYqd+XwALMw6qGMuIAH2xAA=="></enclosure>
+    </item>
+    <item>
+      <title>Bookshelf 0.1.1</title>
+      <link>https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.1</link>
+      <pubDate>Sat, 28 Nov 2026 00:58:59 GMT</pubDate>
+      <sparkle:version>10</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.1/Bookshelf-0.1.1-macos-x64.dmg" length="6062998" type="application/octet-stream" sparkle:edSignature="4rUX+dTHmmuHOKMaQtmvvcJZZ2h3J3GDRMbD6bciLe6RcDthbcDRQkmemkSwN0BagItANJ+fDKintp/IUxHfDA=="></enclosure>
+    </item>
   </channel>
-</rss>
+</rss><!-- sparkle-signatures:
+edSignature: b29O+t7NM8ASOAFDG75shVTSst06pIyB790jvzTycDDA+TswU42eMPz5nc4o0/GBw8s3kbhwwyeX5IIEg6maCQ==
+length: 2030
+-->

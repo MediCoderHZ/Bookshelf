@@ -1,6 +1,6 @@
 # GitHub 分发与 Sparkle 更新
 
-Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.1.0（构建 9）以 DMG 提供手动安装与更新。应用和磁盘映像均经过 Developer ID 签名、Apple 公证并附有公证票据。[下载与校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0) · [从源码构建](BUILDING.md)
+Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.1.1（构建 10）分别提供 Apple 芯片和 Intel 的 DMG。手动安装和 Sparkle 应用内更新共用这两份文件。[下载与校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.1) · [从源码构建](BUILDING.md)
 
 ## 已配置的身份与渠道
 
@@ -15,27 +15,31 @@ Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.
 
 `Config/Release.xcconfig` 保存公开配置，包括 Ed25519 公钥。私钥由 Sparkle 官方工具生成，保存在本机登录钥匙串中，没有导出到仓库或日志。Apple Developer ID 签名与 Sparkle 更新签名用途不同，两者都应保留。
 
-当前源码的 Release 配置启用了 Sparkle。选择「Bookshelf → 检查更新…」会从 GitHub 读取清单。只有清单中有适用于当前 Mac、构建号更高的签名版本，应用才会提示升级。自动检查需取得用户许可，系统分析默认关闭。
+从 0.1.1 起，选择「Bookshelf → 检查更新…」会从 GitHub 读取清单。清单按芯片提供 DMG，并记录构建号、文件长度和 Ed25519 签名。自动检查需取得用户许可，系统分析默认关闭。
 
-已发布的 0.1.0 DMG 内置的更新开关为关闭状态。首次支持应用内更新的正式版发布后，0.1.0 用户需从 GitHub Releases 下载一次对应芯片的新版 DMG，退出 Bookshelf 后替换原位置的应用。之后可从应用菜单检查更新。[GitHub Releases](https://github.com/MediCoderHZ/Bookshelf/releases)
+已发布的 0.1.0 DMG 内置的更新开关为关闭状态。0.1.0 用户需手动下载一次 0.1.1，退出 Bookshelf 后替换原位置的应用。此后即可在应用内检查更新。[Apple 芯片 DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.1/Bookshelf-0.1.1-macos-arm64.dmg) · [Intel DMG](https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.1/Bookshelf-0.1.1-macos-x64.dmg)
 
-## 首次发布支持 Sparkle 自动更新的应用
+## 发布 DMG 与更新清单
 
-1. 将审核后的源码推送至仓库的默认分支 `main`。本地历史原为 `master`；可以在确认后重命名，也可以明确推送 `master:main`。不要强推覆盖已有远程历史。保留基准标签 `baseline-2026-11-15`。
-2. 确认公开仓库默认分支 `main` 包含 `Distribution/Updates/appcast.xml`。更新器直接读取该文件的原始内容，无需部署 GitHub Pages。首次准备更新条目前，清单可以为空。
+1. 更新版本与构建号，将审核后的源码推送至仓库的默认分支 `main`。Release 的版本标签指向打包所用的提交。
+2. 确认公开仓库默认分支 `main` 包含 `Distribution/Updates/appcast.xml`。更新器直接读取该文件的原始内容。
 3. 检查清单原始地址可以通过 HTTPS 读取并返回有效 RSS XML。确认待发布应用内的 `BookshelfUpdatesEnabled` 为 `YES`，`SUFeedURL` 与上表一致，`SUPublicEDKey` 对应发布用的签名密钥。
 4. 配置自己的 Apple Developer Program 团队、Developer ID Application 证书和必要联系信息。本机签名设置使用被忽略的 `Config/Release.local.xcconfig`。不要直接复制仍含 `REPLACE_*` 的示例进行发布，也不要覆盖已确定的应用身份和公钥。
-5. 执行完整测试与本地双架构构建。使用 Xcode 的 Release Archive，Distribute App → Developer ID 路线签名并提交公证。使用 Xcode 的签名嵌入流程处理 Sparkle、其 XPC 服务和 Updater；保持 Release Hardened Runtime 和 App Sandbox 开启。导出的最终 `.app` 必须装订公证票据。
-6. 对最终产物执行：
+5. 运行完整测试，从同一提交生成 arm64、x86_64 两个 Release 应用，保留 Hardened Runtime 和 App Sandbox。为各架构的应用及嵌套组件签名，完成 Apple 公证并装订。分别制作带有「应用程序」链接的 DMG，为磁盘映像签名、公证并装订。
+6. 对原始双架构应用运行 `preflight.py`（`build-release.sh` 会自动执行）。随后分别对已装订的 arm64 和 x86_64 应用运行分发检查，再用最终的两份 DMG 生成 Sparkle 更新清单。以 0.1.1 为例：
 
    ```sh
-   python3 scripts/preflight.py --app /path/to/Bookshelf.app
-   python3 scripts/check-update-config.py --app /path/to/Bookshelf.app --distribution
-   bash scripts/prepare-update.sh /path/to/Bookshelf.app dist/sparkle-release
+   python3 scripts/preflight.py --app /path/to/universal/Bookshelf.app
+   python3 scripts/check-update-config.py --app /path/to/arm64/Bookshelf.app --distribution
+   python3 scripts/check-update-config.py --app /path/to/x86_64/Bookshelf.app --distribution
+   bash scripts/prepare-update.sh --dmgs \
+     dist/Bookshelf-0.1.1-macos-arm64.dmg \
+     dist/Bookshelf-0.1.1-macos-x64.dmg \
+     dist/sparkle-0.1.1
    ```
 
-   打包脚本要求新的输出目录，会验证公钥与钥匙串匹配，使用 `ditto` 保留框架符号链接，生成 ZIP、SHA256SUMS.txt 和带更新包签名的 appcast，并再次验证签名。脚本不会上传或发布。
-7. 在启用 Sparkle 的版本所对应的 GitHub Release 中上传更新清单引用的 ZIP 和校验文件，填写更新说明。用户手动安装时下载 DMG。
+   输出目录应为新目录。脚本从已完成的 DMG 生成 `appcast.xml` 和 `SHA256SUMS.txt`。清单里的两条下载地址分别对应上传到 Release 的原始 DMG。签名后修改或重新压制 DMG 都需要重新生成签名与校验值。
+7. 在相应的 GitHub Release 上传两个 DMG 和 `SHA256SUMS.txt`，填写发行说明。Sparkle 和手动下载均使用这些 DMG。
 8. 确认 Release 附件可下载后，用生成的清单替换 `Distribution/Updates/appcast.xml` 并合入远程 `main`。待 GitHub 原始文件缓存刷新，在上表的地址核对新构建号、附件地址和签名。客户端下次检查时即可读取新条目。
 
 `build-release.sh` 生成本地双架构应用，并自动运行 `preflight.py --app` 检查产物。为 GitHub Releases 准备可直接下载的应用时，再使用 `check-update-config.py --distribution` 验证 Developer ID 签名、公证票据和 Sparkle 配置。
@@ -43,10 +47,10 @@ Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.
 ## 后续版本
 
 - 保持正式 Bundle Identifier、应用文件名 `Bookshelf.app`、更新清单地址和签名密钥稳定。
-- 修改 `MARKETING_VERSION` 并递增 `CURRENT_PROJECT_VERSION`。新构建号应高于已分发的版本，包括 0.1.0 的构建 9。脚本还会检查新构建号是否高于清单中的所有条目。
+- 修改 `MARKETING_VERSION` 并递增 `CURRENT_PROJECT_VERSION`。0.1.1 的构建号为 10，后续版本应高于已分发构建及清单中的构建号。
 - 从当前主分支的更新清单生成新清单，以保留以前的版本条目。正式更新包必须与对应 Git 标签的源码一致。
 - 重复测试、归档、签名、公证、打包；先上传 Release 附件，再发布新清单。已发布附件和其签名不可单独替换。
-- 用启用 Sparkle 的旧构建和测试书库验证发现更新、下载、安装、重启及书籍与笔记保留。断网、取消和损坏包拒绝也应单独验证。首次跨版本在线升级仍待正式签名更新包发布后验收。
+- 发布后用已启用 Sparkle 的旧构建和测试书库验证发现更新、下载、安装、重启及数据保留。检查断网、取消和损坏包处理。两种处理器分别验证。
 
 ## 构建与发布工作流
 
