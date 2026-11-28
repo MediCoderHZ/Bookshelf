@@ -5,6 +5,7 @@ Format 1 matches AutomaticBackupManifest in the application. No source database
 or recovery draft is modified. A failed backup must abort the caller's install.
 """
 import argparse
+import base64
 import hashlib
 import json
 import math
@@ -12,12 +13,76 @@ import os
 from pathlib import Path
 import shutil
 import sqlite3
+import stat
+import subprocess
 import time
+import unicodedata
 import uuid
 
 
 def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    checksum = hashlib.sha256()
+    with path.open("rb") as src:
+        for chunk in iter(lambda: src.read(1024 * 1024), b""):
+            checksum.update(chunk)
+    return checksum.hexdigest()
+
+
+def resolve_attachment_directory(encoded):
+    helper = Path(__file__).with_name("resolve_attachment_bookmark.swift")
+    result = subprocess.run(["/usr/bin/xcrun", "swift", str(helper)], check=True,
+                            input=base64.b64decode(encoded, validate=True), stdout=subprocess.PIPE)
+    return Path(json.loads(result.stdout))
+
+
+def copy_external_attachment(obj, staging, files, directories):
+    marker = obj / "link.json"
+    if marker.is_symlink():
+        raise ValueError("Symbolic-link attachment marker rejected")
+    if not marker.exists():
+        return False
+    if not marker.is_file():
+        raise ValueError("Invalid attachment marker")
+    record = json.loads(marker.read_bytes())
+    if "externalDirectory" not in record and "externalPath" not in record:
+        return False
+    name = record["name"]
+    original = Path(record["externalPath"])
+    if (not name or name.startswith(".") or len(name.encode("utf-8")) > 255
+            or any(c in "/:\\" or unicodedata.category(c) in ("Cc", "Cf") for c in name)
+            or not original.is_absolute() or original.name != name
+            or record.get("bookmark") or record.get("webURL")):
+        raise ValueError("Invalid external attachment record")
+    directory_key = record["externalDirectory"]
+    if directory_key not in directories:
+        directories[directory_key] = resolve_attachment_directory(directory_key)
+    directory = directories[directory_key]
+    links = obj / "file"
+    if links.is_symlink() or not links.is_dir():
+        raise ValueError("Invalid external attachment directory")
+    link = links / name
+    expected = {unicodedata.normalize("NFC", str(path)) for path in (original, directory / name)}
+    if not link.is_symlink() or unicodedata.normalize("NFC", os.readlink(link)) not in expected:
+        raise ValueError("External attachment link does not match its bookmark")
+    # Open the regular file relative to the resolved folder, never through the library symlink.
+    folder_fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=folder_fd)
+    finally:
+        os.close(folder_fd)
+    with os.fdopen(fd, "rb") as src:
+        if not stat.S_ISREG(os.fstat(src.fileno()).st_mode):
+            raise ValueError("Invalid external attachment file")
+        relative = (Path("attachments") / obj.name / "file" / name).as_posix()
+        target = staging / relative
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        checksum = hashlib.sha256()
+        with target.open("xb") as dst:
+            for chunk in iter(lambda: src.read(1024 * 1024), b""):
+                dst.write(chunk)
+                checksum.update(chunk)
+        files[relative] = checksum.hexdigest()
+    return True
 
 
 def validate(folder):
@@ -107,12 +172,15 @@ def create_backup(source, directory, version, now=None, recovery_root=None):
         if attachments.is_symlink():
             raise ValueError("Symbolic-link attachment directory rejected")
         if attachments.exists():
+            directories = {}
             for obj in attachments.iterdir():
                 if obj.name.startswith("."):
                     continue
                 uuid.UUID(obj.name)
                 if obj.is_symlink() or not obj.is_dir():
                     raise ValueError("Invalid attachment directory")
+                if copy_external_attachment(obj, staging, files, directories):
+                    continue
                 for item in obj.rglob("*"):
                     if item.is_symlink():
                         raise ValueError("Symbolic-link attachment rejected")

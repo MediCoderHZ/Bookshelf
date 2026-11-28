@@ -96,6 +96,67 @@ final class LibraryStorageTests: XCTestCase {
     XCTAssertTrue(snapshot.files.keys.contains { $0.hasPrefix("attachments/" + id.uuidString + "/file/") })
   }
 
+  func testExternalAttachmentMigrationPreservesLinksAndBackupRecoversOfflineFiles() throws {
+    let library = try root(), external = try root(), manager = controller(library), backup = backups(library)
+    let original = try manager.openLibrary(backups: backup)
+    defer { withExtendedLifetime(original) {} }
+    let context = original.mainContext
+    let book = Book(title: "A Book")
+    context.insert(book); try context.save()
+    let prefs = AttachmentFolderPreferences(database: manager.currentStoreURL)
+    try prefs.set(external)
+    let file = library.appendingPathComponent("original.epub"), bytes = Data("external copy".utf8)
+    try bytes.write(to: file)
+    try BookAttachmentCommands(book: book, context: context).add([file], linked: false, rule: .init(pattern: "{title}"))
+    let id = try XCTUnwrap(book.attachmentIDs?.first)
+    let portable = try BookAttachmentStore(context: context).portable(id)
+    XCTAssertEqual(portable.contents, bytes)
+    let archive = try backup.store.archiveData(for: backup.create())
+    XCTAssertEqual(try LibraryBackupService.decode(archive).attachmentFiles, [portable])
+
+    let child = try directory(external, "subfolder")
+    XCTAssertThrowsError(try manager.requestDirectory(child))
+    let target = try directory(library, "migrated")
+    try manager.requestDirectory(target)
+    let moved = controller(library), migrated = try moved.openLibrary(backups: backup)
+    XCTAssertNil(moved.locationError)
+    XCTAssertEqual(moved.currentStoreURL.deletingLastPathComponent().path, target.path)
+    let destinationPreference = try XCTUnwrap(AttachmentFolderPreferences(database: moved.currentStoreURL).reference())
+    XCTAssertEqual(destinationPreference, try prefs.reference())
+    let store = try BookAttachmentStore(context: migrated.mainContext)
+    let relative = "attachments/" + id.uuidString + "/file/" + portable.name
+    let link = target.appendingPathComponent(relative)
+    XCTAssertEqual(try link.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink, true)
+    XCTAssertEqual(try store.item(id).kind, .externalFile)
+    XCTAssertEqual(try store.portable(id), portable)
+    let migration = try XCTUnwrap(backup.store.entries().first { $0.kind == .beforeMigration })
+    let backupRoot = backup.store.directory.appendingPathComponent(migration.directoryName)
+    let snapshotFile = backupRoot.appendingPathComponent(relative)
+    XCTAssertEqual(try snapshotFile.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey]).isRegularFile, true)
+    XCTAssertEqual(try snapshotFile.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink, false)
+    XCTAssertEqual(try Data(contentsOf: snapshotFile), bytes)
+    XCTAssertFalse(FileManager.default.fileExists(atPath: backupRoot.appendingPathComponent("attachments/" + id.uuidString + "/link.json").path))
+    XCTAssertFalse(FileManager.default.fileExists(atPath: backupRoot.appendingPathComponent("AttachmentFolder.json").path))
+
+    // The external disk/file can disappear after a successful backup.
+    try FileManager.default.removeItem(at: external.appendingPathComponent(portable.name))
+    XCTAssertThrowsError(try LibraryIntegrity.checkRecords(in: migrated.mainContext))
+    func recover() throws {
+      let plan = try LibraryImportPlanner.prepare(archive, context: migrated.mainContext)
+      let choices = [book.id: ImportChoice(action: .fill, targetID: book.id)]
+      _ = try LibraryImportPlanner.apply(plan, choices: choices, context: migrated.mainContext, undoManager: nil)
+    }
+    try recover()
+    let restored = try XCTUnwrap(migrated.mainContext.fetch(FetchDescriptor<Book>()).first)
+    let ids = try XCTUnwrap(restored.attachmentIDs)
+    XCTAssertEqual(ids.count, 2)
+    let recovered = try XCTUnwrap(ids.first { $0 != id })
+    XCTAssertEqual(try store.item(recovered).kind, .stored)
+    XCTAssertEqual(try store.portable(recovered).contents, bytes)
+    try recover()
+    XCTAssertEqual(restored.attachmentIDs, ids)
+  }
+
   func testPendingMoveOnUpgradeCarriesEditedTranslatorAndRulesToEachNewLibraryDirectory() throws {
     let root = try root(), first = controller(root)
     let original = try first.openLibrary(backups: backups(root))

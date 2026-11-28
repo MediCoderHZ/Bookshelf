@@ -231,6 +231,8 @@ struct SettingsView: View {
           Text(message).foregroundStyle(.red).textSelection(.enabled)
         }
       }
+    case .attachmentFolder:
+      AttachmentFolderSettings()
     case .attachments:
       AttachmentNamingSettings()
     case .automaticBackup:

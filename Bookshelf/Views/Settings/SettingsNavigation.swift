@@ -53,14 +53,14 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
 /// Search the settings themselves in either language, independently of library data.
 enum SettingsGroup: String, CaseIterable, Identifiable {
-  case appearance, automaticBackup, restore, storage, attachments, translators, model, mcp, about
+  case appearance, automaticBackup, restore, storage, attachmentFolder, attachments, translators, model, mcp, about
   var id: Self { self }
   var pane: SettingsPane {
     switch self {
     case .model, .mcp: .ai
     case .appearance: .general
     case .automaticBackup, .restore: .backups
-    case .storage, .attachments, .translators: .storage
+    case .storage, .attachmentFolder, .attachments, .translators: .storage
     case .about: .about
     }
   }
@@ -72,6 +72,7 @@ enum SettingsGroup: String, CaseIterable, Identifiable {
     case .automaticBackup: "自动备份"
     case .restore: "备份文件"
     case .storage: "数据目录与维护"
+    case .attachmentFolder: "附件保存位置"
     case .attachments: "附件重命名"
     case .translators: "元信息解析器"
     case .about: "关于 Bookshelf"
@@ -85,6 +86,7 @@ enum SettingsGroup: String, CaseIterable, Identifiable {
     case .appearance: ["界面语言", "简体中文", "English", "Language", "中文", "英文"]
     case .automaticBackup: ["定期备份书籍和笔记", "备份频率", "保留定时与手动备份", "最近成功备份", "立即备份", "查看历史备份…", "每小时", "每天", "升级", "历史", "频率", "History", "Retention", "Interval", "Update"]
     case .restore: ["保存 JSON 备份…", "从备份恢复…", "JSON", "Restore"]
+    case .attachmentFolder: ["选择附件文件夹…", "使用书库文件夹", "外部文件夹", "软链接", "Symbolic links", "Symlinks"]
     case .attachments: ["配置附件重命名", "附件命名格式", "文件名模板", "自动重命名新添加的文件", "重命名已有附件", "Rename", "Attachments"]
     case .translators: ["管理元信息解析器…", "打开解析器目录", "重新加载", "Translators", "Metadata"]
     case .storage: ["数据目录", "数据库维护", "检查数据库完整性", "使用自定义位置…", "Database", "Directory", "Location", "Integrity", "Storage"]

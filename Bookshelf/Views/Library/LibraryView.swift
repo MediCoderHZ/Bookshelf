@@ -185,6 +185,9 @@ struct LibraryView: View {
       } else if ids.count == 1, let ref = ids.first?.attachmentReference,
         let book = books.first(where: { $0.id == ref.bookID && $0.deletedAt == nil }) {
         Button(L10n.tr("打开附件")) { openAttachment(ref.id, of: book) }
+        if let item = attachmentItems[ref.id] {
+          ShowAttachmentInFinderButton(item: item, context: modelContext, errorMessage: $attachmentError)
+        }
         Button(L10n.tr("管理附件…")) {
           managingAttachments = AttachmentManagementTarget(book: book, attachmentID: ref.id)
         }

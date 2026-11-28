@@ -168,7 +168,7 @@ struct BookAttachmentView: View {
       } message: { item in
         switch item.kind {
         case .web: Text(item.name)
-        case .linkedFile: Text(L10n.tr("移除书籍中的链接，原文件将保留。"))
+        case .linkedFile, .externalFile: Text(L10n.tr("移除书籍中的链接，原文件将保留。"))
         case .stored: Text(L10n.tr("此操作会移除书籍中的附件及其未被其他书籍引用的副本。"))
         }
       }
@@ -204,6 +204,7 @@ struct BookAttachmentView: View {
 
   @ViewBuilder private func actions(_ item: AttachmentItem) -> some View {
     Button(L10n.tr("打开附件")) { open(item) }
+    ShowAttachmentInFinderButton(item: item, context: context, errorMessage: $errorMessage)
     if case .web = item.kind {
       if book.deletedAt == nil {
         Button(L10n.tr("编辑网页链接…")) { editingLink = item; showsWebEditor = true }
@@ -216,9 +217,6 @@ struct BookAttachmentView: View {
   }
 
   @ViewBuilder private func fileActions(_ item: AttachmentItem) -> some View {
-    Button(L10n.tr("在访达中显示")) { perform {
-      try BookAttachmentStore(context: context).withFile(item.id) { NSWorkspace.shared.activateFileViewerSelecting([$0]) }
-    } }
     if book.deletedAt == nil {
       Divider()
       Button(L10n.tr("重命名附件…")) { proposedStem = (item.name as NSString).deletingPathExtension; renaming = item }
@@ -274,6 +272,28 @@ struct BookAttachmentView: View {
   private func perform(_ action: () throws -> Void) {
     errorMessage = nil
     do { try action() } catch { errorMessage = error.localizedDescription }
+  }
+}
+
+struct ShowAttachmentInFinderButton: View {
+  let item: AttachmentItem
+  let context: ModelContext
+  @Binding var errorMessage: String?
+
+  var body: some View {
+    switch item.kind {
+    case .stored, .linkedFile, .externalFile:
+      Button(L10n.tr("在访达中显示")) {
+        do {
+          try BookAttachmentStore(context: context).withFile(item.id) { url in
+            NSWorkspace.shared.activateFileViewerSelecting([url])
+          }
+          errorMessage = nil
+        } catch { errorMessage = error.localizedDescription }
+      }
+    case .web:
+      EmptyView()
+    }
   }
 }
 

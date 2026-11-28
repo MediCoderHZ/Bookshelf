@@ -14,19 +14,36 @@ enum AttachmentRenamePlan {
   static func changes(for books: [Book], rule: AttachmentRenameRule, store: BookAttachmentStore) throws -> [AttachmentRenameChange] {
     var changes: [AttachmentRenameChange] = []
     var seen = Set<UUID>()
+    var occupiedByFolder: [URL: Set<String>] = [:]
     for book in books where book.deletedAt == nil {
       let files = try (book.attachmentIDs ?? []).map(store.item).filter {
         if case .web = $0.kind { return false }
         return true
       }
       guard !files.isEmpty else { continue }
-      let candidates = files.filter { ($0.kind == .stored || rule.linked) && seen.insert($0.id).inserted }
+      let candidates = files.filter { ($0.kind != .linkedFile || rule.linked) && seen.insert($0.id).inserted }
       guard !candidates.isEmpty else { continue }
       let ids = Set(candidates.map(\.id))
       var occupied = Set(files.filter { !ids.contains($0.id) }.map { $0.name.lowercased() })
       let stem = try AttachmentNaming.stem(book: BookArchive(book: book), pattern: rule.pattern)
       for item in candidates {
-        let name = try AttachmentNaming.nextFilename(stem: stem, original: item.name, occupied: occupied)
+        var unavailable = occupied
+        var externalFolder: URL?
+        if item.kind == .externalFile {
+          externalFolder = try store.withFile(item.id) { url in
+            let directory = url.deletingLastPathComponent().standardizedFileURL
+            if occupiedByFolder[directory] == nil {
+              occupiedByFolder[directory] = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path).map { $0.lowercased() })
+            }
+            return directory
+          }
+          if let externalFolder, var names = occupiedByFolder[externalFolder] {
+            names.remove(item.name.lowercased())
+            unavailable.formUnion(names)
+          }
+        }
+        let name = try AttachmentNaming.nextFilename(stem: stem, original: item.name, occupied: unavailable)
+        if let externalFolder { occupiedByFolder[externalFolder, default: []].insert(name.lowercased()) }
         occupied.insert(name.lowercased())
         if name != item.name { changes.append(AttachmentRenameChange(book: book, item: item, filename: name)) }
       }

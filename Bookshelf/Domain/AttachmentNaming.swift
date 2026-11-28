@@ -3,7 +3,7 @@ import Foundation
 enum AttachmentNaming {
   static let defaultPattern = "{author} - {year} - {title}"
   static let preference = "attachments.renamePattern"
-  static let tokens = ["{author}", "{year}", "{title}", "{isbn}"]
+  static let tokens = ["{author}", "{year}", "{title}", "{publisher}", "{isbn}"]
 
   static func valid(_ pattern: String) -> Bool {
     let remainder = tokens.reduce(pattern) { $0.replacingOccurrences(of: $1, with: "") }
@@ -16,7 +16,7 @@ enum AttachmentNaming {
     let date = book.publicationDate ?? ""
     let year = date.range(of: #"[0-9]{4}"#, options: .regularExpression).map { String(date[$0]) } ?? ""
     let values = [book.contributors.filter { $0.roleRaw == "author" }.sorted { $0.displayOrder < $1.displayOrder }.first?.name ?? "",
-      year, book.title, book.isbn13 ?? book.isbn10 ?? ""]
+      year, book.title, book.publisher ?? "", book.isbn13 ?? book.isbn10 ?? ""]
     // Substitute each token once; a title may itself contain literal braces.
     let segments = pattern.components(separatedBy: " - ").compactMap { part -> String? in
       var remaining = part[...], output = ""

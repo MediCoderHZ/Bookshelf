@@ -2,6 +2,8 @@ import importlib.util
 import json
 from pathlib import Path
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -30,6 +32,43 @@ class LocalUpgradeBackupTests(unittest.TestCase):
         path = backup.create_backup(self.source, self.output, "2")
         self.assertEqual((path / relative).read_bytes(), attachment.read_bytes())
         self.assertEqual(backup.validate(path)["files"][relative], backup.digest(attachment))
+
+    @unittest.skipUnless(sys.platform == "darwin", "Requires macOS directory bookmarks")
+    def test_external_attachment_backup_uses_bookmark_and_stores_regular_bytes(self):
+        external = self.root / "external"
+        external.mkdir()
+        bookmark = subprocess.check_output(["/usr/bin/xcrun", "swift", "-e", '''
+import Foundation
+let u = URL(fileURLWithPath: CommandLine.arguments[1])
+print(try u.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil,
+  relativeTo: nil).base64EncodedString())
+''', str(external)], text=True).strip()
+        relative = Path("attachments/44D6213D-FCEA-4A88-9333-0DBA34B2C2C7/file/book.epub")
+        link = self.root / relative
+        link.parent.mkdir(parents=True)
+        target = external / link.name
+        target.write_bytes(b"book contents")
+        link.symlink_to(target)
+        (link.parent.parent / "link.json").write_text(json.dumps({
+            "name": link.name, "externalPath": str(target), "externalDirectory": bookmark}))
+        path = backup.create_backup(self.source, self.output, "2")
+        self.assertEqual(backup.validate(path)["files"][str(relative)], backup.digest(target))
+        self.assertFalse((path / relative).is_symlink())
+        self.assertFalse((path / relative.parent.parent / "link.json").exists())
+        other = self.root / "unrelated.epub"
+        other.write_bytes(b"private")
+        link.unlink()
+        link.symlink_to(other)
+        with self.assertRaises(ValueError):
+            backup.create_backup(self.source, self.output, "3")
+        link.unlink()
+        link.symlink_to(target)
+        target.unlink()
+        target.symlink_to(other)
+        with self.assertRaises(OSError):
+            backup.create_backup(self.source, self.output, "3")
+        self.assertEqual((path / relative).read_bytes(), b"book contents")
+        self.assertEqual(list(self.output.iterdir()), [path])
 
     def test_snapshot_includes_wal_and_preserves_source_and_recovery(self):
         draft = self.root / "Bookshelf/NoteDraftRecovery/test.json"

@@ -180,6 +180,29 @@ final class BookAttachmentTests: XCTestCase {
     XCTAssertFalse(AttachmentNaming.valid("{authors}"))
   }
 
+  func testPublisherTemplateForNewAndExistingAttachments() throws {
+    let dir = try directory(), db = try database(in: dir)
+    let book = Book(title: "海图")
+    book.publisher = "山/海出版社"
+    db.mainContext.insert(book)
+    try db.mainContext.save()
+
+    let rule = AttachmentRenameRule(pattern: "{title} - {publisher}")
+    let source = dir.appendingPathComponent("scan.epub")
+    try Data("book".utf8).write(to: source)
+    try BookAttachmentCommands(book: book, context: db.mainContext).add([source], linked: false, rule: rule)
+    let store = try BookAttachmentStore(context: db.mainContext)
+    let id = try XCTUnwrap(book.attachmentIDs?.first)
+    XCTAssertEqual(try store.item(id).name, "海图 - 山-海出版社.epub")
+
+    book.publisher = nil
+    try db.mainContext.save()
+    let changes = try AttachmentRenamePlan.changes(for: [book], rule: rule, store: store)
+    XCTAssertEqual(changes.map(\.filename), ["海图.epub"])
+    XCTAssertEqual(AttachmentRenamePlan.apply(changes, store: store) { _ in nil }.renamed, 1)
+    XCTAssertEqual(try store.item(id).name, "海图.epub")
+  }
+
   func testRenameRulesIgnoreLegacyTypeSelectionsAndPreserveOtherPreferences() throws {
     let suite = UUID().uuidString
     let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

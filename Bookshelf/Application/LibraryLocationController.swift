@@ -89,6 +89,7 @@ final class LibraryLocationController: ObservableObject {
       throw LibraryStorageError.sameDirectory
     }
     try BookAttachmentStore(database: currentStoreURL).requireOutside(directory)
+    try AttachmentFolderPreferences(database: currentStoreURL).requireOutside(directory)
     try LibraryTranslatorDirectory.requireOutside(directory, source: translatorDirectory)
     try requireEmptyDirectory(directory)
     var next = configuration
@@ -145,6 +146,8 @@ final class LibraryLocationController: ObservableObject {
 
   private func relocate(to target: LibraryDirectoryReference, backups: AutomaticBackupController) throws -> ModelContainer {
     let directory = try access(target)
+    let folderPreferences = AttachmentFolderPreferences(database: currentStoreURL)
+    try folderPreferences.requireOutside(directory)
     try requireEmptyDirectory(directory)
     try LibraryIntegrity.checkSQLite(at: currentStoreURL, requireLibrary: true)
     _ = try backups.store.create(kind: .beforeMigration, data: nil, storeURL: currentStoreURL,
@@ -162,7 +165,7 @@ final class LibraryLocationController: ObservableObject {
     let attachmentStore = BookAttachmentStore(database: currentStoreURL)
     try attachmentStore.requireOutside(directory)
     let stagedAttachments = BookAttachmentStore(database: stagedStore).root
-    let files = try attachmentStore.snapshot(to: stagedAttachments)
+    let files = try attachmentStore.snapshot(to: stagedAttachments, preservingExternalLinks: true)
     let stagedTranslators = LibraryTranslatorDirectory.beside(stagedStore)
     let hasTranslators = try LibraryTranslatorDirectory.snapshot(from: translatorDirectory, to: stagedTranslators)
     let destination = directory.appendingPathComponent("default.store")
@@ -176,6 +179,7 @@ final class LibraryLocationController: ObservableObject {
     if hasTranslators {
       try FileManager.default.moveItem(at: stagedTranslators, to: LibraryTranslatorDirectory.beside(destination))
     }
+    try folderPreferences.copy(to: destination)
     var next = configuration; next.active = try reference(directory); next.pending = nil; next.initialized = true
     // Publish the location only after the copied library opens and validates.
     // Any failure preserves the source and the copied destination for recovery.

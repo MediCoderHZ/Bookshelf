@@ -26,6 +26,7 @@ private struct AttachmentRenameConfiguration: View {
       var example = BookArchive(book: Book(title: L10n.tr("示例书名")))
       example.contributors = [ContributorArchive(name: L10n.tr("示例作者"), roleRaw: "author", displayOrder: 0)]
       example.publicationDate = "2024"
+      example.publisher = L10n.tr("示例出版社")
       example.isbn13 = "9781234567897"
       sample = example
     }
@@ -114,7 +115,7 @@ private struct RenameReviewSheet: View {
       } else {
         List(plan.changes) { change in
           VStack(alignment: .leading, spacing: 4) {
-            Label(change.item.name, systemImage: change.item.kind == .linkedFile ? "link" : "doc")
+            Label(change.item.name, systemImage: change.item.kind.symbolName)
               .foregroundStyle(.secondary)
             Label(change.filename, systemImage: "arrow.turn.down.right")
           }.help(change.book.title)

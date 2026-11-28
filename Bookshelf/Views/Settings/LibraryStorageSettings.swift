@@ -1,6 +1,69 @@
 import AppKit
 import SwiftUI
 
+struct AttachmentFolderSettings: View {
+  @EnvironmentObject private var locations: LibraryLocationController
+  @State private var customPath: String?
+  @State private var readError: String?
+  @State private var actionError: String?
+
+  private var preferences: AttachmentFolderPreferences {
+    AttachmentFolderPreferences(database: locations.currentStoreURL)
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      if let readError {
+        Text(readError).foregroundStyle(.red).textSelection(.enabled)
+      } else {
+        let path = customPath ?? BookAttachmentStore(database: locations.currentStoreURL).root.path
+        Label {
+          Text(verbatim: path).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+        } icon: { Image(systemName: "folder") }
+      }
+      HStack(spacing: 12) {
+        Button(L10n.tr("选择附件文件夹…"), action: chooseFolder)
+        if customPath != nil || readError != nil {
+          Button(L10n.tr("使用书库文件夹")) {
+            do { try preferences.reset(); reload() }
+            catch { actionError = error.localizedDescription }
+          }
+        }
+      }
+    }
+    .onChange(of: locations.currentStoreURL, initial: true) { _, _ in reload() }
+    .alert(L10n.tr("附件保存位置"), isPresented: Binding(get: { actionError != nil },
+      set: { if !$0 { actionError = nil } })) {
+      Button(L10n.tr("好"), role: .cancel) {}
+    } message: { Text(actionError ?? "") }
+  }
+
+  private func reload() {
+    do {
+      if let reference = try preferences.reference() {
+        customPath = (try? AttachmentFolderPreferences.withDirectory(reference) { $0.path }) ?? reference.path
+      } else {
+        customPath = nil
+      }
+      readError = nil
+    } catch { readError = error.localizedDescription }
+  }
+
+  private func chooseFolder() {
+    let panel = NSOpenPanel()
+    panel.canChooseFiles = false
+    panel.canChooseDirectories = true
+    panel.canCreateDirectories = true
+    panel.allowsMultipleSelection = false
+    panel.prompt = L10n.tr("选择目录")
+    panel.message = L10n.tr("新添加的文件将存入所选文件夹，书库通过软链接访问它们。")
+    if let customPath { panel.directoryURL = URL(fileURLWithPath: customPath, isDirectory: true) }
+    guard panel.runModal() == .OK, let folder = panel.url else { return }
+    do { try preferences.set(folder); reload() }
+    catch { actionError = error.localizedDescription }
+  }
+}
+
 struct LibraryStorageSettings: View {
   @EnvironmentObject private var locations: LibraryLocationController
   @EnvironmentObject private var relauncher: AppRelaunchController

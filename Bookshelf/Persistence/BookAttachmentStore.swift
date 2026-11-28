@@ -1,4 +1,5 @@
 import CryptoKit
+import Darwin
 import Foundation
 import SwiftData
 
@@ -19,7 +20,7 @@ struct PortableAttachment: Codable, Equatable {
 }
 
 struct AttachmentItem: Identifiable, Equatable {
-  enum Kind: Equatable { case stored, linkedFile, web(URL) }
+  enum Kind: Equatable { case stored, externalFile, linkedFile, web(URL) }
   let id: UUID
   let name: String
   let kind: Kind
@@ -34,11 +35,36 @@ private struct AttachmentLink: Codable {
   var name: String
   var bookmark: Data?
   var webURL: String?
+  var externalDirectory: Data?
+  var externalPath: String?
+
+  var externalReference: LibraryDirectoryReference? {
+    guard let externalDirectory, let externalPath else { return nil }
+    return LibraryDirectoryReference(path: (externalPath as NSString).deletingLastPathComponent, bookmark: externalDirectory)
+  }
 
   static func web(address: String, title: String) throws -> Self {
     guard let url = BookAttachmentStore.webURL(address) else { throw AttachmentError.invalidWebURL }
     let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
     return Self(name: title.isEmpty ? url.absoluteString : title, webURL: url.absoluteString)
+  }
+}
+
+/// Only rolled-back imports remove an external copy. A replacement at that path belongs to its owner.
+struct PendingExternalAttachment {
+  let directory: LibraryDirectoryReference
+  let name: String
+  let copied: stat
+
+  func discard() throws {
+    try AttachmentFolderPreferences.withDirectory(directory) { folder in
+      let url = folder.appendingPathComponent(name)
+      var current = stat()
+      guard lstat(url.path, &current) == 0, current.st_dev == copied.st_dev, current.st_ino == copied.st_ino,
+        current.st_size == copied.st_size, current.st_mtimespec.tv_sec == copied.st_mtimespec.tv_sec,
+        current.st_mtimespec.tv_nsec == copied.st_mtimespec.tv_nsec else { return }
+      try FileManager.default.removeItem(at: url)
+    }
   }
 }
 
@@ -60,8 +86,10 @@ enum AttachmentError: LocalizedError {
 struct BookAttachmentStore {
   let root: URL
   private let fm = FileManager.default
+  let folderPreferences: AttachmentFolderPreferences
 
   init(database: URL) {
+    folderPreferences = AttachmentFolderPreferences(database: database)
     root = database.deletingLastPathComponent().appendingPathComponent("attachments", isDirectory: true)
   }
 
@@ -100,7 +128,12 @@ struct BookAttachmentStore {
     guard fm.fileExists(atPath: url.path) else { return nil }
     try Self.requireFile(url)
     let record = try JSONDecoder().decode(AttachmentLink.self, from: Data(contentsOf: url))
-    if let address = record.webURL {
+    if record.externalDirectory != nil || record.externalPath != nil {
+      guard record.externalReference != nil, record.bookmark == nil, record.webURL == nil,
+        let path = record.externalPath, (path as NSString).isAbsolutePath,
+        (path as NSString).lastPathComponent == record.name, AttachmentNaming.validName(record.name)
+      else { throw AttachmentError.unavailable }
+    } else if let address = record.webURL {
       guard record.bookmark == nil, Self.webURL(address) != nil else { throw AttachmentError.invalidWebURL }
     }
     return record
@@ -117,6 +150,7 @@ struct BookAttachmentStore {
 
   func item(_ id: UUID) throws -> AttachmentItem {
     if let link = try link(id) {
+      if link.externalReference != nil { return AttachmentItem(id: id, name: link.name, kind: .externalFile) }
       if let address = link.webURL, let url = Self.webURL(address) {
         return AttachmentItem(id: id, name: link.name, kind: .web(url))
       }
@@ -137,6 +171,21 @@ struct BookAttachmentStore {
 
   func withFile<T>(_ id: UUID, perform: (URL) throws -> T) throws -> T {
     guard let link = try link(id) else { return try perform(managedFile(id)) }
+    if let directory = link.externalReference, let priorPath = link.externalPath {
+      return try AttachmentFolderPreferences.withDirectory(directory) { folderURL in
+        let target = folderURL.appendingPathComponent(link.name)
+        let fileDirectory = folder(id).appendingPathComponent("file", isDirectory: true)
+        try Self.requireDirectory(fileDirectory)
+        let symlink = fileDirectory.appendingPathComponent(link.name)
+        let destination = try fm.destinationOfSymbolicLink(atPath: symlink.path)
+        guard destination == priorPath || destination == target.path else { throw AttachmentError.unavailable }
+        try Self.requireFile(target)
+        if priorPath != target.path {
+          try replaceExternalLink(id, oldName: link.name, target: target, directory: directory)
+        }
+        return try perform(target)
+      }
+    }
     guard let bookmark = link.bookmark else { throw AttachmentError.unavailable }
     var stale = false
     let url = try URL(resolvingBookmarkData: bookmark, options: [.withSecurityScope, .withoutUI, .withoutMounting],
@@ -158,12 +207,84 @@ struct BookAttachmentStore {
     try fm.moveItem(at: staging, to: folder(id))
   }
 
-  func add(_ url: URL, linked: Bool, name: String) throws -> UUID {
+  private func writeExternalLink(in object: URL, target: URL, directory: LibraryDirectoryReference) throws {
+    let files = object.appendingPathComponent("file", isDirectory: true)
+    try fm.createDirectory(at: files, withIntermediateDirectories: false)
+    try fm.createSymbolicLink(at: files.appendingPathComponent(target.lastPathComponent), withDestinationURL: target)
+    try writeLink(AttachmentLink(name: target.lastPathComponent, externalDirectory: directory.bookmark,
+      externalPath: target.path), at: object.appendingPathComponent("link.json"))
+  }
+
+  /// Update the symlink and marker together after a rename or after the directory bookmark follows a move.
+  private func replaceExternalLink(_ id: UUID, oldName: String, target: URL, directory: LibraryDirectoryReference) throws {
+    let object = folder(id)
+    let stage = object.appendingPathComponent(".link-" + UUID().uuidString)
+    try fm.createDirectory(at: stage, withIntermediateDirectories: false)
+    defer { try? fm.removeItem(at: stage) }
+    try writeExternalLink(in: stage, target: target, directory: directory)
+    let currentFiles = object.appendingPathComponent("file", isDirectory: true)
+    try Self.requireDirectory(currentFiles)
+    let old = currentFiles.appendingPathComponent(oldName)
+    let new = currentFiles.appendingPathComponent(target.lastPathComponent)
+    let backup = stage.appendingPathComponent("previous")
+    try fm.moveItem(at: old, to: backup)
+    do {
+      try fm.moveItem(at: stage.appendingPathComponent("file").appendingPathComponent(target.lastPathComponent), to: new)
+      do {
+        try Data(contentsOf: stage.appendingPathComponent("link.json")).write(to: marker(id), options: .atomic)
+      } catch { try fm.removeItem(at: new); throw error }
+    } catch { try fm.moveItem(at: backup, to: old); throw error }
+  }
+
+  /// Claim the destination with O_EXCL, including on volumes shared with other applications.
+  private func copyExternal(_ source: URL, name: String, folder: URL, directory: LibraryDirectoryReference) throws -> PendingExternalAttachment {
+    let input = open(source.path, O_RDONLY | O_NOFOLLOW)
+    guard input >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+    defer { close(input) }
+    let stem = (name as NSString).deletingPathExtension
+    var filename = name
+    var suffix = 2
+    while true {
+      let target = folder.appendingPathComponent(filename)
+      let output = open(target.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR)
+      if output < 0 {
+        guard errno == EEXIST else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        filename = try AttachmentNaming.filename(stem: "\(stem) (\(suffix))", original: name)
+        suffix += 1
+        continue
+      }
+      defer { close(output) }
+      let result = fcopyfile(input, output, nil, copyfile_flags_t(COPYFILE_ALL))
+      let copyError = errno
+      var copied = stat()
+      guard fstat(output, &copied) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+      let receipt = PendingExternalAttachment(directory: directory, name: filename, copied: copied)
+      if result != 0 {
+        try receipt.discard()
+        throw POSIXError(POSIXErrorCode(rawValue: copyError) ?? .EIO)
+      }
+      return receipt
+    }
+  }
+
+  func add(_ url: URL, linked: Bool, name: String, didCopyExternal: (PendingExternalAttachment) -> Void = { _ in }) throws -> UUID {
     let access = url.startAccessingSecurityScopedResource()
     defer { if access { url.stopAccessingSecurityScopedResource() } }
     try Self.requireFile(url)
     guard !linked || AttachmentNaming.validName(url.lastPathComponent) else { throw AttachmentError.invalidName }
     let id = UUID()
+    if !linked, let directory = try folderPreferences.reference() {
+      guard AttachmentNaming.validName(name) else { throw AttachmentError.invalidName }
+      let copy = try AttachmentFolderPreferences.withDirectory(directory) { folderURL in
+        let copy = try copyExternal(url, name: name, folder: folderURL, directory: directory)
+        do {
+          try create(id) { try writeExternalLink(in: $0, target: folderURL.appendingPathComponent(copy.name), directory: directory) }
+        } catch { try copy.discard(); throw error }
+        return copy
+      }
+      didCopyExternal(copy)
+      return id
+    }
     try create(id) { dir in
       if linked { try writeLink(bookmark(url), at: dir.appendingPathComponent("link.json")) }
       else {
@@ -190,7 +311,8 @@ struct BookAttachmentStore {
   }
 
   func rename(_ id: UUID, stem: String, grantedParent: URL? = nil) throws {
-    let isLinked = try link(id) != nil
+    let record = try link(id)
+    let isLinked = record?.bookmark != nil
     let access = grantedParent?.startAccessingSecurityScopedResource() == true
     defer { if access { grantedParent?.stopAccessingSecurityScopedResource() } }
     try withFile(id) { old in
@@ -209,7 +331,10 @@ struct BookAttachmentStore {
         do { try fm.moveItem(at: temporary, to: target) }
         catch { try fm.moveItem(at: temporary, to: old); throw error }
       } else { try fm.moveItem(at: old, to: target) }
-      if isLinked {
+      if let directory = record?.externalReference {
+        do { try replaceExternalLink(id, oldName: old.lastPathComponent, target: target, directory: directory) }
+        catch { try fm.moveItem(at: target, to: old); throw error }
+      } else if isLinked {
         do { try writeLink(bookmark(target), at: marker(id)) }
         catch { try fm.moveItem(at: target, to: old); throw error }
       }
@@ -218,7 +343,7 @@ struct BookAttachmentStore {
   }
 
   func relink(_ id: UUID, to url: URL) throws {
-    guard let existing = try link(id), existing.webURL == nil else { throw AttachmentError.unavailable }
+    guard let existing = try link(id), existing.webURL == nil, existing.externalReference == nil else { throw AttachmentError.unavailable }
     let access = url.startAccessingSecurityScopedResource()
     defer { if access { url.stopAccessingSecurityScopedResource() } }
     try writeLink(bookmark(url), at: marker(id))
@@ -234,7 +359,10 @@ struct BookAttachmentStore {
   func portable(_ id: UUID) throws -> PortableAttachment {
     let item = try item(id)
     switch item.kind {
-    case .stored: return PortableAttachment(id: id, name: item.name, contents: try Data(contentsOf: managedFile(id)))
+    case .stored, .externalFile:
+      return try withFile(id) { url in
+        PortableAttachment(id: id, name: item.name, contents: try Data(contentsOf: url))
+      }
     case .linkedFile: return PortableAttachment(id: id, name: item.name)
     case .web(let url): return PortableAttachment(id: id, name: item.name, webURL: url.absoluteString)
     }
@@ -246,8 +374,13 @@ struct BookAttachmentStore {
     try file.validate()
     var id = file.id
     while fm.fileExists(atPath: folder(id).path) {
-      let existing = try portable(id)
-      if existing.name == file.name && existing.contents == file.contents && existing.webURL == file.webURL { return id }
+      do {
+        let existing = try portable(id)
+        if existing.name == file.name && existing.contents == file.contents && existing.webURL == file.webURL { return id }
+      } catch {
+        // An offline external copy must not block recovery of backed-up bytes.
+        guard file.contents != nil, try link(id)?.externalReference != nil else { throw error }
+      }
       // Derive a stable alternative so restoring the same backup twice can
       // find the first restored copy, even after the original was edited.
       var digest = SHA256()
@@ -300,22 +433,42 @@ extension BookAttachmentStore {
     }
   }
 
-  /// Copy only regular files under attachment object directories. Never follow a
-  /// symlink out of the library, or follow a bookmark to its external document.
-  func snapshot(to destination: URL) throws -> [String] {
+  /// Backups materialize externally stored books as ordinary library copies.
+  /// A location change keeps their folder grants and validated symbolic links.
+  func snapshot(to destination: URL, preservingExternalLinks: Bool = false) throws -> [String] {
     guard fm.fileExists(atPath: root.path) else { return [] }
     try Self.requireDirectory(root)
     var paths: [String] = []
+    func copyFile(_ source: URL, as relative: String) throws {
+      let target = destination.appendingPathComponent(relative)
+      try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+      try Self.requireFile(source)
+      try fm.copyItem(at: source, to: target)
+      try Self.requireFile(target)
+      guard fm.contentsEqual(atPath: source.path, andPath: target.path) else { throw AutomaticBackupError.invalidBackup }
+      paths.append(relative)
+    }
     for dir in try fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) {
       guard let id = UUID(uuidString: dir.lastPathComponent) else { continue }
       let attachment = try item(id)
-      let relative = id.uuidString + (attachment.kind == .stored ? "/file/" + attachment.name : "/link.json")
-      let source = root.appendingPathComponent(relative)
-      let target = destination.appendingPathComponent(relative)
-      try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
-      try fm.copyItem(at: source, to: target)
-      guard fm.contentsEqual(atPath: source.path, andPath: target.path) else { throw AutomaticBackupError.invalidBackup }
-      paths.append(relative)
+      let markerPath = id.uuidString + "/link.json"
+      switch attachment.kind {
+      case .stored, .externalFile:
+        let filePath = id.uuidString + "/file/" + attachment.name
+        try withFile(id) { authorizedFile in
+          if attachment.kind == .externalFile && preservingExternalLinks {
+            let target = destination.appendingPathComponent(filePath)
+            try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try fm.createSymbolicLink(at: target, withDestinationURL: authorizedFile)
+            try copyFile(marker(id), as: markerPath)
+            paths.append(filePath)
+          } else {
+            try copyFile(authorizedFile, as: filePath)
+          }
+        }
+      case .linkedFile, .web:
+        try copyFile(marker(id), as: markerPath)
+      }
     }
     return paths
   }
@@ -331,12 +484,18 @@ struct BookAttachmentCommands {
     authorize: (URL) -> URL? = { _ in nil }) throws -> AttachmentRenamePlan.Result {
     guard !urls.isEmpty else { throw AttachmentError.invalidFile }
     var linkedChanges: [AttachmentRenameChange] = []
-    try append { store, created in
+    try append { store, created, externalCopies in
       var names = Set(try (book.attachmentIDs ?? []).compactMap { id -> String? in
         let item = try store.item(id)
         if case .web = item.kind { return nil }
         return item.name.lowercased()
       })
+      if !linked, rule.automatic, let directory = try store.folderPreferences.reference() {
+        let filenames = try AttachmentFolderPreferences.withDirectory(directory) {
+          try FileManager.default.contentsOfDirectory(atPath: $0.path)
+        }
+        names.formUnion(filenames.map { $0.lowercased() })
+      }
       var base: String?
       for url in urls {
         let original = url.lastPathComponent
@@ -346,7 +505,7 @@ struct BookAttachmentCommands {
           base = stem
           name = try AttachmentNaming.nextFilename(stem: stem, original: original, occupied: names)
         }
-        let id = try store.add(url, linked: linked, name: name)
+        let id = try store.add(url, linked: linked, name: name) { externalCopies.append($0) }
         created.append(id)
         names.insert(name.lowercased())
         if linked && name != original {
@@ -361,21 +520,23 @@ struct BookAttachmentCommands {
   }
 
   func addWebLink(address: String, title: String) throws {
-    try append { store, created in created.append(try store.addWebLink(address: address, title: title)) }
+    try append { store, created, _ in created.append(try store.addWebLink(address: address, title: title)) }
   }
 
-  private func append(_ create: (BookAttachmentStore, inout [UUID]) throws -> Void) throws {
+  private func append(_ create: (BookAttachmentStore, inout [UUID], inout [PendingExternalAttachment]) throws -> Void) throws {
     guard book.modelContext === context, !book.isDeleted, book.deletedAt == nil else { throw LibraryOperationError.invalidSelection }
     let store = try BookAttachmentStore(context: context)
     var created: [UUID] = []
+    var externalCopies: [PendingExternalAttachment] = []
     do {
-      try create(store, &created)
+      try create(store, &created, &externalCopies)
       var record = BookArchive(book: book)
       record.attachmentIDs = (record.attachmentIDs ?? []) + created
       record.updatedAt = Date()
       try LibraryRepository.apply([record], into: context)
     } catch {
       for id in created { try? store.remove(id) }
+      for copy in externalCopies { try? copy.discard() }
       throw error
     }
   }

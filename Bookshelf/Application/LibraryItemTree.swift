@@ -4,7 +4,7 @@ extension AttachmentItem.Kind {
   var symbolName: String {
     switch self {
     case .web: "globe"
-    case .linkedFile: "link"
+    case .linkedFile, .externalFile: "link"
     case .stored: "doc"
     }
   }
@@ -13,6 +13,7 @@ extension AttachmentItem.Kind {
     switch self {
     case .web: L10n.tr("网页链接")
     case .linkedFile: L10n.tr("链接文件")
+    case .externalFile: L10n.tr("外部文件夹")
     case .stored: L10n.tr("书库副本")
     }
   }
