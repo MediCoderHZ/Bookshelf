@@ -242,90 +242,12 @@ struct BookMergePanel: View {
   }
 }
 
-struct MetadataUpdateProposal: Identifiable {
-  let id = UUID()
-  let current: BookArchive
-  let incoming: BookArchive
-}
-
-struct MetadataUpdateView: View {
-  @Environment(\.dismiss) private var dismiss
-  let proposal: MetadataUpdateProposal
-  let onApply: (Set<BookField>) throws -> Void
-  @State private var applyError: String?
-  @State private var selected = Set<BookField>()
-  @State private var versionConfirmed = false
-  private var versionChanged: Bool { BookRecordMerge.differentEditions(proposal.current, proposal.incoming) }
-
-  var body: some View {
-    NavigationStack {
-      VStack(alignment: .leading, spacing: 14) {
-        Text(L10n.tr("逐字段核对后填入，默认只补全空白。没有提供的新值不会清空已有内容。"))
-          .foregroundStyle(.secondary)
-        HStack {
-          Button(L10n.tr("仅补全空白")) { selectEmpty() }
-          Button(L10n.tr("选择全部新值")) {
-            selected = Set(BookField.allCases.filter { !$0.value(in: proposal.incoming).isEmpty })
-          }
-          Button(L10n.tr("全部保留当前值")) { selected = [] }
-          Spacer()
-          Text(L10n.tr("来源：\(proposal.incoming.metadataSourceName.map(MetadataFieldOrigin.displayName(for:)) ?? L10n.tr("导入"))")).font(.caption)
-        }
-        if versionChanged {
-          Text(L10n.tr("新旧 ISBN 不同。请特别核对作者、译者、出版社和出版日期，避免混合不同版本。")).foregroundStyle(.orange)
-          Toggle(L10n.tr("我已核对并确认要更新此版本"), isOn: $versionConfirmed)
-        }
-        ScrollView {
-          Grid(alignment: .topLeading, horizontalSpacing: 16, verticalSpacing: 14) {
-            GridRow { Text(L10n.tr("采用新值")); Text(L10n.tr("字段")); Text(L10n.tr("当前值")).bold(); Text(L10n.tr("新值")).bold() }
-            Divider()
-            ForEach(BookField.allCases) { field in
-              GridRow {
-                Toggle(field.label, isOn: Binding(get: { selected.contains(field) }, set: {
-                  if $0 { selected.insert(field) } else { selected.remove(field) }
-                })).labelsHidden().disabled(field.value(in: proposal.incoming).isEmpty)
-                  .accessibilityLabel(L10n.tr("采用新\(field.label)"))
-                Text(field.label).foregroundStyle(.secondary)
-                FieldValueView(field: field, record: proposal.current, showsOrigin: true)
-                FieldValueView(field: field, record: proposal.incoming, showsOrigin: true)
-              }
-            }
-          }.frame(maxWidth: .infinity, alignment: .leading)
-        }
-      }.padding(22)
-      .navigationTitle(L10n.tr("确认元信息更新"))
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("取消")) { dismiss() } }
-        ToolbarItem(placement: .confirmationAction) {
-          Button(L10n.tr("应用所选字段")) {
-            do { try onApply(selected); dismiss() }
-            catch { applyError = error.localizedDescription }
-          }
-            .disabled(selected.isEmpty || (versionChanged && !versionConfirmed)).keyboardShortcut(.defaultAction)
-        }
-      }
-    }.frame(width: 850, height: 650).onAppear(perform: selectEmpty)
-      .alert(L10n.tr("书籍信息"), isPresented: Binding(get: { applyError != nil }, set: { if !$0 { applyError = nil } })) {
-        Button(L10n.tr("好"), role: .cancel) {}
-      } message: { Text(applyError ?? "") }
-  }
-  private func selectEmpty() {
-    selected = BookRecordMerge.defaultMetadataFields(current: proposal.current, incoming: proposal.incoming)
-  }
-}
-
 struct FieldValueView: View {
   let field: BookField
   let record: BookArchive
-  var showsOrigin = false
   var body: some View {
-    VStack(alignment: .leading, spacing: 5) {
-      Text(field.value(in: record).isEmpty ? "—" : field.value(in: record))
-        .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-      if showsOrigin && !field.value(in: record).isEmpty {
-        MetadataOriginView(field: field, record: record)
-      }
-    }
+    Text(field.value(in: record).isEmpty ? "—" : field.value(in: record))
+      .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 

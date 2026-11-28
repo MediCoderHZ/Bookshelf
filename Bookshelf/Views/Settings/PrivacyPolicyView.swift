@@ -39,7 +39,7 @@ struct PrivacyPolicyView: View {
           Link(L10n.tr("Goodreads 隐私政策"), destination: URL(string: "https://www.goodreads.com/about/privacy")!)
           policySection(
             L10n.tr("软件更新"),
-            L10n.tr("正式发行版通过 Sparkle 检查和安装更新。手动检查或允许自动检查后，会访问 GitHub Pages 上的更新清单，并在下载时访问 GitHub Releases。服务方可收到 IP 地址、应用版本等常规网络信息；不会发送书籍、笔记或书库备份。系统分析默认关闭。手动检查入口位于应用菜单；未启用更新服务的开发版不会发起更新请求。")
+            L10n.tr("选择“Bookshelf → 检查更新…”或同意自动检查后，Sparkle 会从 raw.githubusercontent.com 读取更新清单。下载更新时会访问 GitHub Releases。GitHub 可能收到 IP 地址和应用版本，更新请求不包含书籍、笔记或书库备份。系统分析默认关闭。")
           )
           policySection(
             L10n.tr("文件访问"),

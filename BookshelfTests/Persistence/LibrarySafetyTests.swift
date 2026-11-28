@@ -221,7 +221,7 @@ final class LibrarySafetyTests: XCTestCase {
     incoming.title = "网页书名"; incoming.publisher = "网页出版社"; incoming.pageCount = 300
     incoming.metadataSourceName = "豆瓣图书"; incoming.metadataSourceURL = "https://book.douban.com/subject/123/"
     incoming.metadataRetrievedAt = Date(); incoming.bookDescription = nil
-    let defaults = BookRecordMerge.defaultMetadataFields(current:original, incoming:incoming)
+    let defaults = MetadataUpdateProposal(current: original, incoming: incoming).defaultSelection
     XCTAssertTrue(defaults.contains(.pageCount))
     XCTAssertFalse(defaults.contains(.title))
     XCTAssertFalse(defaults.contains(.publisher))

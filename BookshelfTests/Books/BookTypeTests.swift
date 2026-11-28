@@ -16,6 +16,24 @@ final class BookTypeTests: XCTestCase {
       text: type.rawValue, expected: .read(.bookType, from: BookArchive(book: book)))
   }
 
+  func testNewBookRoutePreservesChosenTypeAndCollectionOnlyForThatDraft() throws {
+    let state = AppState()
+    let collectionID = UUID()
+    for type in BookType.allCases {
+      state.presentNewBook(type: type, collectionID: collectionID)
+      let destination = try XCTUnwrap(state.editorDestination)
+      XCTAssertEqual(destination.initialBookType, type)
+      XCTAssertEqual(destination.collectionID, collectionID)
+      XCTAssertNil(destination.book)
+      XCTAssertFalse(destination.startWithSearch)
+    }
+    state.presentNewBook(startWithSearch: true)
+    let lookup = try XCTUnwrap(state.editorDestination)
+    XCTAssertNil(lookup.initialBookType)
+    XCTAssertTrue(lookup.startWithSearch)
+    XCTAssertNil(lookup.collectionID)
+  }
+
   func testTypeChangePreservesHiddenTranslatorAndOriginalMetadataWithOneUndo() throws {
     let db = try LibraryDatabase.open(inMemory: true), context = db.mainContext
     let book = Book(title: "译本"); book.bookTypeRaw = BookType.chineseTranslation.rawValue

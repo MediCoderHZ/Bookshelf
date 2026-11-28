@@ -7,9 +7,9 @@ import SwiftData
 final class AppState {
   var editorDestination: BookEditorDestination?
 
-  func presentNewBook(collectionID: UUID? = nil, startWithSearch: Bool = false) {
+  func presentNewBook(type: BookType? = nil, collectionID: UUID? = nil, startWithSearch: Bool = false) {
     editorDestination = BookEditorDestination(
-      book: nil, collectionID: collectionID, startWithSearch: startWithSearch)
+      book: nil, collectionID: collectionID, startWithSearch: startWithSearch, initialBookType: type)
   }
 
   func presentEditor(for book: Book) {
@@ -22,6 +22,7 @@ struct BookEditorDestination: Identifiable {
   let book: Book?
   var collectionID: UUID? = nil
   var startWithSearch = false
+  var initialBookType: BookType? = nil
 }
 
 enum AppReleaseInfo {

@@ -13,7 +13,7 @@ class DistributionConfigurationTests(unittest.TestCase):
     def setUp(self):
         self.info = {
             "BookshelfUpdatesEnabled": "YES",
-            "SUFeedURL": "https://medicoderhz.github.io/Bookshelf/appcast.xml",
+            "SUFeedURL": "https://raw.githubusercontent.com/MediCoderHZ/Bookshelf/main/Distribution/Updates/appcast.xml",
             "SUPublicEDKey": base64.b64encode(bytes(range(32))).decode(),
             "SUEnableInstallerLauncherService": True,
             "SUEnableSystemProfiling": False,
@@ -27,6 +27,13 @@ class DistributionConfigurationTests(unittest.TestCase):
         self.info["BookshelfUpdatesEnabled"] = "NO"
         self.assertEqual(checker.configuration_errors(self.info), [])
         self.assertTrue(checker.configuration_errors(self.info, True))
+
+    def test_default_release_requires_enabled_updates_at_expected_feed(self):
+        expected = self.info["SUFeedURL"]
+        self.assertEqual(checker.configuration_errors(self.info, expected_feed=expected), [])
+        for change in ({"BookshelfUpdatesEnabled": "NO"}, {"SUFeedURL": "https://updates.test/another.xml"}):
+            with self.subTest(change=change):
+                self.assertTrue(checker.configuration_errors(dict(self.info, **change), expected_feed=expected))
 
     def test_bad_urls_cannot_be_distributed(self):
         for url in ("http://updates.test/feed", "https://user:secret@updates.test/feed",

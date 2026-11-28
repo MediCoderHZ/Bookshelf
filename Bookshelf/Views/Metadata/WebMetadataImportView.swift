@@ -105,10 +105,6 @@ struct WebMetadataImportView: View {
                 row("ISBN", result.preferredISBN)
                 row(L10n.tr("页数"), result.pageCount.map(String.init))
               }
-              if let description = result.bookDescription {
-                Text(L10n.tr("简介")).font(.headline)
-                Text(description).textSelection(.enabled)
-              }
               if let source = result.sourceURL { Link(L10n.tr("来源：\(result.sourceName)"), destination: source) }
 
               Text(testTranslatorID == nil

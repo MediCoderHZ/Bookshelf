@@ -9,7 +9,7 @@ struct AIMetadataError: LocalizedError {
 
 enum AIMetadata {
   static let fields: [BookField] = [.title, .subtitle, .originalTitle, .authors, .translators, .publisher,
-    .publicationDate, .isbn, .edition, .pageCount, .language, .originalLanguage, .description]
+    .publicationDate, .isbn, .edition, .pageCount, .language, .originalLanguage]
 
   static var schema: [String: Any] {
     var properties: [String: Any] = [:]
@@ -44,6 +44,8 @@ enum AIMetadata {
     incoming.bookTypeRaw = nil
     let invalid = AIMetadataError(L10n.tr("AI 建议的字段或格式无效。"))
     for (key, raw) in values {
+      // Older clients may still include a description alongside supported fields.
+      if key == BookField.description.rawValue { continue }
       guard let field = BookField(rawValue: key), fields.contains(field) else { throw invalid }
       if raw is NSNull { continue }
       switch field {
@@ -62,7 +64,7 @@ enum AIMetadata {
           let pages = raw as? Int, pages > 0 else { throw BookMetadataEditError.invalidPageCount }
         incoming.pageCount = pages
       default:
-        guard let raw = raw as? String, raw.utf8.count <= (field == .description ? 16_384 : 2_048) else { throw invalid }
+        guard let raw = raw as? String, raw.utf8.count <= 2_048 else { throw invalid }
         let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         if value.isEmpty { continue }
         switch field {
@@ -74,7 +76,6 @@ enum AIMetadata {
         case .edition: incoming.edition = value
         case .language: incoming.languageCode = value
         case .originalLanguage: incoming.originalLanguageCode = value
-        case .description: incoming.bookDescription = value
         case .isbn:
           let digits = value.uppercased().filter { !$0.isWhitespace && !"-‐‑–—".contains($0) }
           guard digits.allSatisfy({ $0.isASCII && ($0.isNumber || $0 == "X") }), let identity = ISBN.identity(digits)
@@ -106,6 +107,8 @@ enum AIMetadata {
   @MainActor
   static func apply(_ proposal: MetadataUpdateProposal, fields selected: Set<BookField>, context: ModelContext,
     undoManager: UndoManager?) throws {
+    let selected = selected.intersection(proposal.suppliedFields)
+    guard !selected.isEmpty else { return }
     let book = try book(proposal.current.id, context: context)
     let latest = BookArchive(book: book)
     // A change of title or ISBN can identify another edition, even when the selected fields are still blank.

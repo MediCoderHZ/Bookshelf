@@ -29,4 +29,7 @@ jobs:
       - name: Build unsigned universal application
         run: bash scripts/build-release.sh
       - name: Check updater integration
-        run: python3 scripts/check-update-config.py --app "$BOOKSHELF_BUILD_ROOT/ReleaseCheck/Build/Products/Release/Bookshelf.app"
+        run: >-
+          python3 scripts/check-update-config.py
+          --app "$BOOKSHELF_BUILD_ROOT/ReleaseCheck/Build/Products/Release/Bookshelf.app"
+          --expected-feed https://raw.githubusercontent.com/MediCoderHZ/Bookshelf/main/Distribution/Updates/appcast.xml

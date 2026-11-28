@@ -11,11 +11,11 @@ struct BookEditorView: View {
   @Query(sort: \BookCollection.name) private var storedCollections: [BookCollection]
 
   let book: Book?
-  var initialCollectionID: UUID? = nil
-  var startWithSearch = false
+  let initialCollectionID: UUID?
+  let startWithSearch: Bool
 
-  @State private var bookType: BookType? = .chineseOriginal
-  @State private var hasSelectedBookType = false
+  @State private var bookType: BookType?
+  @State private var hasSelectedBookType: Bool
   @State private var originalLanguageCode = ""
   @State private var title = ""
   @State private var subtitle = ""
@@ -28,7 +28,6 @@ struct BookEditorView: View {
   @State private var edition = ""
   @State private var pageCount: Int?
   @State private var languageCode = ""
-  @State private var bookDescription = ""
   @State private var hasLoaded = false
   @State private var isShowingMetadataSearch = false
   @State private var metadataSourceName: String?
@@ -42,6 +41,19 @@ struct BookEditorView: View {
   @State private var editingBaseline: BookArchive?
   @State private var errorMessage: String?
   @State private var duplicateMessage: String?
+
+  init(book: Book?, initialCollectionID: UUID? = nil, startWithSearch: Bool = false,
+       initialBookType: BookType? = nil) {
+    self.book = book
+    self.initialCollectionID = initialCollectionID
+    self.startWithSearch = startWithSearch
+    if let book {
+      _bookType = State(initialValue: book.bookType)
+    } else {
+      _bookType = State(initialValue: initialBookType ?? (startWithSearch ? nil : .chineseOriginal))
+    }
+    _hasSelectedBookType = State(initialValue: book == nil && initialBookType != nil)
+  }
 
   private var canSave: Bool {
     !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && (book != nil || bookType != nil)
@@ -170,11 +182,7 @@ struct BookEditorView: View {
     hasLoaded = true
     defer { sourceBaseline = draftRecord() }
     isShowingMetadataSearch = startWithSearch
-    guard let book else {
-      if startWithSearch { bookType = nil }
-      return
-    }
-    bookType = book.bookType
+    guard let book else { return }
     originalLanguageCode = book.originalLanguageCode ?? ""
     editingBaseline = BookArchive(book: book)
     title = book.title
@@ -188,7 +196,6 @@ struct BookEditorView: View {
     edition = book.edition ?? ""
     pageCount = book.pageCount
     languageCode = book.languageCode ?? ""
-    bookDescription = book.bookDescription ?? ""
     metadataSourceName = book.metadataSourceName
     metadataSourceURL = book.metadataSourceURL
     metadataRetrievedAt = book.metadataRetrievedAt
@@ -218,7 +225,6 @@ struct BookEditorView: View {
     record.edition = edition.nilIfBlank
     record.pageCount = pageCount
     record.languageCode = languageCode.nilIfBlank
-    record.bookDescription = bookDescription.nilIfBlank
     record.isbn10 = ISBN.normalized(isbn).flatMap { $0.count == 10 ? $0 : nil }
     record.isbn13 = ISBN.normalized(isbn).flatMap { $0.count == 13 ? $0 : nil }
     record.contributors.removeAll { ["author", "translator"].contains($0.roleRaw) }
@@ -251,10 +257,9 @@ struct BookEditorView: View {
     isbn = record.isbn13 ?? record.isbn10 ?? ""
     pageCount = record.pageCount
     languageCode = record.languageCode ?? ""
-    bookDescription = record.bookDescription ?? ""
-    metadataSourceName = proposal.incoming.metadataSourceName
-    metadataSourceURL = proposal.incoming.metadataSourceURL
-    metadataRetrievedAt = proposal.incoming.metadataRetrievedAt
+    metadataSourceName = record.metadataSourceName
+    metadataSourceURL = record.metadataSourceURL
+    metadataRetrievedAt = record.metadataRetrievedAt
     metadataFieldSourcesJSON = record.metadataFieldSourcesJSON
     sourceBaseline = record
   }

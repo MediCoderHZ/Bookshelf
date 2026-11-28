@@ -32,7 +32,7 @@ final class AIMetadataTests: XCTestCase {
     let response = try JSONSerialization.data(withJSONObject: ["choices": [["message": ["content":
       #"{"publisher":"New imprint","pageCount":218,"authors":["Family, Given"]}"#]]]])
     let proposal = try AIModelClient.proposal(from: response, current: baseline, model: "local-model")
-    XCTAssertEqual(BookRecordMerge.defaultMetadataFields(current: baseline, incoming: proposal.incoming), [.authors, .pageCount])
+    XCTAssertEqual(proposal.defaultSelection, [.authors, .pageCount])
     XCTAssertNil(book.pageCount)
     try AIMetadata.apply(proposal, fields: [.pageCount], context: db.mainContext, undoManager: nil)
     XCTAssertEqual(book.pageCount, 218)
@@ -63,6 +63,22 @@ final class AIMetadataTests: XCTestCase {
     XCTAssertThrowsError(try AIModelConfiguration(base: "http://remote.example/v1", model: "m"))
     XCTAssertThrowsError(try AIModelConfiguration(base: "https://name:pass@remote.example/v1", model: "m"))
     XCTAssertThrowsError(try AIModelConfiguration(base: "https://remote.example/v1?key=secret", model: "m"))
+  }
+
+  func testLegacyAISuggestionsIgnoreDescriptionAndKeepSupportedFields() throws {
+    let book = Book(title: "Title")
+    book.bookDescription = "Existing description"
+    let current = BookArchive(book: book)
+    let properties = try XCTUnwrap(AIMetadata.schema["properties"] as? Object)
+    XCTAssertNil(properties["description"])
+    XCTAssertNil(AIMetadata.publicFields(current)["description"])
+
+    let values = ["description": "New description", "publisher": "New publisher"]
+    let proposal = try AIMetadata.proposal(values, current: current, source: "AI")
+    XCTAssertEqual(proposal.defaultSelection, [.publisher])
+    XCTAssertEqual(proposal.incoming.publisher, "New publisher")
+    XCTAssertNil(proposal.incoming.bookDescription)
+    XCTAssertThrowsError(try AIMetadata.proposal(["description": "New description"], current: current, source: "AI"))
   }
 
   func testExternalClientQueriesAndSubmitsOnlyForReview() throws {

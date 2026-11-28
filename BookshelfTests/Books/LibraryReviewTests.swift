@@ -194,6 +194,76 @@ final class LibraryReviewTests: XCTestCase {
     XCTAssertNil(sources["cover"])
   }
 
+  func testMetadataReviewSeparatesBlankMissingChangedAndMatchingValues() {
+    var current = BookArchive(book: book("Same title"))
+    current.publisher = "Current publisher"
+    current.subtitle = "Keep this"
+    current.edition = " \n "
+    var incoming = BookArchive(book: book("Same title"))
+    incoming.publisher = "Suggested publisher"
+    incoming.subtitle = "\t"
+    incoming.edition = "First"
+    incoming.pageCount = 250
+    incoming.metadataSourceName = "Catalog"
+
+    let proposal = MetadataUpdateProposal(current: current, incoming: incoming)
+    XCTAssertEqual(proposal.suppliedFields, [.title, .publisher, .edition, .pageCount])
+    XCTAssertEqual(proposal.changedFields, [.publisher, .edition, .pageCount])
+    XCTAssertEqual(proposal.defaultSelection, [.edition, .pageCount])
+    let refreshed = BookRecordMerge.applyingMetadata(incoming, to: current, fields: [.title])
+    XCTAssertEqual(BookRecordMerge.origins(refreshed)["title"]?.name, "Catalog")
+    XCTAssertEqual(refreshed.publisher, current.publisher)
+    XCTAssertEqual(refreshed.subtitle, current.subtitle)
+  }
+
+  func testMetadataReviewComparesOrderedNamesAndBothISBNValues() {
+    let current = BookArchive(book: book("Same", isbn: "9780306406157", authors: ["A", "B"]))
+    var incoming = current
+    incoming.contributors = [
+      ContributorArchive(name: "B", roleRaw: "author", displayOrder: 20),
+      ContributorArchive(name: "A", roleRaw: "author", displayOrder: 10),
+      ContributorArchive(name: " ", roleRaw: "translator", displayOrder: 0),
+      ContributorArchive(name: "\n", roleRaw: "translator", displayOrder: 1)
+    ]
+    let same = MetadataUpdateProposal(current: current, incoming: incoming)
+    XCTAssertEqual(same.suppliedFields, [.title, .authors, .isbn])
+    XCTAssertTrue(same.changedFields.isEmpty)
+    XCTAssertTrue(same.defaultSelection.isEmpty)
+
+    incoming.isbn10 = "0306406152"
+    incoming.contributors = [ContributorArchive(name: "A、B", roleRaw: "author", displayOrder: 0)]
+    XCTAssertEqual(BookField.isbn.value(in: current), BookField.isbn.value(in: incoming))
+    XCTAssertEqual(BookField.authors.value(in: current), BookField.authors.value(in: incoming))
+    let changed = MetadataUpdateProposal(current: current, incoming: incoming)
+    XCTAssertEqual(changed.changedFields, [.authors, .isbn])
+    XCTAssertTrue(changed.defaultSelection.isEmpty)
+    XCTAssertFalse(BookRecordMerge.differentEditions(current, incoming))
+
+    incoming.contributors = [ContributorArchive(name: "B", roleRaw: "author", displayOrder: 0),
+                             ContributorArchive(name: "A", roleRaw: "author", displayOrder: 1)]
+    XCTAssertTrue(MetadataUpdateProposal(current: current, incoming: incoming).changedFields.contains(.authors))
+  }
+
+  func testMetadataReviewExcludesDescriptionsAndPreservesExistingProvenance() {
+    var current = BookArchive(book: book(""))
+    var incoming = current
+    incoming.bookDescription = "Catalog description"
+    incoming.metadataSourceName = "Online catalog"
+    XCTAssertFalse(BookField.metadataUpdateFields.contains(.description))
+    let proposal = MetadataUpdateProposal(current: current, incoming: incoming)
+    XCTAssertTrue(proposal.suppliedFields.isEmpty)
+    XCTAssertTrue(proposal.changedFields.isEmpty)
+    XCTAssertTrue(proposal.defaultSelection.isEmpty)
+
+    current.bookDescription = "Existing description"
+    current.metadataSourceName = "Original catalog"
+    incoming.publisher = "New publisher"
+    let updated = BookRecordMerge.applyingMetadata(incoming, to: current, fields: [.description, .publisher])
+    XCTAssertEqual(updated.publisher, "New publisher")
+    XCTAssertEqual(updated.bookDescription, current.bookDescription)
+    XCTAssertEqual(BookRecordMerge.origins(updated)["description"]?.name, "Original catalog")
+  }
+
   func testLegacySourceRemainsMarkedAsInferredAfterSerialization() {
     let book = book("旧书")
     book.publisher = "原出版社"; book.metadataSourceName = "旧来源"

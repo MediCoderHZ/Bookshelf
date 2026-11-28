@@ -9,7 +9,7 @@ Bookshelf 是一款为 macOS 开发的开源个人藏书管理软件，参考 Zo
 
 Bookshelf 0.1.0（构建 9）需要 macOS 14 或更高版本。可在苹果菜单  →「关于本机」查看芯片或处理器型号。双击打开对应的 DMG，将左侧的 Bookshelf 拖到右侧的「应用程序」。复制完成后，推出磁盘映像，从「应用程序」打开 Bookshelf。应用和磁盘映像均已通过 Apple 公证。[发行说明与 SHA-256 校验文件](https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.0)
 
-这个版本通过 GitHub Releases 手动更新。以后安装新版时，先退出 Bookshelf，再用新版替换原位置的应用。
+上面的 0.1.0 安装包通过 GitHub Releases 手动更新。支持 Sparkle 的新版发布后，请先退出 Bookshelf，再用新版 DMG 替换原位置的应用。从当前源码构建的 Release 已可通过「Bookshelf → 检查更新…」读取更新清单。[分发与更新说明](Docs/DISTRIBUTION.md)
 
 ### 从源码构建
 
@@ -50,8 +50,8 @@ BookshelfTests/          按功能划分的测试与 Fixtures
 Bookshelf.xcodeproj/     Xcode 工程与共享 Scheme
 Config/                 Release 配置与本地配置示例
 Docs/                   使用手册、架构与专题文档
-Distribution/           GitHub Pages 更新清单
-.github/                CI、手动更新清单发布、Issue 与 PR 模板
+Distribution/           Sparkle 更新清单
+.github/                CI、可选的 Pages 镜像、Issue 与 PR 模板
 Examples/               网页解析器示例
 scripts/                架构检查、构建与发布前检查
 Archive/                历史编号副本及校验清单

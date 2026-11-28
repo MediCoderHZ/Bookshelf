@@ -12,7 +12,7 @@
 | `Package.swift` | SwiftPM 应用目标、测试目标和测试资源定义 |
 | `Config/` | 发布构建配置；本机签名配置放入被忽略的 `Release.local.xcconfig` |
 | `Docs/` | 当前维护的使用、架构、专题与隐私文档 |
-| `Distribution/Updates/` | GitHub Pages 发布的 Sparkle 更新清单 |
+| `Distribution/Updates/` | Sparkle 从 GitHub 仓库的 `main` 分支读取的更新清单 |
 | `.github/` | 构建验证、手动 Pages 发布及协作模板 |
 | `Examples/` | 可供手动体验和测试复用的 JSON 与 HTML 示例 |
 | `scripts/` | 架构检查、项目验证、Release 构建和发布前检查；`lib/` 共用工具链与构建目录设置 |

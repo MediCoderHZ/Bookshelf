@@ -28,6 +28,7 @@
 		A1000000000000000000000F /* BookMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* BookMetadataService.swift */; };
 		86F3C09367A647B9A52E6913 /* AIBookCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5945A7D00A41BD9C7055E7 /* AIBookCompletionView.swift */; };
 		A10000000000000000000010 /* BookMetadataSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* BookMetadataSearchView.swift */; };
+		8C62083E48264CD7A29E0C91 /* MetadataUpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC812B109117417B8649D8D3 /* MetadataUpdateView.swift */; };
 		A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* PrivacyInfo.xcprivacy */; };
 		A10000000000000000000012 /* WebMetadataTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* WebMetadataTranslator.swift */; };
 		A10000000000000000000013 /* WebMetadataImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* WebMetadataImportView.swift */; };
@@ -163,6 +164,7 @@
 		B10000000000000000000012 /* BookMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataService.swift; sourceTree = "<group>"; };
 		6E5945A7D00A41BD9C7055E7 /* AIBookCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIBookCompletionView.swift; sourceTree = "<group>"; };
 		B10000000000000000000013 /* BookMetadataSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookMetadataSearchView.swift; sourceTree = "<group>"; };
+		CC812B109117417B8649D8D3 /* MetadataUpdateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataUpdateView.swift; sourceTree = "<group>"; };
 		B10000000000000000000014 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B10000000000000000000015 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Release.xcconfig; sourceTree = SOURCE_ROOT; };
 		B10000000000000000000016 /* WebMetadataTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebMetadataTranslator.swift; sourceTree = "<group>"; };
@@ -381,6 +383,7 @@
 				B10000000000000000000025 /* AdvancedSearchView.swift */,
 				6E5945A7D00A41BD9C7055E7 /* AIBookCompletionView.swift */,
 				B10000000000000000000013 /* BookMetadataSearchView.swift */,
+				CC812B109117417B8649D8D3 /* MetadataUpdateView.swift */,
 				B1000000000000000000004D /* LibraryBackupDocument.swift */,
 				B10000000000000000000017 /* WebMetadataImportView.swift */,
 			);
@@ -755,6 +758,7 @@
 				A1000000000000000000001C /* BookRecordMerge.swift in Sources */,
 				86F3C09367A647B9A52E6913 /* AIBookCompletionView.swift in Sources */,
 				A10000000000000000000010 /* BookMetadataSearchView.swift in Sources */,
+				8C62083E48264CD7A29E0C91 /* MetadataUpdateView.swift in Sources */,
 				A10000000000000000000012 /* WebMetadataTranslator.swift in Sources */,
 				A10000000000000000000013 /* WebMetadataImportView.swift in Sources */,
 				A10000000000000000000014 /* ScriptWebTranslator.swift in Sources */,

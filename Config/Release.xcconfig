@@ -3,9 +3,9 @@ APP_COPYRIGHT = Copyright © 2026 MediCoderHZ. MIT License.
 APP_SUPPORT_URL = https:/$()/github.com/MediCoderHZ/Bookshelf/issues
 APP_PRIVACY_URL = https:/$()/github.com/MediCoderHZ/Bookshelf/blob/main/Docs/PRIVACY.md
 APP_METADATA_CONTACT =
-// Enable only after the HTTPS appcast is published and verified.
-BOOKSHELF_UPDATES_ENABLED = NO
-BOOKSHELF_UPDATE_FEED_URL = https:/$()/medicoderhz.github.io/Bookshelf/appcast.xml
+// The public feed follows the repository's main branch.
+BOOKSHELF_UPDATES_ENABLED = YES
+BOOKSHELF_UPDATE_FEED_URL = https:/$()/raw.githubusercontent.com/MediCoderHZ/Bookshelf/main/Distribution/Updates/appcast.xml
 BOOKSHELF_UPDATE_PUBLIC_KEY = h9h4SBSkpRsZtuNnjC1yKp66IAOni/sl7XYIGhT1Kkw=
 PRODUCT_BUNDLE_IDENTIFIER = io.github.medicoderhz.bookshelf
 MARKETING_VERSION = 0.1.0

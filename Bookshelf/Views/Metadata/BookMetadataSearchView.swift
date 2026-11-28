@@ -28,41 +28,53 @@ struct BookMetadataSearchView: View {
 
   var body: some View {
     NavigationStack {
-      VStack(alignment: .leading, spacing: 12) {
-        HStack {
-          TextField(L10n.tr("输入书名或 ISBN"), text: $query)
-            .textFieldStyle(.roundedBorder).onSubmit(startSearch)
-            .accessibilityLabel(L10n.tr("书名或 ISBN"))
-          Picker(L10n.tr("来源"), selection: $sourceID) {
-            Text(L10n.tr("全部已启用来源")).tag("all")
-            ForEach(service.sources) { Text($0.name).tag($0.id) }
-          }.frame(width: 240)
-          Button(L10n.tr("搜索"), action: startSearch)
-            .disabled(isSearching || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-          if isSearching { Button(L10n.tr("停止")) { reset() } }
-        }
-        Text(L10n.tr("点击搜索会将书名或 ISBN 发送至所选来源。选择候选后读取详情，核对版本再填入。停用的解析器不参与搜索。"))
-          .font(.caption).foregroundStyle(.secondary)
+      VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 6) {
+          HStack(spacing: 10) {
+            TextField(L10n.tr("输入书名或 ISBN"), text: $query)
+              .textFieldStyle(.roundedBorder).onSubmit(startSearch)
+              .accessibilityLabel(L10n.tr("书名或 ISBN"))
+            Picker(L10n.tr("来源"), selection: $sourceID) {
+              Text(L10n.tr("全部已启用来源")).tag("all")
+              ForEach(service.sources) { Text(MetadataFieldOrigin.displayName(for: $0.name)).tag($0.id) }
+            }.frame(width: 205)
+            if isSearching {
+              Button(L10n.tr("停止")) { reset() }
+            } else {
+              Button(L10n.tr("搜索"), action: startSearch)
+                .disabled(service.sources.isEmpty || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+          }
+          Text(L10n.tr("搜索会将书名或 ISBN 发送给所选来源。"))
+            .font(.caption).foregroundStyle(.secondary)
+        }.padding(.horizontal, 20).padding(.vertical, 14)
         Divider()
-        HStack(spacing: 0) {
-          resultList.frame(minWidth: 300, idealWidth: 340, maxWidth: 380)
-          Divider()
-          detail.frame(maxWidth: .infinity, maxHeight: .infinity).padding(.leading, 18)
+        if batches.isEmpty {
+          ContentUnavailableView(service.sources.isEmpty ? L10n.tr("没有已启用的搜索来源") : L10n.tr("按书名或 ISBN 搜索"),
+            systemImage: "magnifyingglass")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if batches.allSatisfy({ $0.hits.isEmpty }) {
+          resultList
+        } else {
+          HStack(spacing: 0) {
+            resultList.frame(minWidth: 245, idealWidth: 285, maxWidth: 315)
+            Divider()
+            detail.frame(maxWidth: .infinity, maxHeight: .infinity)
+          }
         }
       }
-      .padding(18)
       .navigationTitle(L10n.tr("搜索书籍元信息"))
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button(L10n.tr("取消")) { reset(); dismiss() }
         }
         ToolbarItem(placement: .confirmationAction) {
-          Button(L10n.tr("填入编辑页"), action: apply)
+          Button(L10n.tr("核对字段…"), action: apply)
             .disabled(preview == nil || isResolving).keyboardShortcut(.defaultAction)
         }
       }
     }
-    .frame(minWidth: 920, minHeight: 650)
+    .frame(minWidth: 740, idealWidth: 840, minHeight: 480, idealHeight: 560)
     .onChange(of: query) { _, _ in reset() }
     .onChange(of: sourceID) { _, _ in reset() }
     .onChange(of: translators.revision) { _, _ in
@@ -72,46 +84,48 @@ struct BookMetadataSearchView: View {
     .onDisappear { reset() }
   }
 
-  @ViewBuilder private var resultList: some View {
-    if batches.isEmpty {
-      ContentUnavailableView(L10n.tr("按书名或 ISBN 搜索"), systemImage: "magnifyingglass",
-        description: Text(L10n.tr("可选择豆瓣、Goodreads、Open Library，或同时查询全部已启用来源。")))
-    } else {
-      List {
-        ForEach(batches) { batch in
-          Section {
-            if batch.isLoading {
-              HStack { ProgressView().controlSize(.small); Text(L10n.tr("正在搜索…")) }
-            } else if let error = batch.error {
-              Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(.secondary)
-              if let query = submittedQuery, let url = service.searchURL(for: query, source: batch.source) {
-                Link(L10n.tr("在浏览器查看搜索结果"), destination: url).font(.caption)
-              }
-            } else if batch.hits.isEmpty {
-              Text(L10n.tr("未找到结果，可尝试其他书名或 ISBN。")).font(.caption).foregroundStyle(.secondary)
+  private var resultList: some View {
+    List {
+      ForEach(batches) { batch in
+        Section {
+          if batch.isLoading {
+            HStack { ProgressView().controlSize(.small); Text(L10n.tr("正在搜索…")) }
+          } else if let error = batch.error {
+            Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(.secondary)
+            if let query = submittedQuery, let url = service.searchURL(for: query, source: batch.source) {
+              Link(L10n.tr("在浏览器查看搜索结果"), destination: url).font(.caption)
             }
-            ForEach(batch.hits) { hit in
-              Button { select(hit) } label: {
-                HStack(alignment: .top) {
-                  Image(systemName: selected?.id == hit.id ? "checkmark.circle.fill" : "book.closed")
-                    .foregroundStyle(selected?.id == hit.id ? Color.accentColor : .secondary)
-                  VStack(alignment: .leading, spacing: 5) {
-                    Text(hit.title).font(.headline).lineLimit(2)
-                    if let subtitle = hit.subtitle, !subtitle.isEmpty {
-                      Text(subtitle).font(.caption).foregroundStyle(.secondary).lineLimit(3)
-                    }
-                    Text(hit.source.name).font(.caption2).foregroundStyle(.secondary)
-                  }
-                  Spacer(minLength: 0)
-                }.padding(.vertical, 5).contentShape(Rectangle())
-              }.buttonStyle(.plain)
-            }
-          } header: {
-            Text(batch.isLoading ? batch.source.name : L10n.tr("\(batch.source.name) · \(batch.hits.count) 项"))
+          } else if batch.hits.isEmpty {
+            Text(L10n.tr("未找到结果，可尝试其他书名或 ISBN。")).font(.caption).foregroundStyle(.secondary)
           }
+          ForEach(batch.hits) { hit in
+            Button { select(hit) } label: {
+              HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 3) {
+                  Text(hit.title).fontWeight(.medium).lineLimit(2)
+                  if let subtitle = hit.subtitle, !subtitle.isEmpty {
+                    Text(subtitle).font(.callout).foregroundStyle(.secondary).lineLimit(2)
+                  }
+                }
+                Spacer(minLength: 0)
+                if selected?.id == hit.id {
+                  Image(systemName: "checkmark").foregroundStyle(Color.accentColor).accessibilityHidden(true)
+                }
+              }
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(.horizontal, 8).padding(.vertical, 6)
+              .background(selected?.id == hit.id ? Color.accentColor.opacity(0.15) : .clear,
+                in: RoundedRectangle(cornerRadius: 5))
+              .contentShape(Rectangle())
+            }.buttonStyle(.plain)
+              .accessibilityAddTraits(selected?.id == hit.id ? .isSelected : [])
+          }
+        } header: {
+          let source = MetadataFieldOrigin.displayName(for: batch.source.name)
+          Text(batch.isLoading ? source : L10n.tr("\(source) · \(batch.hits.count) 项"))
         }
-      }.listStyle(.inset)
-    }
+      }
+    }.listStyle(.inset)
   }
 
   @ViewBuilder private var detail: some View {
@@ -124,8 +138,19 @@ struct BookMetadataSearchView: View {
     } else if let book = preview {
       ScrollView {
         VStack(alignment: .leading, spacing: 14) {
-          Text(book.title).font(.title2.bold()).textSelection(.enabled)
-          Text(L10n.tr("来源：\(book.sourceName)")).font(.caption).foregroundStyle(.secondary)
+          VStack(alignment: .leading, spacing: 5) {
+            Text(book.title).font(.title2.bold()).textSelection(.enabled)
+            if let url = book.sourceURL {
+              Link(destination: url) {
+                HStack(spacing: 4) {
+                  Text(MetadataFieldOrigin.displayName(for: book.sourceName))
+                  Image(systemName: "arrow.up.right").accessibilityHidden(true)
+                }
+              }.font(.callout).help(L10n.tr("查看来源网页"))
+            } else {
+              Text(MetadataFieldOrigin.displayName(for: book.sourceName)).font(.callout).foregroundStyle(.secondary)
+            }
+          }
           if let warning = MetadataSearchService.isbnNotice(query: submittedQuery, book: book) {
             Label(warning, systemImage: "exclamationmark.triangle").font(.callout).foregroundStyle(.orange)
           }
@@ -139,12 +164,7 @@ struct BookMetadataSearchView: View {
             row(L10n.tr("语言"), book.languageCode)
             row(L10n.tr("原书名"), book.originalTitle)
           }
-          if let description = book.bookDescription { Text(description).textSelection(.enabled) }
-          if let url = book.sourceURL { Link(L10n.tr("查看来源网页"), destination: url) }
-          if let detailError { Text(detailError).foregroundStyle(.red) }
-          Text(L10n.tr("仅填充来源提供的字段，缺失信息保留现有内容。请核对版本，最后在编辑页保存。"))
-            .font(.caption).foregroundStyle(.secondary)
-        }.frame(maxWidth: .infinity, alignment: .leading)
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(20)
       }
     } else if let detailError {
       VStack(spacing: 12) {
@@ -153,8 +173,7 @@ struct BookMetadataSearchView: View {
         if let url = selected?.candidate?.url { Link(L10n.tr("在浏览器查看此版本"), destination: url) }
       }
     } else {
-      ContentUnavailableView(L10n.tr("选择一本书"), systemImage: "book.pages",
-        description: Text(L10n.tr("各来源独立显示结果。选择候选，预览作者和出版信息后填入。")))
+      ContentUnavailableView(L10n.tr("选择一本书"), systemImage: "book.pages")
     }
   }
 
@@ -165,7 +184,7 @@ struct BookMetadataSearchView: View {
   }
 
   private func startSearch() {
-    guard let parsed = BookMetadataQuery(query), !isSearching else { return }
+    guard let parsed = BookMetadataQuery(query), !isSearching, !service.sources.isEmpty else { return }
     reset()
     submittedQuery = parsed
     let service = service

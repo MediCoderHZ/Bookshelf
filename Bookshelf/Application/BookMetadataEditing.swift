@@ -2,6 +2,46 @@ import Foundation
 import Observation
 import SwiftData
 
+struct MetadataUpdateProposal: Identifiable {
+  let id = UUID()
+  let current: BookArchive
+  let incoming: BookArchive
+  private(set) var suppliedFields: [BookField] = []
+  private(set) var changedFields: [BookField] = []
+  private(set) var defaultSelection: Set<BookField> = []
+
+  init(current: BookArchive, incoming: BookArchive) {
+    self.current = current
+    self.incoming = incoming
+    for field in BookField.metadataUpdateFields {
+      let replacement = Self.comparisonValue(for: field, in: incoming)
+      guard !replacement.isEmpty else { continue }
+      suppliedFields.append(field)
+      let existing = Self.comparisonValue(for: field, in: current)
+      if existing != replacement { changedFields.append(field) }
+      if existing.isEmpty { defaultSelection.insert(field) }
+    }
+  }
+
+  private static func comparisonValue(for field: BookField, in record: BookArchive) -> [String] {
+    func trimmed(_ value: String?) -> String {
+      value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    }
+    switch BookMetadataValue.read(field, from: record) {
+    case .contributors(let contributors):
+      return contributors.map { trimmed($0.name) }.filter { !$0.isEmpty }
+    case .isbn(let ten, let thirteen):
+      let pair = [trimmed(ten), trimmed(thirteen)]
+      return pair.allSatisfy(\.isEmpty) ? [] : pair
+    case .text(let value):
+      let text = trimmed(value)
+      return text.isEmpty ? [] : [text]
+    case .pages(let count):
+      return count.map { [String($0)] } ?? []
+    }
+  }
+}
+
 /// A field snapshot protects concurrent edits without locking unrelated metadata.
 enum BookMetadataValue: Codable, Equatable {
   case text(String?)

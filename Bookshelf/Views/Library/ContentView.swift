@@ -308,7 +308,12 @@ struct ContentView: View {
   private func libraryToolbarContent(searchWidth: CGFloat) -> some View {
     HStack(spacing: 0) {
       Menu {
-        Button(L10n.tr("添加书籍…"), systemImage: "book") { presentNewBook() }
+        Section(L10n.tr("添加书籍")) {
+          ForEach(BookType.allCases) { type in
+            Button(type.title) { presentNewBook(type: type) }
+          }
+        }
+        Divider()
         Button(L10n.tr("新建笔记"), systemImage: "note.text") { createNoteFromSelection() }
           .disabled(newNoteTarget == .unavailable).help(newNoteHelp)
       } label: { LibraryToolbarLabel(L10n.tr("添加"), systemImage: "plus") }
@@ -442,7 +447,7 @@ struct ContentView: View {
     .sheet(item: $appState.editorDestination) { destination in
       BookEditorView(
         book: destination.book, initialCollectionID: destination.collectionID,
-        startWithSearch: destination.startWithSearch
+        startWithSearch: destination.startWithSearch, initialBookType: destination.initialBookType
       )
       .frame(minWidth: 600, idealWidth: 620, minHeight: 440, idealHeight: 480)
     }
@@ -682,8 +687,8 @@ struct ContentView: View {
     else { pendingLocationBookID = book.id; navigationSelection = destination }
   }
 
-  private func presentNewBook(search: Bool = false) {
-    appState.presentNewBook(collectionID: currentCollectionID, startWithSearch: search)
+  private func presentNewBook(type: BookType? = nil, search: Bool = false) {
+    appState.presentNewBook(type: type, collectionID: currentCollectionID, startWithSearch: search)
   }
 
   private func changeNoteTrash(_ note: NoteRecord, _ trashed: Bool) {

@@ -11,11 +11,13 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 
-def configuration_errors(info, require_enabled=False):
+def configuration_errors(info, require_enabled=False, expected_feed=None):
     errors = []
-    if require_enabled and info.get("BookshelfUpdatesEnabled") != "YES":
-        errors.append("正式发行包尚未启用在线更新（BookshelfUpdatesEnabled != YES）")
+    if (require_enabled or expected_feed is not None) and info.get("BookshelfUpdatesEnabled") != "YES":
+        errors.append("产物未启用在线更新（BookshelfUpdatesEnabled != YES）")
     feed = info.get("SUFeedURL", "")
+    if expected_feed is not None and feed != expected_feed:
+        errors.append("SUFeedURL 与预期更新清单地址不一致")
     try:
         url = urlsplit(feed)
         if (url.scheme != "https" or not url.hostname or url.hostname == "example.com"
@@ -41,9 +43,9 @@ def configuration_errors(info, require_enabled=False):
     return errors
 
 
-def inspect_app(app, distribution=False):
+def inspect_app(app, distribution=False, expected_feed=None):
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
-    errors = configuration_errors(info, require_enabled=distribution)
+    errors = configuration_errors(info, require_enabled=distribution, expected_feed=expected_feed)
     for relative in ("Contents/Frameworks/Sparkle.framework/Sparkle",
                      "Contents/Frameworks/Sparkle.framework/XPCServices/Installer.xpc/Contents/MacOS/Installer",
                      "Contents/Resources/ThirdPartyNotices.txt"):
@@ -114,10 +116,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--app", type=Path, required=True)
     parser.add_argument("--distribution", action="store_true")
+    parser.add_argument("--expected-feed", help="Require updates to be enabled with this exact feed URL")
     parser.add_argument("--appcast", type=Path, help="Also require a build newer than every entry in this feed")
     args = parser.parse_args()
     try:
-        errors = inspect_app(args.app.resolve(), args.distribution)
+        errors = inspect_app(args.app.resolve(), args.distribution, args.expected_feed)
         if args.appcast:
             info = plistlib.loads((args.app / "Contents/Info.plist").read_bytes())
             errors += new_build_errors(info, args.appcast)

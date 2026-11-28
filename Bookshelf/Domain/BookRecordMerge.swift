@@ -4,6 +4,7 @@ enum BookField: String, CaseIterable, Identifiable {
   case bookType, originalLanguage
   case title, subtitle, originalTitle, authors, translators, publisher, publicationDate, isbn, edition
   case pageCount, language, description
+  static let metadataUpdateFields = allCases.filter { $0 != .description }
   var id: String { rawValue }
   var label: String {
     switch self {
@@ -103,23 +104,20 @@ enum BookRecordMerge {
     }
   }
 
-  static func defaultMetadataFields(current: BookArchive, incoming: BookArchive) -> Set<BookField> {
-    Set(BookField.allCases.filter { $0.value(in: current).isEmpty && !$0.value(in: incoming).isEmpty })
-  }
-
   static func applyingMetadata(_ incoming: BookArchive, to current: BookArchive, fields: Set<BookField>) -> BookArchive {
+    let updates = BookField.metadataUpdateFields.filter { fields.contains($0) && !$0.value(in: incoming).isEmpty }
+    guard !updates.isEmpty else { return current }
     var result = current
     var sources = origins(current)
-    for field in fields where !field.value(in: incoming).isEmpty {
+    let incomingSources = origins(incoming)
+    for field in updates {
       field.copy(from: incoming, to: &result)
-      sources[field.rawValue] = origins(incoming)[field.rawValue]
+      sources[field.rawValue] = incomingSources[field.rawValue]
     }
     result.metadataFieldSourcesJSON = encodeOrigins(sources)
-    if !fields.isEmpty {
-      result.metadataSourceName = incoming.metadataSourceName
-      result.metadataSourceURL = incoming.metadataSourceURL
-      result.metadataRetrievedAt = incoming.metadataRetrievedAt
-    }
+    result.metadataSourceName = incoming.metadataSourceName
+    result.metadataSourceURL = incoming.metadataSourceURL
+    result.metadataRetrievedAt = incoming.metadataRetrievedAt
     return result
   }
 
@@ -223,7 +221,6 @@ extension BookArchive {
     isbn13 = metadata.isbn13
     pageCount = metadata.pageCount
     languageCode = metadata.languageCode
-    bookDescription = metadata.bookDescription
     metadataSourceName = metadata.sourceName
     metadataSourceURL = metadata.sourceURL?.absoluteString
     metadataRetrievedAt = Date()

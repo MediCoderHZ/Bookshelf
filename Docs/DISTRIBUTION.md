@@ -9,19 +9,21 @@ Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.
 | 正式 Bundle Identifier | `io.github.medicoderhz.bookshelf` |
 | Debug Bundle Identifier | `io.github.medicoderhz.bookshelf.debug` |
 | 安装包 | `https://github.com/MediCoderHZ/Bookshelf/releases` |
-| 更新清单 | `https://medicoderhz.github.io/Bookshelf/appcast.xml` |
+| 更新清单 | [main 分支的 appcast.xml](https://raw.githubusercontent.com/MediCoderHZ/Bookshelf/main/Distribution/Updates/appcast.xml) |
 | Sparkle | 2.10.1，SwiftPM 与 Xcode 均固定版本并提交锁文件 |
 | 更新签名密钥账户 | macOS 钥匙串中的 `io.github.medicoderhz.bookshelf` |
 
 `Config/Release.xcconfig` 保存公开配置，包括 Ed25519 公钥。私钥由 Sparkle 官方工具生成，保存在本机登录钥匙串中，没有导出到仓库或日志。Apple Developer ID 签名与 Sparkle 更新签名用途不同，两者都应保留。
 
-`BOOKSHELF_UPDATES_ENABLED` 暂为 `NO`，因为线上清单尚未发布；应用可正常使用，“检查更新…”会说明更新服务尚未启用。配置完整且该值为 `YES` 时，应用启动 Sparkle，自动检查前由 Sparkle 请求用户许可，默认不静默安装、不上传系统分析。用户可以从应用菜单选择“检查更新…”。
+当前源码的 Release 配置启用了 Sparkle。选择「Bookshelf → 检查更新…」会从 GitHub 读取清单。只有清单中有适用于当前 Mac、构建号更高的签名版本，应用才会提示升级。自动检查需取得用户许可，系统分析默认关闭。
+
+已发布的 0.1.0 DMG 内置的更新开关为关闭状态。首次支持应用内更新的正式版发布后，0.1.0 用户需从 GitHub Releases 下载一次对应芯片的新版 DMG，退出 Bookshelf 后替换原位置的应用。之后可从应用菜单检查更新。[GitHub Releases](https://github.com/MediCoderHZ/Bookshelf/releases)
 
 ## 首次发布支持 Sparkle 自动更新的应用
 
 1. 将审核后的源码推送至仓库的默认分支 `main`。本地历史原为 `master`；可以在确认后重命名，也可以明确推送 `master:main`。不要强推覆盖已有远程历史。保留基准标签 `baseline-2026-11-15`。
-2. GitHub 仓库 Settings → Pages → Source 选择 **GitHub Actions**。在 Actions 中手动运行 **Publish update feed**，仅发布 `Distribution/Updates/`。初始 `appcast.xml` 是空清单，不含虚构安装包。
-3. 确认更新清单 HTTPS 地址可读取且返回有效 RSS XML，再将 `BOOKSHELF_UPDATES_ENABLED` 改为 `YES`。首次公开安装包必须已包含更新器、公钥和正确清单地址。
+2. 确认公开仓库默认分支 `main` 包含 `Distribution/Updates/appcast.xml`。更新器直接读取该文件的原始内容，无需部署 GitHub Pages。首次准备更新条目前，清单可以为空。
+3. 检查清单原始地址可以通过 HTTPS 读取并返回有效 RSS XML。确认待发布应用内的 `BookshelfUpdatesEnabled` 为 `YES`，`SUFeedURL` 与上表一致，`SUPublicEDKey` 对应发布用的签名密钥。
 4. 配置自己的 Apple Developer Program 团队、Developer ID Application 证书和必要联系信息。本机签名设置使用被忽略的 `Config/Release.local.xcconfig`。不要直接复制仍含 `REPLACE_*` 的示例进行发布，也不要覆盖已确定的应用身份和公钥。
 5. 执行完整测试与本地双架构构建。使用 Xcode 的 Release Archive，Distribute App → Developer ID 路线签名并提交公证。使用 Xcode 的签名嵌入流程处理 Sparkle、其 XPC 服务和 Updater；保持 Release Hardened Runtime 和 App Sandbox 开启。导出的最终 `.app` 必须装订公证票据。
 6. 对最终产物执行：
@@ -34,22 +36,22 @@ Bookshelf 采用 MIT 许可证，通过 GitHub 提供源码与 macOS 应用。0.
 
    打包脚本要求新的输出目录，会验证公钥与钥匙串匹配，使用 `ditto` 保留框架符号链接，生成 ZIP、SHA256SUMS.txt 和带更新包签名的 appcast，并再次验证签名。脚本不会上传或发布。
 7. 在启用 Sparkle 的版本所对应的 GitHub Release 中上传更新清单引用的 ZIP 和校验文件，填写更新说明。用户手动安装时下载 DMG。
-8. 确认安装包下载地址有效后，将生成的 `appcast.xml` 替换 `Distribution/Updates/appcast.xml`，提交并推送，再手动运行 **Publish update feed**。不要先发布指向尚不存在附件的更新条目。
+8. 确认 Release 附件可下载后，用生成的清单替换 `Distribution/Updates/appcast.xml` 并合入远程 `main`。待 GitHub 原始文件缓存刷新，在上表的地址核对新构建号、附件地址和签名。客户端下次检查时即可读取新条目。
 
 `build-release.sh` 生成本地双架构应用，并自动运行 `preflight.py --app` 检查产物。为 GitHub Releases 准备可直接下载的应用时，再使用 `check-update-config.py --distribution` 验证 Developer ID 签名、公证票据和 Sparkle 配置。
 
 ## 后续版本
 
 - 保持正式 Bundle Identifier、应用文件名 `Bookshelf.app`、更新清单地址和签名密钥稳定。
-- 修改 `MARKETING_VERSION`（如 `0.1.1`）并递增 `CURRENT_PROJECT_VERSION`（如 `2`）。构建号必须高于现有清单中的所有构建号，脚本会拒绝覆盖或降级。
+- 修改 `MARKETING_VERSION` 并递增 `CURRENT_PROJECT_VERSION`。新构建号应高于已分发的版本，包括 0.1.0 的构建 9。脚本还会检查新构建号是否高于清单中的所有条目。
 - 从当前主分支的更新清单生成新清单，以保留以前的版本条目。正式更新包必须与对应 Git 标签的源码一致。
 - 重复测试、归档、签名、公证、打包；先上传 Release 附件，再发布新清单。已发布附件和其签名不可单独替换。
-- 发布前在旧版的独立测试书库中创建书籍与笔记，验证发现更新、下载、安装、重启、数据保留；同时测试断网、取消和损坏包拒绝。首次跨版本在线升级仍需在渠道上线后实际验收。
+- 用启用 Sparkle 的旧构建和测试书库验证发现更新、下载、安装、重启及书籍与笔记保留。断网、取消和损坏包拒绝也应单独验证。首次跨版本在线升级仍待正式签名更新包发布后验收。
 
 ## 构建与发布工作流
 
 - `.github/workflows/ci.yml`：默认分支推送、PR 和手动触发时运行发布工具测试、XCTest、双架构未签名构建与 Sparkle 嵌入检查。源码发布阶段只保留检查结果，应用安装包由正式签名发布流程提供。
-- `.github/workflows/pages.yml`：仅由维护者在默认分支手动运行，发布更新清单。仓库需先启用 Pages 的 GitHub Actions 来源。
+- `.github/workflows/pages.yml` 可按需将清单镜像到 GitHub Pages。应用使用上表中的原始文件地址。
 - 自动签名、公证与 Release 上传暂未接入 CI；待首个正式包人工验证通过后再配置受保护的发布环境。
 
 ## 密钥与工具
@@ -79,4 +81,4 @@ Apple 证书缺失时，可以完成源码构建和本地接入测试，但正�
 
 - [Sparkle 接入](https://sparkle-project.org/documentation/)、[SwiftUI 接入](https://sparkle-project.org/documentation/programmatic-setup/)、[沙盒配置](https://sparkle-project.org/documentation/sandboxing/)、[发布更新](https://sparkle-project.org/documentation/publishing/)
 - [Apple Developer ID](https://developer.apple.com/developer-id/)
-- [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)、[配置 GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+- [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)

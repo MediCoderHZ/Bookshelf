@@ -1,6 +1,6 @@
 # Bookshelf 隐私政策（发布草案）
 
-最后更新：2026 年 11 月 25 日
+最后更新于 2026 年 11 月 28 日
 
 应用名称：Bookshelf。维护者：MediCoderHZ。项目地址：[MediCoderHZ/Bookshelf](https://github.com/MediCoderHZ/Bookshelf)。
 
@@ -28,9 +28,9 @@ MCP 默认关闭。开启后，当前 Mac 上能访问该用户专用套接字�
 
 ## 软件更新
 
-正式发行版使用 Sparkle 2 检查和安装更新。手动检查或同意自动检查后，应用会请求 GitHub Pages 上的更新清单；下载更新时访问 GitHub Releases。GitHub 可能收到 IP 地址、应用版本等常规网络信息，不会收到书籍、笔记、标签或书库备份。Sparkle 的可选系统分析默认关闭。相关服务日志受 [GitHub 隐私声明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)约束。
+启用 Sparkle 的版本会在你选择「Bookshelf → 检查更新…」或同意自动检查后，从 `raw.githubusercontent.com` 读取公开的更新清单。下载时会访问 GitHub Releases 上的更新包。GitHub 可能收到 IP 地址、应用版本等常规网络信息。请求不包含书籍、笔记、标签或书库备份。Sparkle 的可选系统分析默认关闭。[更新清单](https://raw.githubusercontent.com/MediCoderHZ/Bookshelf/main/Distribution/Updates/appcast.xml) · [GitHub 隐私声明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 
-首次使用时，Sparkle 会请求自动检查更新的许可；手动检查入口位于应用菜单。应用默认不会静默安装更新。未启用更新服务的开发版不发起更新请求。
+GitHub Releases 已发布的 0.1.0 安装包关闭了应用内更新，不会自动发起上述请求。其用户可在浏览器中访问 GitHub Releases，手动下载安装新版。
 
 ## 网页解析器与自定义规则
 

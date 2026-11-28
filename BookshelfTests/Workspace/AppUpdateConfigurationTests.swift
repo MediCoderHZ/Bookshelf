@@ -5,13 +5,13 @@ import XCTest
 final class AppUpdateConfigurationTests: XCTestCase {
   private var valid: [String: Any] {
     ["BookshelfUpdatesEnabled": "YES",
-     "SUFeedURL": "https://medicoderhz.github.io/Bookshelf/appcast.xml",
+     "SUFeedURL": "https://raw.githubusercontent.com/MediCoderHZ/Bookshelf/main/Distribution/Updates/appcast.xml",
      "SUPublicEDKey": Data(repeating: 7, count: 32).base64EncodedString()]
   }
 
   func testPublishedConfigurationAcceptsHTTPSAndEd25519Key() throws {
     let config = try AppUpdateConfiguration(info: valid)
-    XCTAssertEqual(config.feedURL.host, "medicoderhz.github.io")
+    XCTAssertEqual(config.feedURL.absoluteString, valid["SUFeedURL"] as? String)
     XCTAssertEqual(Data(base64Encoded: config.publicKey)?.count, 32)
   }
 
@@ -27,7 +27,7 @@ final class AppUpdateConfigurationTests: XCTestCase {
   }
 
   func testFeedRejectsPlaintextCredentialsAndUnexpandedSettings() {
-    for feed in ["", "http://medicoderhz.github.io/Bookshelf/appcast.xml", "file:///tmp/appcast.xml",
+    for feed in ["", "http://updates.example.org/appcast.xml", "file:///tmp/appcast.xml",
       "$(BOOKSHELF_UPDATE_FEED_URL)", "https://REPLACE_OWNER.github.io/appcast.xml",
       "https://user:password@updates.example.org/appcast.xml", "https://example.com/appcast.xml",
       "https://updates.example.org/appcast.xml#fragment"] {
