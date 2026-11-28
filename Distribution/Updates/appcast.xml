@@ -7,6 +7,25 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <description>Bookshelf for macOS release feed</description>
     <language>zh-Hans</language>
     <item>
+      <title>Bookshelf 0.1.2</title>
+      <link>https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.2</link>
+      <pubDate>Sat, 28 Nov 2026 02:47:03 GMT</pubDate>
+      <sparkle:version>11</sparkle:version>
+      <sparkle:shortVersionString>0.1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+      <enclosure url="https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.2/Bookshelf-0.1.2-macos-arm64.dmg" length="5804685" type="application/octet-stream" sparkle:edSignature="pbgpncBCqF8lMrI4+rHIRcQzZ3kqdNFEpZl5sq1k3X/8a976n5aYJgHDUuThvUro8BoKRzI+Xq5GvRwvjtXCAw=="></enclosure>
+    </item>
+    <item>
+      <title>Bookshelf 0.1.2</title>
+      <link>https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.2</link>
+      <pubDate>Sat, 28 Nov 2026 02:47:03 GMT</pubDate>
+      <sparkle:version>11</sparkle:version>
+      <sparkle:shortVersionString>0.1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/MediCoderHZ/Bookshelf/releases/download/v0.1.2/Bookshelf-0.1.2-macos-x64.dmg" length="6116152" type="application/octet-stream" sparkle:edSignature="a3EoKecbxgywOGp395x6r7zyOVnP4pPiVrPCWatdUN4oU2MXyq+Blj+Pf+DpOMc3mOmF3RC/lww86ybsQDE/BA=="></enclosure>
+    </item>
+    <item>
       <title>Bookshelf 0.1.1</title>
       <link>https://github.com/MediCoderHZ/Bookshelf/releases/tag/v0.1.1</link>
       <pubDate>Sat, 28 Nov 2026 00:58:59 GMT</pubDate>
@@ -27,6 +46,6 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: b29O+t7NM8ASOAFDG75shVTSst06pIyB790jvzTycDDA+TswU42eMPz5nc4o0/GBw8s3kbhwwyeX5IIEg6maCQ==
-length: 2030
+edSignature: qhH0Nv2NDatSDM+h/bZlDXWOj2yshh+rliGtoUZMMyds+P42j9SQgE9LdKmgntNZ8lAjx+STQJPRlSrqc/7dBA==
+length: 3449
 -->
